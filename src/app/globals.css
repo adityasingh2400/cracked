@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #05050A;
+    --ink: #0A0A0F;
+    --gold: #D4AF37;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: #E8E8EC;
+    font-family: var(--font-sans), Inter, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(139, 92, 246, 0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 50% 110%, rgba(236, 72, 153, 0.10) 0%, transparent 60%),
+      var(--bg);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background: rgba(212, 175, 55, 0.3);
+    color: #fff;
+  }
+}
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+
+  /* foil text — gradient clip used for major headlines */
+  .text-foil {
+    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 35%, #FCD34D 65%, #06B6D4 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: foil-pan 12s ease-in-out infinite;
+  }
+
+  .text-gold {
+    color: var(--gold);
+  }
+
+  /* dotted divider */
+  .divider-dots {
+    background-image: linear-gradient(90deg, rgba(255,255,255,0.18) 50%, transparent 0);
+    background-size: 6px 1px;
+    background-repeat: repeat-x;
+    background-position: left center;
+    height: 1px;
+  }
+}
+
+@keyframes foil-pan {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+@keyframes blink {
+  0%, 60% { opacity: 1; }
+  61%, 100% { opacity: 0; }
+}
+
+.cursor-blink::after {
+  content: "▌";
+  margin-left: 4px;
+  animation: blink 1s steps(2) infinite;
+  color: var(--gold);
+}
+
+/* utility for tabular numerals on stat displays */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
