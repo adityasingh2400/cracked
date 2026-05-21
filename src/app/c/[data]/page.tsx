@@ -2,8 +2,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { HoloCard } from "@/components/HoloCard";
 import { ShareBar } from "@/components/ShareBar";
+import { ArchetypeMini } from "@/components/ArchetypeMini";
+import { HoloTile } from "@/components/HoloTile";
 import { decodeResult } from "@/lib/encode";
 import { archetypeBySlug, ARCHETYPES } from "@/data/archetypes";
+import { TYPES_META } from "@/data/types-meta";
 import type { Metadata } from "next";
 
 interface PageProps {
@@ -30,6 +33,14 @@ export default async function CardPage({ params }: PageProps) {
   if (!result) notFound();
 
   const archetype = archetypeBySlug(result.matchedArchetype) ?? ARCHETYPES[0];
+  const primaryType = TYPES_META[archetype.types[0]];
+  const allTypes = archetype.types.map((t) => TYPES_META[t]);
+
+  // Neighbors: one above, one below in the dex, same type if possible
+  const sameTypeArchs = ARCHETYPES.filter((a) => a.types[0] === archetype.types[0]);
+  const idx = sameTypeArchs.findIndex((a) => a.slug === archetype.slug);
+  const above = sameTypeArchs[idx + 1] ?? ARCHETYPES.find((a) => a.number === archetype.number + 1);
+  const below = sameTypeArchs[idx - 1] ?? ARCHETYPES.find((a) => a.number === archetype.number - 1);
 
   return (
     <div className="px-5 sm:px-8 pt-12 pb-16">
@@ -38,41 +49,115 @@ export default async function CardPage({ params }: PageProps) {
         <HoloCard result={result} archetype={archetype} />
       </section>
 
-      {/* SHARE BAR */}
+      {/* SHARE */}
       <section className="mt-10 max-w-2xl mx-auto">
         <ShareBar result={result} />
       </section>
 
-      {/* ARCHETYPE CALLOUT */}
-      <section className="mt-16 max-w-3xl mx-auto">
-        <div className="text-center mb-5">
-          <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-gold/80">
+      {/* ARCHETYPE CALLOUT — type-themed */}
+      <section className="mt-20 max-w-6xl mx-auto">
+        <div className="text-center mb-6">
+          <div
+            className="font-mono text-[10px] tracking-[0.28em] uppercase"
+            style={{ color: primaryType.accent }}
+          >
             Dex match · {Math.round(result.archetypeMatchScore * 100)}% confidence
           </div>
-          <h2 className="mt-2 font-display text-3xl text-white">
-            You most resemble <Link href={`/dex/${archetype.slug}`} className="text-foil">{archetype.name}</Link>
+          <h2 className="mt-2 font-display text-3xl sm:text-4xl text-white">
+            You most resemble{" "}
+            <Link
+              href={`/dex/${archetype.slug}`}
+              className="transition hover:opacity-80"
+              style={{
+                background: `linear-gradient(90deg, ${primaryType.accent}, #fff)`,
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+              }}
+            >
+              {archetype.name}
+            </Link>
           </h2>
           <div className="mt-1.5 font-display italic text-white/55">"{archetype.tagline}"</div>
+
+          {/* type chips */}
+          <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
+            {allTypes.map((m) => (
+              <Link
+                key={m.key}
+                href={`/dex/types/${m.slug}`}
+                className="font-mono text-[10px] tracking-[0.2em] uppercase px-2.5 py-1 rounded border transition hover:brightness-125"
+                style={{
+                  color: m.accent,
+                  borderColor: `${m.accent}40`,
+                  background: `${m.accent}08`,
+                }}
+              >
+                {m.glyph} {m.name}
+              </Link>
+            ))}
+          </div>
         </div>
-        <Link
-          href={`/dex/${archetype.slug}`}
-          className="block rounded-2xl border border-white/10 bg-white/[0.02] p-6 hover:border-gold/30 hover:bg-gold/[0.02] transition group"
-        >
-          <div className="flex items-baseline justify-between mb-3">
-            <span className="font-mono text-[10px] tracking-[0.2em] text-white/45">
-              #{String(archetype.number).padStart(3, "0")} · {archetype.types.join(" · ").toUpperCase()}
-            </span>
-            <span className="font-mono text-[10px] tracking-[0.18em] text-white/45 group-hover:text-gold">
+
+        <div className="grid grid-cols-1 lg:grid-cols-[440px_1fr] gap-6">
+          {/* Holo tile preview */}
+          <div className="mx-auto w-full max-w-md">
+            <HoloTile
+              href={`/dex/${archetype.slug}`}
+              foil={primaryType.foil}
+              accent={primaryType.accent}
+              glyph={archetype.glyph}
+              eyebrow={`#${String(archetype.number).padStart(3, "0")} · ${primaryType.name.toUpperCase()}`}
+              title={archetype.name}
+              subtitle={archetype.tagline}
+              caption={`${archetype.scoreRange[0]}–${archetype.scoreRange[1]} / 100 · tier ${archetype.tier}`}
+              aspect="card"
+              intensity={0.7}
+            />
+          </div>
+
+          {/* Profile + justification */}
+          <div
+            className="rounded-2xl p-6 sm:p-7 border bg-white/[0.02]"
+            style={{
+              borderColor: `${primaryType.accent}25`,
+              boxShadow: `0 0 32px ${primaryType.accent}10`,
+            }}
+          >
+            <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/45 mb-2">
+              The profile
+            </div>
+            <p className="text-[15px] text-white/85 leading-relaxed mb-5 text-pretty">{archetype.profile}</p>
+            <div
+              className="font-mono text-[10px] tracking-[0.22em] uppercase mb-2"
+              style={{ color: primaryType.accent }}
+            >
+              Why this rank
+            </div>
+            <p className="text-[14px] text-white/70 leading-relaxed text-pretty mb-5">{archetype.justification}</p>
+            <Link
+              href={`/dex/${archetype.slug}`}
+              className="inline-block font-mono text-[11px] tracking-[0.18em] uppercase transition hover:opacity-80"
+              style={{ color: primaryType.accent }}
+            >
               full entry →
-            </span>
+            </Link>
           </div>
-          <p className="text-[15px] text-white/80 leading-relaxed mb-3 text-pretty">{archetype.profile}</p>
-          <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-white/40 mb-2">
-            Why this archetype ranks here
-          </div>
-          <p className="text-[14px] text-white/65 leading-relaxed text-pretty">{archetype.justification}</p>
-        </Link>
+        </div>
       </section>
+
+      {/* NEIGHBORING ARCHETYPES */}
+      {(below || above) && (
+        <section className="mt-16 max-w-6xl mx-auto">
+          <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/45 mb-4 text-center">
+            One rank below · one rank above
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
+            {below && <ArchetypeMini archetype={below} />}
+            {above && <ArchetypeMini archetype={above} />}
+          </div>
+        </section>
+      )}
 
       {/* BREAKDOWN */}
       <section className="mt-20 max-w-3xl mx-auto">
