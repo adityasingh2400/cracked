@@ -74,21 +74,21 @@ const GRADE_THEMES: Record<CardGrade, GradeTheme> = {
     primary: "#FFE5A8",
     secondary: "#E8B547",
     deep: "#7A1A1A",
-    ring: "rgba(255, 197, 100, 0.85)",
+    ring: "rgba(255, 197, 100, 0.95)",
     scoreFrom: "#FFFFFF",
     scoreMid: "#FFD27A",
     scoreTo: "#FF5A2E",
     baseGradient:
-      "radial-gradient(ellipse at 50% 110%, #4A0E0E 0%, transparent 55%), radial-gradient(ellipse at 50% 0%, #3A1F08 0%, transparent 60%), linear-gradient(155deg, #1C0A05 0%, #0A0402 100%)",
+      "radial-gradient(ellipse at 50% 110%, #6A0E0E 0%, transparent 55%), radial-gradient(ellipse at 50% 0%, #3A1F08 0%, transparent 60%), linear-gradient(155deg, #1C0A05 0%, #0A0402 100%)",
     foilIntensity: 1.0,
     foilColors: [
       "#FFD27A", "#FF5A2E", "#EC4899", "#8B5CF6",
       "#06B6D4", "#FCD34D", "#FF5A2E", "#FFD27A",
     ],
     desaturate: 0,
-    sparkleCount: 28,
+    sparkleCount: 36,
     sparkleColor: "#FFE5A8",
-    embers: 14,
+    embers: 26,
     lightning: true,
     haloBurst: true,
     cornerCrests: true,
@@ -102,24 +102,24 @@ const GRADE_THEMES: Record<CardGrade, GradeTheme> = {
     primary: "#FFE5A8",
     secondary: "#E8B547",
     deep: "#B98A2E",
-    ring: "rgba(232, 181, 71, 0.7)",
+    ring: "rgba(232, 181, 71, 0.85)",
     scoreFrom: "#FFFFFF",
     scoreMid: "#FFE5A8",
     scoreTo: "#B98A2E",
     baseGradient:
-      "radial-gradient(ellipse at 50% 0%, rgba(232,181,71,0.10) 0%, transparent 55%), linear-gradient(155deg, #1C130A 0%, #0E0805 100%)",
-    foilIntensity: 0.82,
+      "radial-gradient(ellipse at 50% 110%, rgba(232,181,71,0.18) 0%, transparent 55%), radial-gradient(ellipse at 50% 0%, rgba(232,181,71,0.10) 0%, transparent 55%), linear-gradient(155deg, #1C130A 0%, #0E0805 100%)",
+    foilIntensity: 0.88,
     foilColors: ["#8B5CF6", "#EC4899", "#FCD34D", "#06B6D4", "#8B5CF6", "#FCD34D", "#8B5CF6"],
     desaturate: 0,
-    sparkleCount: 18,
+    sparkleCount: 22,
     sparkleColor: "#FFE5A8",
-    embers: 6,
-    lightning: false,
+    embers: 14,
+    lightning: true,
     haloBurst: true,
     cornerCrests: true,
     borderStyle: "double-gold",
     badgeAnimate: false,
-    cardGlow: 0.8,
+    cardGlow: 0.85,
   },
   a: {
     rarity: "RARE HOLO",
@@ -353,17 +353,18 @@ export function HoloCard({
     }));
   }, [theme.sparkleCount, result.total, archetype.number, grade]);
 
-  // Stable ember positions — anchored to the bottom edge.
+  // Stable ember positions — anchored to the bottom edge. Bigger + brighter
+  // for higher grades so the fire is unmistakable.
   const embers = useMemo(() => {
     const rng = mulberry32(result.total * 7919 + archetype.number);
     return Array.from({ length: theme.embers }, (_, i) => ({
-      x: 6 + (i / Math.max(1, theme.embers - 1)) * 88 + (rng() - 0.5) * 6,
-      delay: rng() * 4,
-      duration: 2.6 + rng() * 1.8,
-      size: 1.6 + rng() * 2.6,
+      x: 4 + (i / Math.max(1, theme.embers - 1)) * 92 + (rng() - 0.5) * 8,
+      delay: rng() * 3,
+      duration: 2.2 + rng() * 1.6,
+      size: grade === "mega-s" ? 3 + rng() * 4.5 : 2.5 + rng() * 3.5,
       hue: rng(),
     }));
-  }, [theme.embers, result.total, archetype.number]);
+  }, [theme.embers, result.total, archetype.number, grade]);
 
   const sheenAngle = 95 + tilt.ry * 1.4;
 
@@ -476,52 +477,61 @@ export function HoloCard({
           />
         )}
 
-        {/* Ember layer — fire rising from bottom (mega-s + s) */}
+        {/* Ember layer — fire rising from bottom (mythic + ascended) */}
         {theme.embers > 0 && (
-          <div className="absolute inset-0 rounded-[24px] overflow-hidden pointer-events-none">
-            {embers.map((e, i) => (
-              <span
-                key={i}
-                className="absolute"
-                style={{
-                  left: `${e.x}%`,
-                  bottom: -2,
-                  width: e.size,
-                  height: e.size * 1.6,
-                  borderRadius: "50%",
-                  background: `radial-gradient(circle, #FFF1C0 0%, ${e.hue > 0.6 ? "#FFD27A" : "#FF7A2E"} 35%, ${e.hue > 0.6 ? "#FF5A2E" : "#B91C1C"} 75%, transparent)`,
-                  filter: "blur(0.5px)",
-                  opacity: 0,
-                  animation: `holoEmberRise ${e.duration}s ease-out ${e.delay}s infinite`,
-                }}
-              />
-            ))}
-            {/* warm floor glow */}
+          <div className="absolute inset-0 rounded-[24px] overflow-hidden pointer-events-none z-[5]">
+            {embers.map((e, i) => {
+              const isMega = grade === "mega-s";
+              const hot = isMega || e.hue > 0.5;
+              const grad = hot
+                ? `radial-gradient(circle, #FFFEF2 0%, #FFE5A8 22%, #FFA53E 48%, #FF5A2E 72%, rgba(176,30,30,0.6) 88%, transparent 100%)`
+                : `radial-gradient(circle, #FFF8D9 0%, #FFD27A 30%, #E8B547 60%, rgba(184,134,43,0.5) 85%, transparent 100%)`;
+              return (
+                <span
+                  key={i}
+                  className="absolute"
+                  style={{
+                    left: `${e.x}%`,
+                    bottom: -4,
+                    width: e.size,
+                    height: e.size * 1.7,
+                    borderRadius: "50%",
+                    background: grad,
+                    boxShadow: `0 0 ${e.size * 3}px ${e.size * 0.8}px ${hot ? "rgba(255,150,60,0.55)" : "rgba(232,181,71,0.45)"}`,
+                    filter: "blur(0.4px)",
+                    opacity: 0,
+                    mixBlendMode: "screen",
+                    animation: `holoEmberRise ${e.duration}s ease-out ${e.delay}s infinite`,
+                  }}
+                />
+              );
+            })}
+            {/* warm floor glow — thicker and brighter */}
             <div
-              className="absolute left-0 right-0 bottom-0 h-1/3 pointer-events-none"
+              className="absolute left-0 right-0 bottom-0 h-1/2 pointer-events-none"
               style={{
                 background:
                   grade === "mega-s"
-                    ? "radial-gradient(ellipse at 50% 100%, rgba(255,90,46,0.45) 0%, rgba(255,90,46,0.0) 70%)"
-                    : "radial-gradient(ellipse at 50% 100%, rgba(232,181,71,0.30) 0%, transparent 70%)",
+                    ? "radial-gradient(ellipse 80% 100% at 50% 110%, rgba(255,140,60,0.65) 0%, rgba(255,90,46,0.30) 35%, rgba(178,30,30,0.0) 75%)"
+                    : "radial-gradient(ellipse 70% 100% at 50% 110%, rgba(255,210,122,0.55) 0%, rgba(232,181,71,0.25) 40%, transparent 75%)",
                 mixBlendMode: "screen",
-                animation: "holoFloorBreathe 4s ease-in-out infinite",
+                animation: "holoFloorBreathe 3.2s ease-in-out infinite",
               }}
             />
           </div>
         )}
 
-        {/* MEGA-only: lightning streak */}
+        {/* Lightning streak — Mythic + Ascended both, Mythic more subtle */}
         {theme.lightning && (
           <svg
-            className="absolute inset-0 w-full h-full rounded-[24px] pointer-events-none"
+            className="absolute inset-0 w-full h-full rounded-[24px] pointer-events-none z-[6]"
             viewBox="0 0 200 300"
             preserveAspectRatio="none"
             style={{ mixBlendMode: "screen" }}
           >
             <defs>
-              <filter id="lightning-glow">
-                <feGaussianBlur stdDeviation="2.5" result="b" />
+              <filter id={`lightning-glow-${grade}`}>
+                <feGaussianBlur stdDeviation={grade === "mega-s" ? "3" : "2"} result="b" />
                 <feMerge>
                   <feMergeNode in="b" />
                   <feMergeNode in="SourceGraphic" />
@@ -532,19 +542,39 @@ export function HoloCard({
               d="M 130 -10 L 90 90 L 120 100 L 70 220 L 105 200 L 60 310"
               fill="none"
               stroke="#FFF7D1"
-              strokeWidth="2.2"
-              filter="url(#lightning-glow)"
-              style={{ animation: "holoLightning 5.4s steps(1,end) infinite" }}
+              strokeWidth={grade === "mega-s" ? "2.8" : "2.0"}
+              filter={`url(#lightning-glow-${grade})`}
+              style={{
+                animation: grade === "mega-s"
+                  ? "holoLightning 3.6s steps(1,end) infinite"
+                  : "holoLightning 6.2s steps(1,end) infinite",
+                opacity: grade === "mega-s" ? 1 : 0.75,
+              }}
             />
             <path
               d="M 50 -10 L 75 80 L 55 95 L 95 200 L 70 215 L 90 310"
               fill="none"
               stroke="#FFE5A8"
-              strokeWidth="1.4"
-              filter="url(#lightning-glow)"
-              style={{ animation: "holoLightning2 7.1s steps(1,end) infinite" }}
-              opacity="0.7"
+              strokeWidth={grade === "mega-s" ? "1.8" : "1.2"}
+              filter={`url(#lightning-glow-${grade})`}
+              style={{
+                animation: grade === "mega-s"
+                  ? "holoLightning2 4.8s steps(1,end) infinite"
+                  : "holoLightning2 8.4s steps(1,end) infinite",
+                opacity: grade === "mega-s" ? 0.85 : 0.55,
+              }}
             />
+            {grade === "mega-s" && (
+              <path
+                d="M 170 -10 L 140 70 L 165 85 L 130 180 L 155 195 L 110 310"
+                fill="none"
+                stroke="#FFFFFF"
+                strokeWidth="1.6"
+                filter={`url(#lightning-glow-${grade})`}
+                style={{ animation: "holoLightning3 5.2s steps(1,end) infinite" }}
+                opacity="0.9"
+              />
+            )}
           </svg>
         )}
 
@@ -705,7 +735,7 @@ export function HoloCard({
                 age={result.league.age}
                 ageSource={result.league.ageSource}
                 percentile={result.league.percentile}
-                leagueLabel={result.league.leagueLabel}
+                leagueLabel={league.label}
                 accent={league.accent}
                 editable={interactive}
               />
@@ -804,31 +834,40 @@ export function HoloCard({
           50%      { opacity: 0.95; transform: scale(1); }
         }
         @keyframes holoEmberRise {
-          0%   { transform: translateY(0) scale(1); opacity: 0; }
-          12%  { opacity: 0.95; }
-          70%  { transform: translateY(-220px) scale(0.5); opacity: 0.55; }
-          100% { transform: translateY(-340px) scale(0.15); opacity: 0; }
+          0%   { transform: translateY(0) scale(1.2); opacity: 0; }
+          8%   { opacity: 1; }
+          40%  { transform: translateY(-160px) scale(0.85); opacity: 0.9; }
+          75%  { transform: translateY(-300px) scale(0.45); opacity: 0.5; }
+          100% { transform: translateY(-420px) scale(0.1); opacity: 0; }
         }
         @keyframes holoFloorBreathe {
-          0%, 100% { opacity: 0.55; }
-          50%      { opacity: 0.95; }
+          0%, 100% { opacity: 0.6; transform: scaleY(1); }
+          50%      { opacity: 1; transform: scaleY(1.08); }
         }
         @keyframes holoHaloPulse {
-          0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(1); }
-          50%      { opacity: 0.85; transform: translate(-50%, -50%) scale(1.06); }
+          0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+          50%      { opacity: 0.95; transform: translate(-50%, -50%) scale(1.08); }
         }
         @keyframes holoMegaShimmer {
           0%   { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
         @keyframes holoLightning {
-          0%, 88%, 100% { opacity: 0; }
-          89%, 91%      { opacity: 1; }
-          90%, 92%      { opacity: 0.2; }
+          0%, 70%, 100% { opacity: 0; }
+          71%, 73%      { opacity: 1; }
+          72%           { opacity: 0.3; }
+          74%, 76%      { opacity: 0.85; }
+          75%           { opacity: 0.1; }
         }
         @keyframes holoLightning2 {
-          0%, 60%, 100% { opacity: 0; }
-          61%, 62%      { opacity: 0.9; }
+          0%, 45%, 100% { opacity: 0; }
+          46%, 48%      { opacity: 0.9; }
+          47%           { opacity: 0.2; }
+        }
+        @keyframes holoLightning3 {
+          0%, 30%, 100% { opacity: 0; }
+          31%, 33%      { opacity: 1; }
+          32%           { opacity: 0.2; }
         }
         @keyframes holoBadgePulse {
           0%, 100% { box-shadow: 0 0 30px ${theme.ring}, inset 0 -3px 6px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.35); }

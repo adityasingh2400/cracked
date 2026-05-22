@@ -80,6 +80,16 @@ export async function GET(req: NextRequest) {
       result.league = { ...result.league, leagueTier: "S", percentile: 99 };
     }
   }
+
+  // Mythic preview: overall A but league S — the "league-S only" frame.
+  const mythic = req.nextUrl.searchParams.get("mythic") === "1";
+  if (mythic && result.league && result.league.leagueTier !== "S") {
+    result = {
+      ...result,
+      tier: "A" as const,
+      league: { ...result.league, leagueTier: "S" as const, percentile: 93 },
+    };
+  }
   const encoded = encodeResult(result);
   return NextResponse.json({ encoded, result });
 }

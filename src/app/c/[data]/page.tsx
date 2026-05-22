@@ -7,6 +7,7 @@ import { HoloTile } from "@/components/HoloTile";
 import { decodeResult } from "@/lib/encode";
 import { archetypeBySlug, ARCHETYPES } from "@/data/archetypes";
 import { TYPES_META } from "@/data/types-meta";
+import { getLeague } from "@/data/leagues";
 import type { Metadata } from "next";
 
 interface PageProps {
@@ -17,9 +18,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { data } = await params;
   const result = decodeResult(data);
   if (!result) return { title: "Cracked · result not found" };
-  const league = result.league
-    ? ` · ${result.league.leagueTier} at ${result.league.leagueLabel}`
-    : "";
+  // Derive label from the league key on every render — stale labels baked
+  // into older encoded share-links are ignored in favor of the current names.
+  const liveLabel = result.league ? getLeague(result.league.league).label : "";
+  const league = result.league ? ` · ${result.league.leagueTier} at ${liveLabel}` : "";
   return {
     title: `${result.name} · ${result.total}/100 · TIER ${result.tier}${league} · Cracked`,
     description: result.verdict,
@@ -68,7 +70,10 @@ export default async function CardPage({ params }: PageProps) {
               You scored <span className="text-white font-medium">{result.total}/100</span>{" "}
               against the absolute rubric (tier{" "}
               <span className="text-white">{result.tier}</span>). At{" "}
-              <span className="text-white">{result.league.leagueLabel}</span> your cohort tier is{" "}
+              <span className="text-white">
+                {getLeague(result.league.league).label}
+              </span>{" "}
+              your cohort tier is{" "}
               <span className="text-white">{result.league.leagueTier}</span> — same score, different
               bar. Older cohorts aren&apos;t more cracked, they&apos;ve just had more time to stack
               signals, so the bar moves with you.{" "}
