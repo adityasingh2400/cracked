@@ -32,6 +32,9 @@ export async function GET() {
     verdict: "MIT EECS, Anthropic, HackMIT grand prize, and a Mercury Fellowship before age 23. Add a YC batch or a viral side project and they're untouchable.",
     flavor: "Compiled in basements. Shipped at dawn.",
     modelUsed: "regex-fallback",
+    age: 23,
+    ageSource: "user",
+    ageConfidence: 1,
   });
   const encoded = encodeResult(result);
   return NextResponse.json({ encoded, result });

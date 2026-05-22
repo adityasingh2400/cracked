@@ -1,6 +1,9 @@
 // POST /api/analyze
 // Body: multipart/form-data with `pdf` file (LinkedIn "Save to PDF" export)
-// Returns: { id, encoded, result }
+//       Optional `age` (number) to override the model's inference up front.
+// Returns: { id, encoded, result, ageInference } — the client may present a
+//          confirm-or-edit step for the inferred age and re-call /api/place
+//          to swap in the corrected league without re-running extraction.
 
 import { NextRequest, NextResponse } from "next/server";
 import { nanoid } from "nanoid";
@@ -16,6 +19,10 @@ export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
     const file = formData.get("pdf");
+    const rawAge = formData.get("age");
+    const userAge = typeof rawAge === "string" && rawAge.trim() !== ""
+      ? Math.round(Number(rawAge))
+      : null;
 
     if (!(file instanceof File)) {
       return NextResponse.json({ error: "Missing `pdf` file" }, { status: 400 });
@@ -45,6 +52,20 @@ export async function POST(req: NextRequest) {
     const id = nanoid(10);
     const name = extraction.name || guessedName || "Anonymous";
 
+    // User-supplied age trumps inference. Otherwise use the model's guess.
+    let age: number | undefined;
+    let ageSource: "user" | "inferred" = "inferred";
+    let ageConfidence: number | undefined;
+    if (userAge && userAge >= 8 && userAge <= 100) {
+      age = userAge;
+      ageSource = "user";
+      ageConfidence = 1;
+    } else if (extraction.ageInference.age > 0) {
+      age = extraction.ageInference.age;
+      ageSource = "inferred";
+      ageConfidence = extraction.ageInference.confidence;
+    }
+
     const result = scoreSignals({
       id,
       name,
@@ -52,11 +73,19 @@ export async function POST(req: NextRequest) {
       verdict: extraction.verdict,
       flavor: extraction.flavor,
       modelUsed,
+      age,
+      ageSource,
+      ageConfidence,
     });
 
     const encoded = encodeResult(result);
 
-    return NextResponse.json({ id, encoded, result });
+    return NextResponse.json({
+      id,
+      encoded,
+      result,
+      ageInference: extraction.ageInference,
+    });
   } catch (err) {
     console.error("/api/analyze failed:", err);
     const msg = err instanceof Error ? err.message : String(err);

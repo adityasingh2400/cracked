@@ -13,7 +13,7 @@ export default function About() {
           The Cracked Method
         </div>
         <h1 className="font-display font-semibold text-[56px] sm:text-[76px] leading-[0.95] tracking-tight text-white">
-          How it <span className="text-foil">works</span>
+          How it <span className="text-amber-foil">works</span>
         </h1>
       </div>
 
@@ -104,7 +104,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function ListItem({ n, children }: { n: number; children: React.ReactNode }) {
   return (
     <li className="flex gap-4">
-      <span className="font-display text-2xl text-foil w-8 shrink-0">{n}</span>
+      <span className="font-display text-2xl text-amber-foil w-8 shrink-0">{n}</span>
       <span className="pt-1">{children}</span>
     </li>
   );

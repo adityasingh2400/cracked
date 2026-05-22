@@ -19,7 +19,7 @@ export default function Landing() {
         <h1 className="font-display font-semibold leading-[0.95] tracking-tight text-[68px] sm:text-[120px]">
           <span className="text-white">how cracked</span>
           <br />
-          <span className="text-foil">are you?</span>
+          <span className="text-amber-foil">are you?</span>
         </h1>
         <p className="mt-7 max-w-xl mx-auto text-[16px] sm:text-[17px] text-white/65 text-balance leading-relaxed">
           Drop your LinkedIn PDF. We weigh every signal — schools, jobs, hackathons, fellowships,
@@ -41,7 +41,7 @@ export default function Landing() {
           {STEPS.map((s, i) => (
             <li key={i} className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
               <div className="flex items-baseline gap-3 mb-2.5">
-                <span className="font-display text-3xl font-semibold text-foil">{i + 1}</span>
+                <span className="font-display text-3xl font-semibold text-amber-foil">{i + 1}</span>
                 <span className="font-mono text-[10px] tracking-[0.16em] text-white/40 uppercase">
                   {s.label}
                 </span>
@@ -63,7 +63,7 @@ export default function Landing() {
               The {TYPES_ORDERED.length} types
             </div>
             <h2 className="mt-2 font-display text-4xl text-white">
-              Pick your <span className="text-foil">element</span>
+              Pick your <span className="text-amber-foil">element</span>
             </h2>
           </div>
           <Link
@@ -89,7 +89,7 @@ export default function Landing() {
               S-tier canon · the mythic peak
             </div>
             <h2 className="mt-2 font-display text-4xl text-white">
-              The names you hear at <span className="text-foil">dinners</span>
+              The names you hear at <span className="text-amber-foil">dinners</span>
             </h2>
           </div>
           <Link

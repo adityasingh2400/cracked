@@ -17,11 +17,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { data } = await params;
   const result = decodeResult(data);
   if (!result) return { title: "Cracked · result not found" };
+  const league = result.league
+    ? ` · ${result.league.leagueTier} in ${result.league.leagueLabel}`
+    : "";
   return {
-    title: `${result.name} · ${result.total}/100 · TIER ${result.tier} · Cracked`,
+    title: `${result.name} · ${result.total}/100 · TIER ${result.tier}${league} · Cracked`,
     description: result.verdict,
     openGraph: {
-      title: `${result.name} scored ${result.total}/100 on Cracked`,
+      title: `${result.name} scored ${result.total}/100${league} on Cracked`,
       description: result.verdict,
     },
   };

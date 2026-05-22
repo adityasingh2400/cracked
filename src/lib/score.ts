@@ -3,11 +3,13 @@
 
 import { RUBRIC, TIER_POINTS, matchEntry, tierFromTotal } from "./tier-list";
 import { matchArchetype } from "./match";
+import { placeInLeague } from "./leagues";
 import type {
   CategoryKey,
   CategoryScore,
   CrackedResult,
   ExtractedSignal,
+  LeaguePlacement,
   ScoredSignal,
   SubStats,
   Tier,
@@ -15,15 +17,21 @@ import type {
 
 const tierRank: Record<Tier, number> = { S: 4, A: 3, B: 2, C: 1, D: 0 };
 
-export function scoreSignals(args: {
+export interface ScoreInput {
   id: string;
   name: string;
   signals: ExtractedSignal[];
   verdict: string;
   flavor: string;
   modelUsed: "claude" | "regex-fallback";
-}): CrackedResult {
-  const { id, name, signals, verdict, flavor, modelUsed } = args;
+  /** When known, used to place the result in an age-relative league. */
+  age?: number;
+  ageSource?: "user" | "inferred";
+  ageConfidence?: number;
+}
+
+export function scoreSignals(args: ScoreInput): CrackedResult {
+  const { id, name, signals, verdict, flavor, modelUsed, age, ageSource, ageConfidence } = args;
 
   const categories: CategoryScore[] = RUBRIC.map((rubric) => {
     // Score every signal in this category
@@ -71,11 +79,23 @@ export function scoreSignals(args: {
   const subStats = computeSubStats(categories);
   const match = matchArchetype({ total, tier, subStats });
 
+  // Age-relative placement (optional — older share links predate this).
+  let league: LeaguePlacement | undefined;
+  if (typeof age === "number" && age > 0 && age < 120) {
+    league = placeInLeague({
+      total,
+      age,
+      ageSource: ageSource ?? "inferred",
+      ageConfidence,
+    });
+  }
+
   return {
     id,
     name,
     total,
     tier,
+    league,
     subStats,
     categories,
     verdict: verdict || defaultVerdict(total, tier, name),

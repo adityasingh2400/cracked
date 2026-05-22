@@ -18,3 +18,4 @@ data/*.db-*
 *.tsbuildinfo
 next-env.d.ts
 .vercel
+.gstack/

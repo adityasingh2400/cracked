@@ -15,11 +15,24 @@ const SignalSchema = z.object({
   detail: z.string().optional(),
 });
 
+const AgeInferenceSchema = z.object({
+  /** Best-guess current age in years. Use 0 if there's truly nothing to infer from. */
+  age: z.number().int().min(0).max(120),
+  /** 0-1 confidence in the inference. */
+  confidence: z.number().min(0).max(1),
+  /**
+   * Short, transparent reasoning the UI shows next to the inferred age so the
+   * user can sanity-check or correct. E.g. "BS 2022 → ~25" or "HS senior 2025 → ~18".
+   */
+  reasoning: z.string(),
+});
+
 const ExtractionSchema = z.object({
   name: z.string(),
   signals: z.array(SignalSchema),
   verdict: z.string(),
   flavor: z.string(),
+  ageInference: AgeInferenceSchema,
 });
 
 export type ExtractionResult = z.infer<typeof ExtractionSchema>;
@@ -57,6 +70,23 @@ Examples of good flavors:
 - "Reads papers others tweet about."
 - "Two hackathons from inevitable."
 
+Then ALSO infer the subject's current age. The site grades people relative
+to their age cohort ("Leagues") so this is load-bearing — the user will be
+shown your inference and asked to confirm or edit.
+
+Method:
+- Prefer concrete grad years: "BS Computer Science, 2024" → if today is mid-2026, they're ~24.
+- "Expected graduation 2027" undergrad → ~20.
+- "MBA 2018" → likely ~32-35 (MBA median start ~28).
+- "PhD 2021" + 3-4 years work → ~32.
+- If only HS info: senior in HS today → 17-18.
+- If older job history (e.g. "VP since 2008"), use that as a lower bound (~40+).
+- If truly no signal, return age: 0 and confidence: 0.
+
+Output ageInference: { age: integer 0-120, confidence: 0-1, reasoning: short string }
+The reasoning is shown to the user (e.g. "BS 2024 → 25", "HS class of 2026 → 17").
+Keep it under 12 words.
+
 Return ONLY valid JSON matching the schema. No markdown fences, no preamble.`;
 
 /**
@@ -72,6 +102,7 @@ export async function extractWithClaude(
 
   const truncated = pdfText.length > 18000 ? pdfText.slice(0, 18000) : pdfText;
 
+  const today = new Date().toISOString().slice(0, 10);
   const response = await client.messages.create({
     model: MODEL,
     max_tokens: 4096,
@@ -79,7 +110,7 @@ export async function extractWithClaude(
     messages: [
       {
         role: "user",
-        content: `Extract cracked-signals from this LinkedIn export. Return JSON matching the schema (name, signals[], verdict, flavor):\n\n---\n${truncated}\n---`,
+        content: `Today is ${today}. Extract cracked-signals from this LinkedIn export. Return JSON matching the schema (name, signals[], verdict, flavor, ageInference):\n\n---\n${truncated}\n---`,
       },
     ],
   });
@@ -149,5 +180,49 @@ export function extractWithRegex(pdfText: string, name: string): ExtractionResul
     signals: deduped,
     verdict: "", // let the scoring engine fill a default
     flavor: "",
+    ageInference: inferAgeFromText(pdfText),
+  };
+}
+
+/**
+ * Crude grad-year heuristic for the regex fallback. Looks for the latest
+ * 4-digit year that's plausibly an education end-date and assumes BS at 22.
+ * Returns confidence 0 if nothing reasonable shows up.
+ */
+function inferAgeFromText(text: string): {
+  age: number;
+  confidence: number;
+  reasoning: string;
+} {
+  const thisYear = new Date().getUTCFullYear();
+  const lower = text.toLowerCase();
+
+  // Grad years near education-ish keywords.
+  const eduLines = lower
+    .split("\n")
+    .filter((l) =>
+      /university|college|school|b\.?s\.?|m\.?s\.?|bachelor|master|ph\.?d|mba|high school/.test(
+        l
+      )
+    );
+  const years = eduLines
+    .flatMap((l) => Array.from(l.matchAll(/(19|20)\d{2}/g)).map((m) => Number(m[0])))
+    .filter((y) => y >= 1980 && y <= thisYear + 8);
+  if (years.length === 0) {
+    return { age: 0, confidence: 0, reasoning: "no clear grad year detected" };
+  }
+  // Use the latest plausible end-of-education year.
+  const latest = Math.max(...years);
+  const isHsLine = eduLines.some(
+    (l) => /high school|hs\b|secondary/.test(l) && l.includes(String(latest))
+  );
+  // BS typically graduates at ~22; HS at ~18; treat MS as +2 above BS.
+  const assumedAgeAtGrad = isHsLine ? 18 : 22;
+  const yearsSince = thisYear - latest;
+  const age = Math.max(14, Math.min(80, assumedAgeAtGrad + yearsSince));
+  return {
+    age,
+    confidence: 0.4,
+    reasoning: `latest grad year ${latest} → ~${age}`,
   };
 }

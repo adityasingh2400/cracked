@@ -1,39 +1,10 @@
+// Server-renderable board components used by the Leaderboard page.
+// Kept in a separate module because Next.js doesn't allow non-default exports
+// from a route's page file.
+
 import Link from "next/link";
 import { ARCHETYPES } from "@/data/archetypes";
-import { LEAGUES, type League } from "@/data/leagues";
-import { LeagueTabs } from "./LeagueTabs";
-
-export const metadata = {
-  title: "Leaderboard · Cracked",
-  description:
-    "The Cracked Leaderboard. All-Time absolute rankings plus six age-graded Leagues so a 16-year-old's wins aren't measured against a 40-year-old's.",
-};
-
-export default function Leaderboard() {
-  return (
-    <div className="px-5 sm:px-8 pt-20 pb-24 max-w-5xl mx-auto">
-      {/* HEADER */}
-      <div className="text-center mb-12">
-        <div className="font-mono text-[11px] tracking-[0.32em] uppercase text-gold/80 mb-5">
-          The Cracked Leaderboard
-        </div>
-        <h1 className="font-display font-semibold text-[64px] sm:text-[88px] leading-[0.95] tracking-tight text-white">
-          The wall of <span className="text-foil">fame</span>
-        </h1>
-        <p className="mt-6 max-w-2xl mx-auto text-[16px] text-white/65 text-balance leading-relaxed">
-          Two ways to rank. <span className="text-white/90">All-Time</span> measures
-          you against everyone, ever — the absolute 0-100. <span className="text-white/90">
-            Leagues
-          </span>{" "}
-          measures you against your age cohort, so a 17-year-old IMO medalist isn&apos;t
-          competing with a 40-year-old MacArthur Fellow.
-        </p>
-      </div>
-
-      <LeagueTabs />
-    </div>
-  );
-}
+import type { League } from "@/data/leagues";
 
 export function AllTimeBoard() {
   return (
@@ -65,7 +36,9 @@ export function AllTimeBoard() {
                 <div className="font-display text-lg text-white group-hover:text-gold transition">
                   {a.name}
                 </div>
-                <div className="font-display italic text-[13px] text-white/50">&quot;{a.tagline}&quot;</div>
+                <div className="font-display italic text-[13px] text-white/50">
+                  &quot;{a.tagline}&quot;
+                </div>
               </div>
               <div className="font-mono text-[10px] tracking-[0.18em] text-gold/80">
                 #{String(a.number).padStart(3, "0")}
@@ -78,7 +51,9 @@ export function AllTimeBoard() {
 }
 
 export function LeagueBoard({ league }: { league: League }) {
-  const ageRange = league.ageMax ? `ages ${league.ageMin}-${league.ageMax}` : `ages ${league.ageMin}+`;
+  const ageRange = league.ageMax
+    ? `ages ${league.ageMin}-${league.ageMax}`
+    : `ages ${league.ageMin}+`;
   return (
     <div>
       {/* League hero */}
@@ -98,9 +73,7 @@ export function LeagueBoard({ league }: { league: League }) {
             >
               {league.glyph} {league.label}
             </div>
-            <div className="font-display text-3xl text-white mb-1">
-              {league.shortLabel}
-            </div>
+            <div className="font-display text-3xl text-white mb-1">{league.shortLabel}</div>
             <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/45 mb-3">
               {ageRange} · {league.tagline}
             </div>
@@ -181,5 +154,3 @@ function CutoffRow({
     </div>
   );
 }
-
-export { LEAGUES };

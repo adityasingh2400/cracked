@@ -40,7 +40,7 @@ export default function DexIndex() {
           The Cracked Dex · Vol. I
         </div>
         <h1 className="font-display font-semibold text-[64px] sm:text-[112px] leading-[0.93] tracking-tight text-white">
-          A <span className="text-foil">field guide</span><br />to crackedness
+          A <span className="text-amber-foil">field guide</span><br />to crackedness
         </h1>
         <p className="mt-8 max-w-2xl mx-auto text-[16px] sm:text-[17px] text-white/65 text-balance leading-relaxed">
           Twenty-two elemental types. Nearly two hundred archetypes. One
