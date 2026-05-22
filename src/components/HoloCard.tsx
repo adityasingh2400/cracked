@@ -645,7 +645,7 @@ export function HoloCard({
                   className="mt-1 font-mono text-[9px] tracking-[0.22em] uppercase whitespace-nowrap"
                   style={{ color: league.accent }}
                 >
-                  {league.glyph} {league.shortLabel} League
+                  {league.glyph} Age {league.shortLabel}
                 </div>
               )}
             </div>

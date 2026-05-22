@@ -23,7 +23,7 @@ After dropping your LinkedIn PDF in, in about 8 seconds you get:
 
 - **A score out of 100** — total "crackedness"
 - **A tier**: S, A, B, C, or D (like a Smash Bros tier list)
-- **A League placement** — your age cohort. Rookie (≤16), Prospect (17-19), Apprentice (20-22), Pro (23-26), Veteran (27-32), Legend (33+). Same score, regraded against your peers — a 17-year-old IMO medalist doesn't compete with a 40-year-old MacArthur Fellow
+- **A cohort placement** — your age cohort. Pure age ranges: ≤16, 17–19, 20–22, 23–26, 27–32, 33+. Same score, regraded against your peers — a 17-year-old IMO medalist doesn't compete with a 40-year-old MacArthur Fellow. Older cohorts aren't more cracked, the bar just moves with you
 - **Four sub-stats**: HACK, GRIND, TASTE, RIZZ
 - **An archetype** — one of 196 hand-written character types like *"The Bain Capital Partner"* or *"The Fiverr Logo Mill"* — that best matches you
 - **A holographic shareable card** with all of the above on it

@@ -1,21 +1,26 @@
-// Leagues = age-relative competitive buckets. The site computes an absolute
-// 0-100 score against the rubric, then drops you into the right league based
+// Age cohorts = age-relative competitive buckets. The site computes an absolute
+// 0-100 score against the rubric, then drops you into the right cohort based
 // on age and re-grades S/A/B/C/D against your peers, not against everyone.
 //
-// Why six leagues, not three or twelve?
-// - 6 is enough to express the *natural inflection points* of a career arc
-//   (HS, late HS, late UG, new grad, mid-career, established) without
-//   demanding a precision the absolute rubric can't carry.
-// - It also maps cleanly to the dex/trading-card vibe (Rookie → Legend).
+// IMPORTANT: cohorts are pure age ranges (≤16, 17-19, 20-22, 23-26, 27-32, 33+).
+// They are NOT ranked names ("Rookie → Legend") because that ordering would
+// imply older = more cracked, which inverts the point of age-relative scoring.
+// A 14-year-old IMO gold and a 40-year-old MacArthur fellow are both S in
+// their cohort and that's the whole story.
+//
+// Why six cohorts, not three or twelve?
+// - 6 expresses the natural inflection points of a career arc (early HS,
+//   late HS, late UG, new grad, mid-career, established) without demanding
+//   a precision the absolute rubric can't carry.
 // - The age handicap *saturates* at ~33 (Azoulay's billion-dollar-founder
-//   median is 45, MacArthur median is mid-40s) so splitting Legend 33-45
-//   vs 46+ would be false precision.
+//   median is 45, MacArthur median is mid-40s) so splitting the 33+ cohort
+//   into 33-45 vs 46+ would be false precision.
 //
 // Cutoffs are anchored against the existing absolute thresholds
 // (≥90 = S abs, ≥75 = A abs, ≥60 = B abs, ≥40 = C abs) — see lib/tier-list.
-// They drop substantially for younger leagues because there's been less time
-// to stack signals; they converge with the absolute rubric in the Legend
-// league where the handicap has saturated.
+// They drop substantially for younger cohorts because there's been less time
+// to stack signals; they converge with the absolute rubric in the 33+ cohort
+// where the handicap has saturated.
 //
 // Calibration sources behind each league's cutoffs and exemplars:
 // - Hard age caps verified per program: IMO ≤19, ISEF HS-only, Davidson ≤18,
@@ -25,7 +30,7 @@
 // - Median-age data: Nobel medians 60-67 by category, MacArthur mid-40s,
 //   Azoulay et al billion-dollar-founder median 45. YC has moved from PG's
 //   classic "27" claim to ~24-26 median under Garry Tan.
-// - Per-league re-weighting of the 6 category caps (so Rookie isn't
+// - Per-cohort re-weighting of the 6 category caps (so the 14-year-old isn't
 //   structurally capped at ~60 by missing Work/Founder signal) is a
 //   v2 follow-up — for v1 the cohort cutoffs alone do the work.
 
@@ -57,16 +62,16 @@ export interface League {
 export const LEAGUES: League[] = [
   {
     key: "rookie",
-    label: "Rookie League",
-    shortLabel: "Rookie",
+    label: "Ages ≤16",
+    shortLabel: "≤16",
     ageMin: 0,
     ageMax: 16,
-    glyph: "★",
+    glyph: "①",
     accent: "#22D3EE",
     cutoffs: { S: 48, A: 34, B: 22, C: 12, D: 0 },
     baseline: 18,
     tagline: "Middle school · early high school",
-    flavor: "Raw, unalloyed potential. The window when nothing's expected — so anything you do counts double.",
+    flavor: "Nothing is expected yet, so anything you do counts double. The S-tier here is doing the work most people only attempt at 25.",
     sTierExemplars: [
       "IMO / IOI / IPhO medal (hard cap ≤19)",
       "ISEF Grand Award top-5 (HS only)",
@@ -77,16 +82,16 @@ export const LEAGUES: League[] = [
   },
   {
     key: "prospect",
-    label: "Prospect League",
-    shortLabel: "Prospect",
+    label: "Ages 17–19",
+    shortLabel: "17–19",
     ageMin: 17,
     ageMax: 19,
-    glyph: "✦",
+    glyph: "②",
     accent: "#A78BFA",
     cutoffs: { S: 60, A: 44, B: 30, C: 18, D: 0 },
     baseline: 26,
     tagline: "Late high school · freshman year",
-    flavor: "Visible from orbit. Programs, schools, and funds are already circling — the only question is which orbit you pick.",
+    flavor: "Programs, schools, and funds are already circling. The S-tier here decides which orbit to pick.",
     sTierExemplars: [
       "Thiel Fellow (≤22, $200k to skip college)",
       "USAMO + RSI + MIT/Stanford/Caltech admit",
@@ -97,11 +102,11 @@ export const LEAGUES: League[] = [
   },
   {
     key: "apprentice",
-    label: "Apprentice League",
-    shortLabel: "Apprentice",
+    label: "Ages 20–22",
+    shortLabel: "20–22",
     ageMin: 20,
     ageMax: 22,
-    glyph: "✺",
+    glyph: "③",
     accent: "#EC4899",
     cutoffs: { S: 72, A: 56, B: 40, C: 25, D: 0 },
     baseline: 38,
@@ -117,11 +122,11 @@ export const LEAGUES: League[] = [
   },
   {
     key: "pro",
-    label: "Pro League",
-    shortLabel: "Pro",
+    label: "Ages 23–26",
+    shortLabel: "23–26",
     ageMin: 23,
     ageMax: 26,
-    glyph: "✶",
+    glyph: "④",
     accent: "#FCD34D",
     cutoffs: { S: 82, A: 65, B: 48, C: 30, D: 0 },
     baseline: 50,
@@ -138,16 +143,16 @@ export const LEAGUES: League[] = [
   },
   {
     key: "veteran",
-    label: "Veteran League",
-    shortLabel: "Veteran",
+    label: "Ages 27–32",
+    shortLabel: "27–32",
     ageMin: 27,
     ageMax: 32,
-    glyph: "✷",
+    glyph: "⑤",
     accent: "#F59E0B",
     cutoffs: { S: 88, A: 72, B: 55, C: 38, D: 0 },
     baseline: 62,
     tagline: "Mid career · the receipts are due",
-    flavor: "Decade in. Talent has sorted, time-excuses expire. Show the exit, the promote, the paper, the partnership — the body of work, finally legible.",
+    flavor: "Decade in. Talent has sorted, time-excuses expire. The body of work is finally legible — exit, promote, paper, partnership.",
     sTierExemplars: [
       "Exited founder ($100M+) or current $1B+ unicorn",
       "Forbes Midas Brink / Forbes 30 Under 30 (≤29) w/ real outcome",
@@ -159,11 +164,11 @@ export const LEAGUES: League[] = [
   },
   {
     key: "legend",
-    label: "Legend League",
-    shortLabel: "Legend",
+    label: "Ages 33+",
+    shortLabel: "33+",
     ageMin: 33,
     ageMax: null,
-    glyph: "✸",
+    glyph: "⑥",
     accent: "#FCD34D",
     cutoffs: { S: 92, A: 78, B: 62, C: 42, D: 0 },
     baseline: 70,
@@ -184,7 +189,7 @@ const LEAGUE_BY_KEY: Record<LeagueKey, League> = Object.fromEntries(
   LEAGUES.map((l) => [l.key, l])
 ) as Record<LeagueKey, League>;
 
-/** Resolve a league for a given age. Falls back to Legend for absurd ages. */
+/** Resolve a cohort for a given age. Falls back to the 33+ cohort for absurd ages. */
 export function leagueForAge(age: number): League {
   const safeAge = Math.max(0, Math.min(120, Math.round(age)));
   for (const l of LEAGUES) {

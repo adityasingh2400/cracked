@@ -51,9 +51,6 @@ export function AllTimeBoard() {
 }
 
 export function LeagueBoard({ league }: { league: League }) {
-  const ageRange = league.ageMax
-    ? `ages ${league.ageMin}-${league.ageMax}`
-    : `ages ${league.ageMin}+`;
   return (
     <div>
       {/* League hero */}
@@ -71,11 +68,11 @@ export function LeagueBoard({ league }: { league: League }) {
               className="font-mono text-[10px] tracking-[0.28em] uppercase mb-2"
               style={{ color: league.accent }}
             >
-              {league.glyph} {league.label}
+              {league.glyph} Age cohort
             </div>
-            <div className="font-display text-3xl text-white mb-1">{league.shortLabel}</div>
+            <div className="font-display text-3xl text-white mb-1">{league.label}</div>
             <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/45 mb-3">
-              {ageRange} · {league.tagline}
+              {league.tagline}
             </div>
             <p className="font-display italic text-white/75 text-[14px] max-w-md leading-snug">
               &quot;{league.flavor}&quot;
@@ -95,7 +92,7 @@ export function LeagueBoard({ league }: { league: League }) {
       {/* S-tier exemplars */}
       <div className="mb-8">
         <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/45 mb-3">
-          What S-tier looks like in {league.shortLabel} League
+          What S-tier looks like at {league.label}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {league.sTierExemplars.map((ex, i) => (
@@ -115,10 +112,10 @@ export function LeagueBoard({ league }: { league: League }) {
       {/* Empty board placeholder */}
       <div className="rounded-2xl border border-dashed border-white/15 bg-white/[0.01] p-10 text-center">
         <div className="font-display text-xl text-white mb-2">
-          The {league.shortLabel} League board is open
+          The {league.label} board is open
         </div>
         <p className="text-white/55 text-[14px] max-w-md mx-auto mb-5">
-          Be the first cracked applicant to publish into this league. Your
+          Be the first cracked applicant to publish into this cohort. Your
           score lands on the wall the moment you opt in.
         </p>
         <Link

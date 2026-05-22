@@ -11,19 +11,22 @@ export type CategoryKey =
   | "signal";
 
 /**
- * League = age-relative competitive bucket. Same absolute score → different
- * league tier depending on which league you're in. Younger leagues have lower
+ * Cohort key = age-relative competitive bucket. Same absolute score → different
+ * cohort tier depending on which cohort you're in. Younger cohorts have lower
  * cutoffs because there's been less time to stack signals.
  *
- * "Rookie" → "Legend" mirrors the Dex / trading-card vibe.
+ * IMPORTANT: the *keys* are internal identifiers retained for compatibility,
+ * but the *user-facing labels* are pure age ranges (≤16, 17-19, 20-22, …, 33+)
+ * — we deliberately do not name them "Rookie/Legend" etc., because that
+ * ordering would imply older = more cracked, which inverts the point.
  */
 export type LeagueKey =
-  | "rookie"      // ≤16, middle / early HS
-  | "prospect"    // 17-19, late HS / freshman
-  | "apprentice"  // 20-22, late UG / pre-grad
-  | "pro"         // 23-26, new grad / early career
-  | "veteran"     // 27-32, mid career
-  | "legend";     // 33+, late career
+  | "rookie"      // ≤16
+  | "prospect"    // 17-19
+  | "apprentice"  // 20-22
+  | "pro"         // 23-26
+  | "veteran"     // 27-32
+  | "legend";     // 33+
 
 export interface ExtractedSignal {
   category: CategoryKey;

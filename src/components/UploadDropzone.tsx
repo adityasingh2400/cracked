@@ -23,7 +23,7 @@ const PHASE_LOGS: Record<Phase, string[]> = {
   scoring: [
     "→ tier rubric loaded (S=10, A=7, B=4, C=2, D=1)",
     "→ inferring age cohort from grad years...",
-    "→ placing into league (rookie / prospect / apprentice / pro / veteran / legend)",
+    "→ placing into age cohort (≤16 · 17-19 · 20-22 · 23-26 · 27-32 · 33+)",
     "→ computing sub-stats: hack / grind / taste / rizz",
     "→ matching against the cracked dex (196 archetypes)",
     "→ rendering verdict prose...",

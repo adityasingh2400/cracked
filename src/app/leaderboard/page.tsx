@@ -3,7 +3,7 @@ import { LeagueTabs } from "./LeagueTabs";
 export const metadata = {
   title: "Leaderboard · Cracked",
   description:
-    "The Cracked Leaderboard. All-Time absolute rankings plus six age-graded Leagues so a 16-year-old's wins aren't measured against a 40-year-old's.",
+    "The Cracked Leaderboard. All-Time absolute rankings plus six age cohorts so a 16-year-old's wins aren't measured against a 40-year-old's.",
 };
 
 export default function Leaderboard() {
@@ -19,11 +19,11 @@ export default function Leaderboard() {
         </h1>
         <p className="mt-6 max-w-2xl mx-auto text-[16px] text-white/65 text-balance leading-relaxed">
           Two ways to rank. <span className="text-white/90">All-Time</span> measures
-          you against everyone, ever — the absolute 0-100. <span className="text-white/90">
-            Leagues
-          </span>{" "}
-          measures you against your age cohort, so a 17-year-old IMO medalist isn&apos;t
-          competing with a 40-year-old MacArthur Fellow.
+          you against everyone, ever — the absolute 0-100. The{" "}
+          <span className="text-white/90">age cohort</span> boards rank you against people
+          your age, so a 17-year-old IMO medalist isn&apos;t competing with a 40-year-old
+          MacArthur Fellow. Older cohorts aren&apos;t more cracked — the bar just moves with
+          you.
         </p>
       </div>
 

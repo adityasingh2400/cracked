@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const result = decodeResult(data);
   if (!result) return { title: "Cracked · result not found" };
   const league = result.league
-    ? ` · ${result.league.leagueTier} in ${result.league.leagueLabel}`
+    ? ` · ${result.league.leagueTier} at ${result.league.leagueLabel}`
     : "";
   return {
     title: `${result.name} · ${result.total}/100 · TIER ${result.tier}${league} · Cracked`,
@@ -67,10 +67,11 @@ export default async function CardPage({ params }: PageProps) {
             <p className="text-[14px] text-white/70 leading-relaxed">
               You scored <span className="text-white font-medium">{result.total}/100</span>{" "}
               against the absolute rubric (tier{" "}
-              <span className="text-white">{result.tier}</span>). Your{" "}
-              <span className="text-white">{result.league.leagueLabel}</span> tier of{" "}
-              <span className="text-white">{result.league.leagueTier}</span> ranks you against
-              everyone else in your age cohort — same score, different bar.{" "}
+              <span className="text-white">{result.tier}</span>). At{" "}
+              <span className="text-white">{result.league.leagueLabel}</span> your cohort tier is{" "}
+              <span className="text-white">{result.league.leagueTier}</span> — same score, different
+              bar. Older cohorts aren&apos;t more cracked, they&apos;ve just had more time to stack
+              signals, so the bar moves with you.{" "}
               {result.league.ageSource === "inferred" && (
                 <>
                   Age was inferred as <span className="text-white">{result.league.age}</span>.
