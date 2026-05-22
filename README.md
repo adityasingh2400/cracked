@@ -23,9 +23,12 @@ After dropping your LinkedIn PDF in, in about 8 seconds you get:
 
 - **A score out of 100** — total "crackedness"
 - **A tier**: S, A, B, C, or D (like a Smash Bros tier list)
+- **A League placement** — your age cohort. Rookie (≤16), Prospect (17-19), Apprentice (20-22), Pro (23-26), Veteran (27-32), Legend (33+). Same score, regraded against your peers — a 17-year-old IMO medalist doesn't compete with a 40-year-old MacArthur Fellow
 - **Four sub-stats**: HACK, GRIND, TASTE, RIZZ
 - **An archetype** — one of 196 hand-written character types like *"The Bain Capital Partner"* or *"The Fiverr Logo Mill"* — that best matches you
 - **A holographic shareable card** with all of the above on it
+
+The card *leads* with the league tier (the relative grade against your cohort) and treats the absolute 0-100 as the secondary metadata. Age is inferred from your resume's grad years and can be corrected inline on the card.
 
 Plus a sharable link that contains your entire result inside the URL itself. **Nothing is saved on any server.** Your data never leaves the browser unless you click share.
 
@@ -104,9 +107,12 @@ src/
 └── lib/
     ├── tier-list.ts  # the hand-curated scoring rubric
     ├── score.ts      # totals the categories, picks a tier
+    ├── leagues.ts    # age-relative placement math
     ├── match.ts      # picks the closest archetype
     ├── claude.ts     # signal extraction (with regex fallback)
     └── encode.ts     # gzip+base64 → share URL
+
+src/data/leagues.ts   # the 6 leagues + per-league cutoffs and exemplars
 ```
 
 ## Why this exists

@@ -18,21 +18,211 @@ interface HoloCardProps {
   encoded?: string | null;
 }
 
-const TIER_INTENSITY: Record<Tier, { foil: number; glow: number; sheen: number; speed: number }> = {
-  S: { foil: 0.95, glow: 1.0, sheen: 1.0, speed: 7 },
-  A: { foil: 0.78, glow: 0.78, sheen: 0.82, speed: 9 },
-  B: { foil: 0.55, glow: 0.55, sheen: 0.6, speed: 11 },
-  C: { foil: 0.35, glow: 0.32, sheen: 0.4, speed: 14 },
-  D: { foil: 0.18, glow: 0.14, sheen: 0.22, speed: 18 },
+// =============================================================================
+// CARD GRADE — Pokemon-style rarity progression.
+// mega-s = absolute S-tier overall (the rarest, most ornate, full-effect frame)
+// s      = league S but not absolute S — really cool, less extreme
+// a/b/c/d = ordinary tiers, descending
+// =============================================================================
+type CardGrade = "mega-s" | "s" | "a" | "b" | "c" | "d";
+
+function getCardGrade(result: CrackedResult): CardGrade {
+  const lt = result.league?.leagueTier;
+  if (result.tier === "S") return "mega-s";
+  if (lt === "S") return "s";
+  return result.tier.toLowerCase() as CardGrade;
+}
+
+interface GradeTheme {
+  // Rarity label
+  rarity: string;
+  stars: string;
+  // Palette
+  primary: string;
+  secondary: string;
+  deep: string;
+  ring: string;
+  // Score gradient
+  scoreFrom: string;
+  scoreMid: string;
+  scoreTo: string;
+  // Card base background
+  baseGradient: string;
+  // Foil
+  foilIntensity: number;
+  foilColors: string[]; // conic gradient stops
+  desaturate: number;
+  // Effects
+  sparkleCount: number;
+  sparkleColor: string;
+  embers: number;
+  lightning: boolean;
+  haloBurst: boolean;
+  cornerCrests: boolean;
+  // Border
+  borderStyle: "fade" | "hairline" | "single" | "double" | "double-gold" | "primal";
+  // Tier badge style
+  badgeAnimate: boolean;
+  // Drop shadow / glow intensity
+  cardGlow: number; // 0-1
+}
+
+const GRADE_THEMES: Record<CardGrade, GradeTheme> = {
+  "mega-s": {
+    rarity: "ASCENDED",
+    stars: "✦✦✦✦✦",
+    primary: "#FFE5A8",
+    secondary: "#E8B547",
+    deep: "#7A1A1A",
+    ring: "rgba(255, 197, 100, 0.85)",
+    scoreFrom: "#FFFFFF",
+    scoreMid: "#FFD27A",
+    scoreTo: "#FF5A2E",
+    baseGradient:
+      "radial-gradient(ellipse at 50% 110%, #4A0E0E 0%, transparent 55%), radial-gradient(ellipse at 50% 0%, #3A1F08 0%, transparent 60%), linear-gradient(155deg, #1C0A05 0%, #0A0402 100%)",
+    foilIntensity: 1.0,
+    foilColors: [
+      "#FFD27A", "#FF5A2E", "#EC4899", "#8B5CF6",
+      "#06B6D4", "#FCD34D", "#FF5A2E", "#FFD27A",
+    ],
+    desaturate: 0,
+    sparkleCount: 28,
+    sparkleColor: "#FFE5A8",
+    embers: 14,
+    lightning: true,
+    haloBurst: true,
+    cornerCrests: true,
+    borderStyle: "primal",
+    badgeAnimate: true,
+    cardGlow: 1.0,
+  },
+  s: {
+    rarity: "MYTHIC",
+    stars: "★★★★★",
+    primary: "#FFE5A8",
+    secondary: "#E8B547",
+    deep: "#B98A2E",
+    ring: "rgba(232, 181, 71, 0.7)",
+    scoreFrom: "#FFFFFF",
+    scoreMid: "#FFE5A8",
+    scoreTo: "#B98A2E",
+    baseGradient:
+      "radial-gradient(ellipse at 50% 0%, rgba(232,181,71,0.10) 0%, transparent 55%), linear-gradient(155deg, #1C130A 0%, #0E0805 100%)",
+    foilIntensity: 0.82,
+    foilColors: ["#8B5CF6", "#EC4899", "#FCD34D", "#06B6D4", "#8B5CF6", "#FCD34D", "#8B5CF6"],
+    desaturate: 0,
+    sparkleCount: 18,
+    sparkleColor: "#FFE5A8",
+    embers: 6,
+    lightning: false,
+    haloBurst: true,
+    cornerCrests: true,
+    borderStyle: "double-gold",
+    badgeAnimate: false,
+    cardGlow: 0.8,
+  },
+  a: {
+    rarity: "RARE HOLO",
+    stars: "★★★★",
+    primary: "#C4A0FF",
+    secondary: "#8B5CF6",
+    deep: "#5B21B6",
+    ring: "rgba(167, 139, 250, 0.55)",
+    scoreFrom: "#FFFFFF",
+    scoreMid: "#C4A0FF",
+    scoreTo: "#7C3AED",
+    baseGradient:
+      "radial-gradient(ellipse at 50% 0%, rgba(139,92,246,0.10) 0%, transparent 55%), linear-gradient(155deg, #1A1326 0%, #0A0610 100%)",
+    foilIntensity: 0.65,
+    foilColors: ["#8B5CF6", "#EC4899", "#A78BFA", "#06B6D4", "#8B5CF6"],
+    desaturate: 0,
+    sparkleCount: 12,
+    sparkleColor: "#C4A0FF",
+    embers: 0,
+    lightning: false,
+    haloBurst: false,
+    cornerCrests: false,
+    borderStyle: "double",
+    badgeAnimate: false,
+    cardGlow: 0.55,
+  },
+  b: {
+    rarity: "RARE",
+    stars: "★★★",
+    primary: "#7DD8E8",
+    secondary: "#06B6D4",
+    deep: "#0E7490",
+    ring: "rgba(34, 211, 238, 0.45)",
+    scoreFrom: "#FFFFFF",
+    scoreMid: "#7DD8E8",
+    scoreTo: "#0891B2",
+    baseGradient: "linear-gradient(155deg, #0E1A1E 0%, #050A0C 100%)",
+    foilIntensity: 0.45,
+    foilColors: ["#06B6D4", "#7DD8E8", "#06B6D4", "#0891B2"],
+    desaturate: 0.1,
+    sparkleCount: 6,
+    sparkleColor: "#7DD8E8",
+    embers: 0,
+    lightning: false,
+    haloBurst: false,
+    cornerCrests: false,
+    borderStyle: "single",
+    badgeAnimate: false,
+    cardGlow: 0.4,
+  },
+  c: {
+    rarity: "UNCOMMON",
+    stars: "★★",
+    primary: "#D9CCB8",
+    secondary: "#A8987F",
+    deep: "#6E6354",
+    ring: "rgba(200, 184, 156, 0.35)",
+    scoreFrom: "#FFFFFF",
+    scoreMid: "#D9CCB8",
+    scoreTo: "#8B7A5E",
+    baseGradient: "linear-gradient(155deg, #1A140E 0%, #0A0805 100%)",
+    foilIntensity: 0.28,
+    foilColors: ["#D9CCB8", "#A8987F", "#D9CCB8"],
+    desaturate: 0.4,
+    sparkleCount: 3,
+    sparkleColor: "#D9CCB8",
+    embers: 0,
+    lightning: false,
+    haloBurst: false,
+    cornerCrests: false,
+    borderStyle: "hairline",
+    badgeAnimate: false,
+    cardGlow: 0.25,
+  },
+  d: {
+    rarity: "COMMON",
+    stars: "★",
+    primary: "#8B7A6B",
+    secondary: "#5E5046",
+    deep: "#3F352D",
+    ring: "rgba(139, 122, 107, 0.22)",
+    scoreFrom: "#D9CCB8",
+    scoreMid: "#8B7A6B",
+    scoreTo: "#5E5046",
+    baseGradient: "linear-gradient(155deg, #15100D 0%, #080604 100%)",
+    foilIntensity: 0.14,
+    foilColors: ["#5E5046", "#8B7A6B"],
+    desaturate: 0.7,
+    sparkleCount: 0,
+    sparkleColor: "#8B7A6B",
+    embers: 0,
+    lightning: false,
+    haloBurst: false,
+    cornerCrests: false,
+    borderStyle: "fade",
+    badgeAnimate: false,
+    cardGlow: 0.15,
+  },
 };
 
-const TIER_COLOR: Record<Tier, { from: string; to: string; ring: string }> = {
-  S: { from: "#FFE5A8", to: "#E8B547", ring: "rgba(232, 181, 71, 0.65)" },
-  A: { from: "#C4A0FF", to: "#8B5CF6", ring: "rgba(167, 139, 250, 0.55)" },
-  B: { from: "#7DD8E8", to: "#06B6D4", ring: "rgba(34, 211, 238, 0.5)" },
-  C: { from: "#C8B89C", to: "#8B7A5E", ring: "rgba(200, 184, 156, 0.4)" },
-  D: { from: "#8B7A6B", to: "#5E5046", ring: "rgba(139, 122, 107, 0.3)" },
-};
+// =============================================================================
+// Motion hooks
+// =============================================================================
 
 // Spring-smoothed tilt for buttery motion instead of jittery snap.
 function useSpringTilt(target: { rx: number; ry: number; mx: number; my: number }) {
@@ -43,7 +233,7 @@ function useSpringTilt(target: { rx: number; ry: number; mx: number; my: number 
   useEffect(() => {
     const tick = () => {
       const cur = valRef.current;
-      const k = 0.14; // stiffness — higher = snappier
+      const k = 0.14;
       const next = {
         rx: cur.rx + (target.rx - cur.rx) * k,
         ry: cur.ry + (target.ry - cur.ry) * k,
@@ -90,6 +280,10 @@ function useIdleDrift(active: boolean) {
   return drift;
 }
 
+// =============================================================================
+// Main
+// =============================================================================
+
 export function HoloCard({
   result,
   archetype,
@@ -108,11 +302,11 @@ export function HoloCard({
   const effective = hovering ? target : drift;
   const tilt = useSpringTilt(effective);
 
-  // Lead with league tier when available; fall back to absolute for legacy
-  // share links that predate the league system.
+  const grade = getCardGrade(result);
+  const theme = GRADE_THEMES[grade];
+
+  // Visible tier inside the card content — leads with league when available.
   const displayTier: Tier = result.league?.leagueTier ?? result.tier;
-  const intensity = TIER_INTENSITY[displayTier];
-  const tierColor = TIER_COLOR[displayTier];
   const league = result.league ? getLeague(result.league.league) : null;
 
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -147,24 +341,42 @@ export function HoloCard({
     .filter((s) => s.tier === "S" || s.tier === "A")
     .slice(0, 4);
 
-  // Stable sparkle positions — generated once per render, deterministic by tier.
+  // Stable sparkle layout — deterministic per archetype.
   const sparkles = useMemo(() => {
-    const count = displayTier === "S" ? 18 : displayTier === "A" ? 12 : displayTier === "B" ? 8 : 4;
     const rng = mulberry32(result.total * 1000 + archetype.number);
-    return Array.from({ length: count }, () => ({
+    return Array.from({ length: theme.sparkleCount }, () => ({
       x: rng() * 100,
       y: rng() * 100,
-      size: 1 + rng() * 2.5,
+      size: 1 + rng() * (grade === "mega-s" ? 3.2 : 2.5),
       delay: rng() * 4,
-      duration: 1.6 + rng() * 2.4,
+      duration: 1.4 + rng() * 2.4,
     }));
-  }, [displayTier, result.total, archetype.number]);
+  }, [theme.sparkleCount, result.total, archetype.number, grade]);
 
-  // Cursor-angle sheen sweep — a thin diagonal highlight that tilts with the card.
-  const sheenAngle = 95 + (tilt.ry * 1.4);
+  // Stable ember positions — anchored to the bottom edge.
+  const embers = useMemo(() => {
+    const rng = mulberry32(result.total * 7919 + archetype.number);
+    return Array.from({ length: theme.embers }, (_, i) => ({
+      x: 6 + (i / Math.max(1, theme.embers - 1)) * 88 + (rng() - 0.5) * 6,
+      delay: rng() * 4,
+      duration: 2.6 + rng() * 1.8,
+      size: 1.6 + rng() * 2.6,
+      hue: rng(),
+    }));
+  }, [theme.embers, result.total, archetype.number]);
+
+  const sheenAngle = 95 + tilt.ry * 1.4;
+
+  // Conic foil stops — built from the theme palette.
+  const foilStops = theme.foilColors
+    .map((c, i, arr) => `${c} ${(i / (arr.length - 1)) * 360}deg`)
+    .join(", ");
 
   return (
-    <div className={clsx("holo-card-wrap select-none", className)} style={{ perspective: "1600px" }}>
+    <div
+      className={clsx("holo-card-wrap select-none relative", className)}
+      style={{ perspective: "1600px" }}
+    >
       <div
         ref={wrapRef}
         onMouseEnter={() => interactive && setHovering(true)}
@@ -179,7 +391,11 @@ export function HoloCard({
           setHovering(false);
           setTarget({ rx: 0, ry: 0, mx: 50, my: 50 });
         }}
-        className="holo-card relative cursor-grab active:cursor-grabbing"
+        className={clsx(
+          "holo-card relative",
+          interactive && "cursor-grab active:cursor-grabbing",
+          grade === "mega-s" && "holo-mega",
+        )}
         style={{
           aspectRatio: "2 / 3",
           width: "100%",
@@ -190,47 +406,39 @@ export function HoloCard({
           borderRadius: 24,
           boxShadow: `
             0 ${30 + Math.abs(tilt.rx)}px ${80 + Math.abs(tilt.rx) * 2}px -20px rgba(0,0,0,0.7),
-            0 0 100px -10px ${tierColor.ring},
+            0 0 ${80 + theme.cardGlow * 80}px -10px ${theme.ring},
             0 0 0 1px rgba(232,181,71,0.10) inset
           `,
         }}
       >
-        {/* Base — warm ink */}
+        {/* Base background */}
         <div
           className="absolute inset-0 rounded-[24px] overflow-hidden"
-          style={{ background: "linear-gradient(155deg, #1C130A 0%, #0E0805 100%)" }}
+          style={{ background: theme.baseGradient }}
         />
 
-        {/* Foil layer 1 — conic rainbow, cursor-anchored, parallax-shifted */}
+        {/* Foil 1 — conic rainbow built from theme palette */}
         <div
           className="absolute inset-0 rounded-[24px] overflow-hidden pointer-events-none"
           style={{
-            background: `conic-gradient(from ${130 + tilt.ry * 3}deg at ${tilt.mx}% ${tilt.my}%,
-              #8B5CF6 0deg,
-              #EC4899 60deg,
-              #FCD34D 120deg,
-              #06B6D4 180deg,
-              #8B5CF6 240deg,
-              #FCD34D 300deg,
-              #8B5CF6 360deg
-            )`,
-            opacity: intensity.foil * (0.4 + (hovering ? 0.25 : 0)),
+            background: `conic-gradient(from ${130 + tilt.ry * 3}deg at ${tilt.mx}% ${tilt.my}%, ${foilStops})`,
+            opacity: theme.foilIntensity * (0.4 + (hovering ? 0.3 : 0)),
             mixBlendMode: "screen",
-            filter: displayTier === "D" ? "saturate(0.4)" : undefined,
+            filter: theme.desaturate > 0 ? `saturate(${1 - theme.desaturate})` : undefined,
             transition: "opacity 400ms",
           }}
         />
 
-        {/* Foil layer 2 — diagonal sheen band that sweeps with tilt (the "card swipe" feel) */}
+        {/* Foil 2 — diagonal sheen */}
         <div
           className="absolute inset-0 rounded-[24px] overflow-hidden pointer-events-none"
           style={{
             background: `linear-gradient(${sheenAngle}deg,
               transparent 0%,
               transparent 40%,
-              rgba(255, 245, 220, ${0.18 * intensity.sheen}) 49%,
-              rgba(255, 255, 255, ${0.45 * intensity.sheen}) 50%,
-              rgba(255, 245, 220, ${0.18 * intensity.sheen}) 51%,
+              rgba(255, 245, 220, ${0.18 * theme.foilIntensity}) 49%,
+              rgba(255, 255, 255, ${0.5 * theme.foilIntensity}) 50%,
+              rgba(255, 245, 220, ${0.18 * theme.foilIntensity}) 51%,
               transparent 60%,
               transparent 100%
             )`,
@@ -240,13 +448,13 @@ export function HoloCard({
           }}
         />
 
-        {/* Foil layer 3 — radial spotlight that follows cursor */}
+        {/* Foil 3 — radial spotlight following cursor */}
         <div
           className="absolute inset-0 rounded-[24px] overflow-hidden pointer-events-none"
           style={{
             background: `radial-gradient(circle at ${tilt.mx}% ${tilt.my}%,
-              rgba(255, 240, 200, 0.45) 0%,
-              rgba(255, 240, 200, 0.10) 28%,
+              rgba(255, 240, 200, 0.5) 0%,
+              rgba(255, 240, 200, 0.12) 28%,
               transparent 60%)`,
             mixBlendMode: "overlay",
             opacity: hovering ? 1 : 0.7,
@@ -254,25 +462,134 @@ export function HoloCard({
           }}
         />
 
-        {/* Sparkle layer — tier-scaled twinkles. Position-anchored to the cursor area when active. */}
-        <div className="absolute inset-0 rounded-[24px] overflow-hidden pointer-events-none">
-          {sparkles.map((s, i) => (
-            <span
-              key={i}
-              className="absolute rounded-full"
+        {/* MEGA-only: animated cosmic shimmer behind everything */}
+        {grade === "mega-s" && (
+          <div
+            className="absolute inset-0 rounded-[24px] overflow-hidden pointer-events-none"
+            style={{
+              background:
+                "conic-gradient(from 0deg at 50% 50%, rgba(255,90,46,0.0) 0deg, rgba(255,90,46,0.35) 60deg, rgba(255,210,122,0.0) 120deg, rgba(139,92,246,0.32) 180deg, rgba(6,182,212,0.0) 240deg, rgba(252,211,77,0.32) 300deg, rgba(255,90,46,0.0) 360deg)",
+              mixBlendMode: "screen",
+              animation: "holoMegaShimmer 9s linear infinite",
+              opacity: 0.55,
+            }}
+          />
+        )}
+
+        {/* Ember layer — fire rising from bottom (mega-s + s) */}
+        {theme.embers > 0 && (
+          <div className="absolute inset-0 rounded-[24px] overflow-hidden pointer-events-none">
+            {embers.map((e, i) => (
+              <span
+                key={i}
+                className="absolute"
+                style={{
+                  left: `${e.x}%`,
+                  bottom: -2,
+                  width: e.size,
+                  height: e.size * 1.6,
+                  borderRadius: "50%",
+                  background: `radial-gradient(circle, #FFF1C0 0%, ${e.hue > 0.6 ? "#FFD27A" : "#FF7A2E"} 35%, ${e.hue > 0.6 ? "#FF5A2E" : "#B91C1C"} 75%, transparent)`,
+                  filter: "blur(0.5px)",
+                  opacity: 0,
+                  animation: `holoEmberRise ${e.duration}s ease-out ${e.delay}s infinite`,
+                }}
+              />
+            ))}
+            {/* warm floor glow */}
+            <div
+              className="absolute left-0 right-0 bottom-0 h-1/3 pointer-events-none"
               style={{
-                left: `${s.x}%`,
-                top: `${s.y}%`,
-                width: s.size,
-                height: s.size,
-                background: "#FFF5C4",
-                boxShadow: `0 0 ${s.size * 4}px ${s.size}px rgba(255,229,168,0.7)`,
-                opacity: 0,
-                animation: `holoTwinkle ${s.duration}s ease-in-out ${s.delay}s infinite`,
+                background:
+                  grade === "mega-s"
+                    ? "radial-gradient(ellipse at 50% 100%, rgba(255,90,46,0.45) 0%, rgba(255,90,46,0.0) 70%)"
+                    : "radial-gradient(ellipse at 50% 100%, rgba(232,181,71,0.30) 0%, transparent 70%)",
+                mixBlendMode: "screen",
+                animation: "holoFloorBreathe 4s ease-in-out infinite",
               }}
             />
-          ))}
-        </div>
+          </div>
+        )}
+
+        {/* MEGA-only: lightning streak */}
+        {theme.lightning && (
+          <svg
+            className="absolute inset-0 w-full h-full rounded-[24px] pointer-events-none"
+            viewBox="0 0 200 300"
+            preserveAspectRatio="none"
+            style={{ mixBlendMode: "screen" }}
+          >
+            <defs>
+              <filter id="lightning-glow">
+                <feGaussianBlur stdDeviation="2.5" result="b" />
+                <feMerge>
+                  <feMergeNode in="b" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <path
+              d="M 130 -10 L 90 90 L 120 100 L 70 220 L 105 200 L 60 310"
+              fill="none"
+              stroke="#FFF7D1"
+              strokeWidth="2.2"
+              filter="url(#lightning-glow)"
+              style={{ animation: "holoLightning 5.4s steps(1,end) infinite" }}
+            />
+            <path
+              d="M 50 -10 L 75 80 L 55 95 L 95 200 L 70 215 L 90 310"
+              fill="none"
+              stroke="#FFE5A8"
+              strokeWidth="1.4"
+              filter="url(#lightning-glow)"
+              style={{ animation: "holoLightning2 7.1s steps(1,end) infinite" }}
+              opacity="0.7"
+            />
+          </svg>
+        )}
+
+        {/* MEGA-only: halo burst behind the name (radial cosmic flare) */}
+        {theme.haloBurst && (
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              top: "23%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "82%",
+              height: "30%",
+              background:
+                grade === "mega-s"
+                  ? "radial-gradient(ellipse, rgba(255,90,46,0.45) 0%, rgba(255,210,122,0.25) 30%, transparent 65%)"
+                  : "radial-gradient(ellipse, rgba(232,181,71,0.35) 0%, rgba(232,181,71,0.0) 70%)",
+              mixBlendMode: "screen",
+              filter: "blur(8px)",
+              animation: "holoHaloPulse 3.6s ease-in-out infinite",
+            }}
+          />
+        )}
+
+        {/* Sparkles */}
+        {sparkles.length > 0 && (
+          <div className="absolute inset-0 rounded-[24px] overflow-hidden pointer-events-none">
+            {sparkles.map((s, i) => (
+              <span
+                key={i}
+                className="absolute rounded-full"
+                style={{
+                  left: `${s.x}%`,
+                  top: `${s.y}%`,
+                  width: s.size,
+                  height: s.size,
+                  background: theme.sparkleColor,
+                  boxShadow: `0 0 ${s.size * 4}px ${s.size}px ${withAlpha(theme.sparkleColor, 0.7)}`,
+                  opacity: 0,
+                  animation: `holoTwinkle ${s.duration}s ease-in-out ${s.delay}s infinite`,
+                }}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Subtle grain */}
         <div
@@ -285,26 +602,28 @@ export function HoloCard({
           }}
         />
 
-        {/* Gold double-line inner frame */}
-        <div
-          className="absolute rounded-[16px] pointer-events-none"
-          style={{
-            inset: 14,
-            border: "1px solid rgba(232, 181, 71, 0.55)",
-            boxShadow:
-              "inset 0 0 0 4px rgba(0,0,0,0.4), inset 0 0 0 5px rgba(232,181,71,0.30), inset 0 0 50px rgba(232,181,71,0.10)",
-          }}
-        />
+        {/* Border frame — switches design per grade */}
+        <BorderFrame style={theme.borderStyle} primary={theme.primary} secondary={theme.secondary} />
 
-        {/* Edge light — illuminates the side the card is "leaning toward" */}
+        {/* MEGA-only: corner crests (Mega EX style flourish) */}
+        {theme.cornerCrests && (
+          <>
+            <CornerCrest position="tl" color={theme.primary} grade={grade} />
+            <CornerCrest position="tr" color={theme.primary} grade={grade} />
+            <CornerCrest position="bl" color={theme.primary} grade={grade} />
+            <CornerCrest position="br" color={theme.primary} grade={grade} />
+          </>
+        )}
+
+        {/* Edge light */}
         <div
           className="absolute inset-0 rounded-[24px] pointer-events-none"
           style={{
             background: `linear-gradient(${90 + tilt.ry * 3}deg,
-              rgba(255, 229, 168, ${Math.max(0, tilt.ry / 60)}) 0%,
+              ${withAlpha(theme.primary, Math.max(0, tilt.ry / 60))} 0%,
               transparent 25%,
               transparent 75%,
-              rgba(255, 229, 168, ${Math.max(0, -tilt.ry / 60)}) 100%
+              ${withAlpha(theme.primary, Math.max(0, -tilt.ry / 60))} 100%
             )`,
             mixBlendMode: "screen",
             opacity: hovering ? 1 : 0.4,
@@ -312,15 +631,15 @@ export function HoloCard({
           }}
         />
 
-        {/* Content — parallaxed forward */}
+        {/* Content */}
         <div
           className="relative h-full w-full flex flex-col p-7 pt-5 z-10"
           style={{ transform: "translateZ(50px)" }}
         >
-          {/* Top row: tier badge + dex number + rarity */}
+          {/* Top row */}
           <div className="flex items-start justify-between">
             <div className="flex flex-col items-start gap-1" style={{ transform: "translateZ(20px)" }}>
-              <TierBadge tier={displayTier} colors={tierColor} />
+              <TierBadge tier={displayTier} theme={theme} grade={grade} />
               {league && (
                 <div
                   className="mt-1 font-mono text-[9px] tracking-[0.22em] uppercase whitespace-nowrap"
@@ -334,10 +653,10 @@ export function HoloCard({
               className="flex flex-col items-end gap-1"
               style={{ transform: "translateZ(20px)" }}
             >
-              <div className="font-mono text-[10px] tracking-[0.18em] text-amber/85">
+              <div className="font-mono text-[10px] tracking-[0.18em]" style={{ color: theme.primary }}>
                 CRACKED · #{String(archetype.number).padStart(3, "0")}
               </div>
-              <RarityBadge tier={displayTier} />
+              <RarityBadge theme={theme} grade={grade} />
               {result.league && (
                 <div className="font-mono text-[8px] tracking-[0.22em] uppercase text-cream/45 mt-0.5">
                   OVERALL {result.tier} · {result.total}/100
@@ -347,13 +666,21 @@ export function HoloCard({
           </div>
 
           {/* Name */}
-          <div
-            className="mt-3 text-center"
-            style={{ transform: "translateZ(35px)" }}
-          >
+          <div className="mt-3 text-center" style={{ transform: "translateZ(35px)" }}>
             <h1
-              className="font-display text-[34px] leading-[1.05] tracking-tight text-cream"
-              style={{ fontWeight: 600 }}
+              className={clsx(
+                "font-display text-[34px] leading-[1.05] tracking-tight",
+                grade === "mega-s" ? "text-cream" : "text-cream",
+              )}
+              style={{
+                fontWeight: 600,
+                textShadow:
+                  grade === "mega-s"
+                    ? "0 0 24px rgba(255,210,122,0.55), 0 0 6px rgba(255,90,46,0.45)"
+                    : grade === "s"
+                    ? "0 0 18px rgba(232,181,71,0.35)"
+                    : undefined,
+              }}
             >
               {result.name}
             </h1>
@@ -362,15 +689,15 @@ export function HoloCard({
             </div>
           </div>
 
-          {/* Score hero */}
+          {/* Score */}
           <div
             className="mt-4 flex items-end justify-center gap-2 relative"
             style={{ transform: "translateZ(60px)" }}
           >
-            <ScoreNumeral total={result.total} tier={displayTier} colors={tierColor} />
+            <ScoreNumeral total={result.total} theme={theme} />
           </div>
 
-          {/* League placement pill — "Top X% in Y League" with inline edit */}
+          {/* League placement pill */}
           {result.league && league && (
             <div className="mt-1 flex justify-center" style={{ transform: "translateZ(40px)" }}>
               <LeagueBadge
@@ -385,7 +712,7 @@ export function HoloCard({
             </div>
           )}
 
-          {/* Stat block */}
+          {/* Stats */}
           <div
             className="mt-3 grid grid-cols-2 gap-x-5 gap-y-2.5"
             style={{ transform: "translateZ(30px)" }}
@@ -404,10 +731,12 @@ export function HoloCard({
                   key={i}
                   className="font-mono text-[9px] uppercase tracking-[0.14em] px-2 py-1 rounded-full"
                   style={{
-                    border: `1px solid ${s.tier === "S" ? tierColor.ring : "rgba(242,232,220,0.20)"}`,
-                    color: s.tier === "S" ? "#FFE5A8" : "rgba(242,232,220,0.88)",
+                    border: `1px solid ${s.tier === "S" ? theme.ring : "rgba(242,232,220,0.20)"}`,
+                    color: s.tier === "S" ? theme.primary : "rgba(242,232,220,0.88)",
                     background:
-                      s.tier === "S" ? "rgba(232,181,71,0.10)" : "rgba(242,232,220,0.05)",
+                      s.tier === "S"
+                        ? withAlpha(theme.secondary, 0.12)
+                        : "rgba(242,232,220,0.05)",
                     backdropFilter: "blur(4px)",
                   }}
                 >
@@ -427,7 +756,10 @@ export function HoloCard({
 
           {/* Bottom: flavor + edition */}
           <div className="mt-3 flex items-end justify-between pt-2 border-t border-amber/15">
-            <div className="font-display italic text-[11px] text-amber/95 max-w-[60%] leading-tight">
+            <div
+              className="font-display italic text-[11px] max-w-[60%] leading-tight"
+              style={{ color: theme.primary }}
+            >
               &ldquo;{result.flavor}&rdquo;
             </div>
             <div className="font-mono text-[9px] tracking-[0.16em] text-cream/45 text-right">
@@ -439,7 +771,7 @@ export function HoloCard({
         </div>
       </div>
 
-      {/* Cast shadow below — shifts with tilt to anchor the card to the surface */}
+      {/* Cast shadow */}
       <div
         aria-hidden
         className="mx-auto rounded-[50%] pointer-events-none"
@@ -449,22 +781,58 @@ export function HoloCard({
           marginTop: -10,
           marginLeft: `${tilt.ry * 0.6}%`,
           background:
-            "radial-gradient(ellipse, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.18) 50%, transparent 80%)",
+            grade === "mega-s"
+              ? "radial-gradient(ellipse, rgba(255,90,46,0.55) 0%, rgba(255,90,46,0.15) 45%, transparent 80%)"
+              : "radial-gradient(ellipse, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.18) 50%, transparent 80%)",
           filter: "blur(14px)",
           transition: "width 200ms",
         }}
       />
 
       {mounted && interactive && (
-        <div className="mt-5 text-center font-mono text-[10px] tracking-[0.22em] text-amber/70 uppercase">
-          tilt the card &middot; holo {displayTier}-rank
+        <div
+          className="mt-5 text-center font-mono text-[10px] tracking-[0.22em] uppercase"
+          style={{ color: withAlpha(theme.primary, 0.75) }}
+        >
+          tilt the card &middot; {theme.rarity.toLowerCase()} grade
         </div>
       )}
 
       <style jsx>{`
         @keyframes holoTwinkle {
-          0%, 100% { opacity: 0; transform: scale(0.6); }
+          0%, 100% { opacity: 0; transform: scale(0.5); }
           50%      { opacity: 0.95; transform: scale(1); }
+        }
+        @keyframes holoEmberRise {
+          0%   { transform: translateY(0) scale(1); opacity: 0; }
+          12%  { opacity: 0.95; }
+          70%  { transform: translateY(-220px) scale(0.5); opacity: 0.55; }
+          100% { transform: translateY(-340px) scale(0.15); opacity: 0; }
+        }
+        @keyframes holoFloorBreathe {
+          0%, 100% { opacity: 0.55; }
+          50%      { opacity: 0.95; }
+        }
+        @keyframes holoHaloPulse {
+          0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(1); }
+          50%      { opacity: 0.85; transform: translate(-50%, -50%) scale(1.06); }
+        }
+        @keyframes holoMegaShimmer {
+          0%   { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes holoLightning {
+          0%, 88%, 100% { opacity: 0; }
+          89%, 91%      { opacity: 1; }
+          90%, 92%      { opacity: 0.2; }
+        }
+        @keyframes holoLightning2 {
+          0%, 60%, 100% { opacity: 0; }
+          61%, 62%      { opacity: 0.9; }
+        }
+        @keyframes holoBadgePulse {
+          0%, 100% { box-shadow: 0 0 30px ${theme.ring}, inset 0 -3px 6px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.35); }
+          50%      { box-shadow: 0 0 50px ${theme.ring}, 0 0 90px ${theme.ring}, inset 0 -3px 6px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.45); }
         }
       `}</style>
     </div>
@@ -475,45 +843,210 @@ export function HoloCard({
 // Sub-components
 // =============================================================================
 
-function TierBadge({ tier, colors }: { tier: Tier; colors: { from: string; to: string; ring: string } }) {
+function BorderFrame({
+  style,
+  primary,
+  secondary,
+}: {
+  style: GradeTheme["borderStyle"];
+  primary: string;
+  secondary: string;
+}) {
+  // PRIMAL — rainbow outer + gold + cream inner ornate frame for mega-s.
+  if (style === "primal") {
+    return (
+      <>
+        {/* outer rainbow ring */}
+        <div
+          className="absolute rounded-[20px] pointer-events-none"
+          style={{
+            inset: 8,
+            padding: 1,
+            background:
+              "conic-gradient(from 0deg, #FF5A2E, #FCD34D, #06B6D4, #8B5CF6, #EC4899, #FF5A2E)",
+            WebkitMask:
+              "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+            mask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+            WebkitMaskComposite: "xor",
+            maskComposite: "exclude",
+            animation: "holoMegaShimmer 12s linear infinite",
+          }}
+        />
+        {/* gold middle */}
+        <div
+          className="absolute rounded-[16px] pointer-events-none"
+          style={{
+            inset: 14,
+            border: `1.5px solid ${primary}`,
+            boxShadow:
+              "inset 0 0 0 3px rgba(0,0,0,0.5), inset 0 0 0 4px rgba(255,229,168,0.45), inset 0 0 80px rgba(255,90,46,0.18)",
+          }}
+        />
+        {/* cream inner hairline */}
+        <div
+          className="absolute rounded-[12px] pointer-events-none"
+          style={{
+            inset: 20,
+            border: "1px solid rgba(242,232,220,0.18)",
+          }}
+        />
+      </>
+    );
+  }
+
+  if (style === "double-gold") {
+    return (
+      <div
+        className="absolute rounded-[16px] pointer-events-none"
+        style={{
+          inset: 14,
+          border: `1px solid ${primary}`,
+          boxShadow: `inset 0 0 0 4px rgba(0,0,0,0.4), inset 0 0 0 5px ${withAlpha(secondary, 0.35)}, inset 0 0 60px ${withAlpha(secondary, 0.12)}`,
+        }}
+      />
+    );
+  }
+
+  if (style === "double") {
+    return (
+      <div
+        className="absolute rounded-[16px] pointer-events-none"
+        style={{
+          inset: 14,
+          border: `1px solid ${withAlpha(primary, 0.45)}`,
+          boxShadow: `inset 0 0 0 3px rgba(0,0,0,0.35), inset 0 0 0 4px ${withAlpha(secondary, 0.22)}`,
+        }}
+      />
+    );
+  }
+
+  if (style === "single") {
+    return (
+      <div
+        className="absolute rounded-[16px] pointer-events-none"
+        style={{
+          inset: 14,
+          border: `1px solid ${withAlpha(primary, 0.45)}`,
+        }}
+      />
+    );
+  }
+
+  if (style === "hairline") {
+    return (
+      <div
+        className="absolute rounded-[16px] pointer-events-none"
+        style={{
+          inset: 14,
+          border: `1px solid ${withAlpha(primary, 0.22)}`,
+        }}
+      />
+    );
+  }
+
+  // fade — no visible border, only the subtle outer card shadow.
+  return null;
+}
+
+function CornerCrest({
+  position,
+  color,
+  grade,
+}: {
+  position: "tl" | "tr" | "bl" | "br";
+  color: string;
+  grade: CardGrade;
+}) {
+  const flipX = position === "tr" || position === "br";
+  const flipY = position === "bl" || position === "br";
+  return (
+    <div
+      className="absolute pointer-events-none"
+      style={{
+        top: position.startsWith("t") ? 14 : undefined,
+        bottom: position.startsWith("b") ? 14 : undefined,
+        left: position.endsWith("l") ? 14 : undefined,
+        right: position.endsWith("r") ? 14 : undefined,
+        width: 28,
+        height: 28,
+        transform: `scale(${flipX ? -1 : 1}, ${flipY ? -1 : 1})`,
+      }}
+    >
+      <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M 2 2 L 14 2 M 2 2 L 2 14 M 2 2 L 10 10"
+          stroke={color}
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          opacity={grade === "mega-s" ? 0.95 : 0.65}
+        />
+        {grade === "mega-s" && (
+          <circle cx="2" cy="2" r="2.2" fill={color} opacity="0.85" />
+        )}
+      </svg>
+    </div>
+  );
+}
+
+function TierBadge({
+  tier,
+  theme,
+  grade,
+}: {
+  tier: Tier;
+  theme: GradeTheme;
+  grade: CardGrade;
+}) {
   return (
     <div className="relative">
       <div
         className="w-14 h-14 rounded-2xl flex items-center justify-center font-display font-bold text-[28px] leading-none"
         style={{
-          background: `linear-gradient(135deg, ${colors.from} 0%, ${colors.to} 100%)`,
-          boxShadow: `0 0 28px ${colors.ring}, inset 0 -3px 6px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.35)`,
+          background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
+          boxShadow: theme.badgeAnimate
+            ? undefined
+            : `0 0 28px ${theme.ring}, inset 0 -3px 6px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.35)`,
           color: "#1F1612",
+          animation: theme.badgeAnimate ? "holoBadgePulse 2.4s ease-in-out infinite" : undefined,
         }}
       >
         {tier}
       </div>
-      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 font-mono text-[8px] tracking-[0.22em] text-cream/55 whitespace-nowrap">
-        TIER
+      <div
+        className="absolute -bottom-2 left-1/2 -translate-x-1/2 font-mono text-[8px] tracking-[0.22em] whitespace-nowrap"
+        style={{ color: withAlpha(theme.primary, 0.6) }}
+      >
+        {grade === "mega-s" ? "ASCENDED" : "TIER"}
       </div>
     </div>
   );
 }
 
-function RarityBadge({ tier }: { tier: Tier }) {
-  const label = ({ S: "MYTHIC", A: "RARE", B: "UNCOMMON", C: "COMMON", D: "BASIC" } as const)[tier];
-  const stars = ({ S: "★★★★★", A: "★★★★", B: "★★★", C: "★★", D: "★" } as const)[tier];
+function RarityBadge({ theme, grade }: { theme: GradeTheme; grade: CardGrade }) {
+  const isMega = grade === "mega-s";
   return (
-    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber/8 border border-amber/25">
-      <span className="font-mono text-[8px] tracking-[0.18em] text-amber-light">{stars}</span>
-      <span className="font-mono text-[8px] tracking-[0.2em] text-cream/85">{label}</span>
+    <div
+      className="flex items-center gap-1 px-2 py-0.5 rounded-full"
+      style={{
+        background: isMega ? withAlpha(theme.secondary, 0.18) : withAlpha(theme.secondary, 0.10),
+        border: `1px solid ${withAlpha(theme.secondary, isMega ? 0.55 : 0.30)}`,
+      }}
+    >
+      <span
+        className="font-mono text-[8px] tracking-[0.18em]"
+        style={{
+          color: theme.primary,
+          textShadow: isMega ? `0 0 8px ${theme.ring}` : undefined,
+        }}
+      >
+        {theme.stars}
+      </span>
+      <span className="font-mono text-[8px] tracking-[0.2em] text-cream/90">{theme.rarity}</span>
     </div>
   );
 }
 
-function ScoreNumeral({
-  total,
-  colors,
-}: {
-  total: number;
-  tier: Tier;
-  colors: { from: string; to: string; ring: string };
-}) {
+function ScoreNumeral({ total, theme }: { total: number; theme: GradeTheme }) {
   return (
     <div className="relative">
       <div
@@ -522,11 +1055,11 @@ function ScoreNumeral({
           fontSize: "120px",
           fontWeight: 700,
           letterSpacing: "-0.04em",
-          background: `linear-gradient(180deg, #ffffff 0%, ${colors.from} 55%, ${colors.to} 100%)`,
+          background: `linear-gradient(180deg, ${theme.scoreFrom} 0%, ${theme.scoreMid} 55%, ${theme.scoreTo} 100%)`,
           WebkitBackgroundClip: "text",
           backgroundClip: "text",
           color: "transparent",
-          filter: `drop-shadow(0 4px 24px ${colors.ring})`,
+          filter: `drop-shadow(0 4px 28px ${theme.ring})`,
         }}
       >
         {total}
@@ -561,8 +1094,6 @@ function LeagueBadge({
   const [err, setErr] = useState<string | null>(null);
 
   const canEdit = editable && !!encoded;
-  // We use a hard navigation here so the URL (which is the storage layer)
-  // reflects the corrected age. No router import needed in this client comp.
   const submit = async () => {
     setErr(null);
     const n = Math.round(Number(draft));
@@ -689,11 +1220,27 @@ function StatBar({ label, value, color }: { label: string; value: number; color:
   );
 }
 
+// =============================================================================
+// Helpers
+// =============================================================================
+
+// Convert a #rrggbb hex to rgba(... , a).
+function withAlpha(hex: string, alpha: number): string {
+  if (hex.startsWith("rgba") || hex.startsWith("rgb")) return hex;
+  const m = hex.replace("#", "");
+  const full = m.length === 3 ? m.split("").map((c) => c + c).join("") : m;
+  const n = parseInt(full, 16);
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 // Deterministic small PRNG so sparkle layout is stable across renders.
 function mulberry32(seed: number) {
   return function () {
     seed |= 0;
-    seed = (seed + 0x6D2B79F5) | 0;
+    seed = (seed + 0x6d2b79f5) | 0;
     let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;

@@ -57,6 +57,31 @@ export default async function CardPage({ params }: PageProps) {
         <ShareBar result={result} />
       </section>
 
+      {/* LEAGUE EXPLAINER — only when a placement exists */}
+      {result.league && (
+        <section className="mt-12 max-w-2xl mx-auto">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 sm:p-6">
+            <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-gold/80 mb-2">
+              Why two grades?
+            </div>
+            <p className="text-[14px] text-white/70 leading-relaxed">
+              You scored <span className="text-white font-medium">{result.total}/100</span>{" "}
+              against the absolute rubric (tier{" "}
+              <span className="text-white">{result.tier}</span>). Your{" "}
+              <span className="text-white">{result.league.leagueLabel}</span> tier of{" "}
+              <span className="text-white">{result.league.leagueTier}</span> ranks you against
+              everyone else in your age cohort — same score, different bar.{" "}
+              {result.league.ageSource === "inferred" && (
+                <>
+                  Age was inferred as <span className="text-white">{result.league.age}</span>.
+                  Click the age pill on the card to correct it.
+                </>
+              )}
+            </p>
+          </div>
+        </section>
+      )}
+
       {/* ARCHETYPE CALLOUT — type-themed */}
       <section className="mt-20 max-w-6xl mx-auto">
         <div className="text-center mb-6">
