@@ -36,7 +36,7 @@ export default function About() {
           </ListItem>
           <ListItem n={5}>
             Sub-stats (HACK / GRIND / TASTE / RIZZ) are computed from the categories. The matched
-            archetype is the closest of 54 by total + sub-stat + tier compatibility.
+            archetype is the closest of 196 by total + sub-stat + tier compatibility.
           </ListItem>
           <ListItem n={6}>
             The whole result is gzip+base64-encoded into your share URL. There is no database. The

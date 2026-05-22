@@ -23,7 +23,7 @@ const PHASE_LOGS: Record<Phase, string[]> = {
   scoring: [
     "→ tier rubric loaded (S=10, A=7, B=4, C=2, D=1)",
     "→ computing sub-stats: hack / grind / taste / rizz",
-    "→ matching against the cracked dex (54 archetypes)",
+    "→ matching against the cracked dex (196 archetypes)",
     "→ rendering verdict prose...",
   ],
   done: ["✓ done. redirecting to your card..."],

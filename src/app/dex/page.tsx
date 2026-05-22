@@ -8,7 +8,7 @@ import type { Tier } from "@/lib/types";
 export const metadata = {
   title: "The Cracked Dex · A field guide to crackedness",
   description:
-    "Seven elemental types, fifty-four archetypes, one defensible ranking of how cracked is possible.",
+    "Twenty-two elemental types, two hundred archetypes, one defensible ranking of how cracked is possible.",
 };
 
 function archsForType(t: ArchetypeType): Archetype[] {
@@ -43,9 +43,9 @@ export default function DexIndex() {
           A <span className="text-foil">field guide</span><br />to crackedness
         </h1>
         <p className="mt-8 max-w-2xl mx-auto text-[16px] sm:text-[17px] text-white/65 text-balance leading-relaxed">
-          Seven elemental types. Fifty-four archetypes. One defensible ranking
-          of how cracked it's possible to be. Pick a type to drill in — or read
-          straight through, least to most.
+          Twenty-two elemental types. Nearly two hundred archetypes. One
+          defensible ranking of how cracked it's possible to be. Pick a type to
+          drill in — or read straight through, least to most.
         </p>
         <div className="mt-8 flex items-center justify-center gap-3 font-mono text-[10px] tracking-[0.22em] uppercase text-white/40">
           <span>{TYPES_ORDERED.length} types</span>
@@ -59,7 +59,7 @@ export default function DexIndex() {
       {/* THE 7 TYPES */}
       <section className="max-w-6xl mx-auto mb-24">
         <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-white/40 mb-5">
-          The seven types
+          The twenty-two types
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {TYPES_ORDERED.map((t, i) => {
@@ -95,7 +95,7 @@ export default function DexIndex() {
             <h2 className="mt-2 font-display text-3xl text-white">The mythic tier</h2>
           </div>
           <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/40">
-            10 entries · the names you hear at dinners
+            {ARCHETYPES.filter((a) => a.tier === "S").length} entries · the names you hear at dinners
           </span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -108,7 +108,7 @@ export default function DexIndex() {
             href="#all"
             className="font-mono text-[11px] tracking-[0.18em] uppercase text-white/55 hover:text-white transition"
           >
-            see all 54 below ↓
+            see all {ARCHETYPES.length} below ↓
           </Link>
         </div>
       </section>
@@ -120,10 +120,10 @@ export default function DexIndex() {
             <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-white/40">
               the linear index
             </div>
-            <h2 className="mt-2 font-display text-3xl text-white">All 54, ascending</h2>
+            <h2 className="mt-2 font-display text-3xl text-white">All {ARCHETYPES.length}, ascending</h2>
           </div>
           <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/40">
-            #001 → #054 · least to most cracked
+            #001 → #{String(ARCHETYPES.length).padStart(3, "0")} · least to most cracked
           </span>
         </div>
 

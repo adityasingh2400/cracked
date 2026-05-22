@@ -23,7 +23,7 @@ export default function Landing() {
         </h1>
         <p className="mt-7 max-w-xl mx-auto text-[16px] sm:text-[17px] text-white/65 text-balance leading-relaxed">
           Drop your LinkedIn PDF. We weigh every signal — schools, jobs, hackathons, fellowships,
-          open source, all of it — and match you to one of <Link href="/dex" className="text-gold underline decoration-gold/40 underline-offset-4 hover:decoration-gold">54 archetypes</Link> across <Link href="/dex" className="text-gold underline decoration-gold/40 underline-offset-4 hover:decoration-gold">7 elemental types</Link>.
+          open source, all of it — and match you to one of <Link href="/dex" className="text-gold underline decoration-gold/40 underline-offset-4 hover:decoration-gold">{ARCHETYPES.length} archetypes</Link> across <Link href="/dex" className="text-gold underline decoration-gold/40 underline-offset-4 hover:decoration-gold">{TYPES_ORDERED.length} elemental types</Link>.
         </p>
       </section>
 
@@ -60,7 +60,7 @@ export default function Landing() {
         <div className="flex items-end justify-between mb-6">
           <div>
             <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-gold/80">
-              The seven types
+              The {TYPES_ORDERED.length} types
             </div>
             <h2 className="mt-2 font-display text-4xl text-white">
               Pick your <span className="text-foil">element</span>
@@ -75,12 +75,7 @@ export default function Landing() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {TYPES_ORDERED.slice(0, 4).map((t) => (
-            <TypePeek key={t} t={t} />
-          ))}
-        </div>
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {TYPES_ORDERED.slice(4).map((t) => (
+          {TYPES_ORDERED.map((t) => (
             <TypePeek key={t} t={t} />
           ))}
         </div>
@@ -91,7 +86,7 @@ export default function Landing() {
         <div className="flex items-end justify-between mb-6">
           <div>
             <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-gold/80">
-              S-tier canon · the mythic ten
+              S-tier canon · the mythic peak
             </div>
             <h2 className="mt-2 font-display text-4xl text-white">
               The names you hear at <span className="text-foil">dinners</span>
@@ -101,7 +96,7 @@ export default function Landing() {
             href="/dex"
             className="font-mono text-[11px] tracking-[0.18em] uppercase text-white/55 hover:text-white transition"
           >
-            view all 54 →
+            view all {ARCHETYPES.length} →
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -1,99 +1,123 @@
 # cracked
 
-> **How cracked are you?** Upload your LinkedIn → get a tier, a score, and a Cracked Dex archetype.
+> **How cracked are you?**
+> Drop your LinkedIn. Get a tier. Get an archetype. Get a holographic trading card.
 
-A Next.js app that grades a person's "crackedness" (internet slang for hypercompetent, hacker-coded, terminal-online overachiever) from their LinkedIn PDF export, scores them across six categories, matches them to one of 54 hand-written archetypes, and renders the result as a holographic shareable trading card.
+This is a website that grades how impressive your resume is — in a fun, opinionated, internet-brain way — and turns the result into a Pokemon-style trading card you can screenshot and argue about.
 
-Built for screenshotting and arguing about.
+The word "cracked" is internet slang for someone who is freakishly good at what they do. This is a field guide and a grading scale for it.
 
-## Live demo
+## Try it
 
-**https://cracked-woad.vercel.app**
+**Live site:** https://cracked-woad.vercel.app
 
-Click "see a sample card first" on the landing to skip the upload and see the holo card right away.
+**Running locally:** http://localhost:3000 (once you start it — see below)
 
-## What it does
+You can either:
+1. **Upload your LinkedIn PDF** and get your real score, or
+2. Click **"see a sample card first"** on the homepage to skip the upload and look at an example.
 
-1. **You upload your LinkedIn PDF** (from LinkedIn → your profile → More → Save to PDF).
-2. **We extract structured signals** — schools, jobs, hackathons, fellowships, open source, founder history, online presence. Done by Claude when an API key is set, by a regex fallback otherwise.
-3. **Each signal is scored** against a hand-curated tier list (S/A/B/C/D, worth 10/7/4/2/1 points). Six categories cap at 15/25/25/15/10/10 = 100 total.
-4. **Sub-stats are computed** — HACK / GRIND / TASTE / RIZZ — and the result is matched to its closest archetype in **[The Cracked Dex](/dex)**.
-5. **The whole result is gzip+base64-encoded into the share URL.** No database, no storage, no tracking. The link IS the storage.
+## What you get
+
+After dropping your LinkedIn PDF in, in about 8 seconds you get:
+
+- **A score out of 100** — total "crackedness"
+- **A tier**: S, A, B, C, or D (like a Smash Bros tier list)
+- **Four sub-stats**: HACK, GRIND, TASTE, RIZZ
+- **An archetype** — one of 196 hand-written character types like *"The Bain Capital Partner"* or *"The Fiverr Logo Mill"* — that best matches you
+- **A holographic shareable card** with all of the above on it
+
+Plus a sharable link that contains your entire result inside the URL itself. **Nothing is saved on any server.** Your data never leaves the browser unless you click share.
 
 ## The Cracked Dex
 
-A field guide to 54 archetypes of cracked, ordered from least to most.
-Every entry has a profile, real examples, and a defensible justification.
+The heart of the project. A browseable encyclopedia of **196 archetypes** of cracked people, grouped into **22 elemental types** (Hacker, Quant, Founder, Scholar, Healer, Athlete, Performer, etc.), ranked from least to most impressive.
 
-- D-tier (#001–#010): the long tail — bootcamp grads, SaaS bros, LinkedIn influencers
-- C-tier (#011–#020): the believers — early signals, on the up
-- B-tier (#021–#032): the top 10% — stacked but not yet S
-- A-tier (#033–#044): real heat — Berkeley → Anthropic, YC vets, Mercury Fellows
-- S-tier (#045–#054): the mythic tier — IMO golds, Thiel unicorns, MacArthur fellows
+Each entry has:
+- A name, a one-line tagline, and a picture-perfect profile
+- Real-world examples of who fits the archetype
+- A justification for why it's ranked where it is
+- What it evolves into next
 
-Browse at `/dex`.
+Browse the dex at **[/dex](https://cracked-woad.vercel.app/dex)**.
 
-## Local setup
+## The five tiers
 
-Requires Node 18+ and one of `bun`, `pnpm`, or `npm`.
+| Tier | Count | Vibe |
+|------|-------|------|
+| **S** | 34 | The legends. Once-a-decade trajectories. (Sequoia partner, Nobel laureate, IMO gold) |
+| **A** | 49 | Obviously cracked within five minutes of meeting them. |
+| **B** | 48 | The climbers. Stacked dossiers, top 10-20%. |
+| **C** | 32 | The believers. Real signal, on the way up. |
+| **D** | 33 | The long tail. Signals haven't shown up yet. |
+
+## Running it on your own machine
+
+You'll need [Node.js](https://nodejs.org) 18 or newer, and [bun](https://bun.sh) (or npm, or pnpm).
 
 ```bash
+git clone https://github.com/adityasingh2400/cracked.git
+cd cracked
 bun install
 bun run dev
-# open http://localhost:3000
 ```
 
-To enable Claude-powered extraction (recommended — way better than the regex fallback):
+Then open **http://localhost:3000**.
 
-```bash
-cp .env.example .env.local
-# add your ANTHROPIC_API_KEY=sk-ant-...
+That's it. No database to set up. No accounts. No environment variables required.
+
+> Optional: if you want LLM-powered signal extraction instead of the regex fallback, set `ANTHROPIC_API_KEY=...` in a `.env.local` file. Without it, the app still works — it just uses simpler pattern matching.
+
+## How it works (in plain English)
+
+1. **You upload your LinkedIn PDF.**
+2. The app reads the text out of it and pulls out the things that matter — schools, jobs, awards, hackathons, projects.
+3. Each thing gets graded S / A / B / C / D against a giant **hand-curated tier list** (e.g., MIT is S-tier education, Fiverr is D-tier work, IMO Gold Medal is S-tier accolade).
+4. Those grades get added up into six buckets (Education, Work, Accolades, Founder, Open Source, Online Presence), capped, and combined into a total score from 0 to 100.
+5. The total gets bucketed into a tier (S/A/B/C/D).
+6. Your sub-stats are computed from the same signals: **HACK** (hard skills), **GRIND** (volume), **TASTE** (selectivity), **RIZZ** (audience).
+7. The result is matched against the closest of 196 archetypes by score, sub-stats, and tier.
+8. Everything is rendered onto a holographic Pokemon-style trading card.
+9. The card is encoded into a share link. No server-side storage exists.
+
+The whole grading rubric is in `src/lib/tier-list.ts` and is meant to be argued with. The full dex is in `src/data/archetypes.ts`. Both are plain TypeScript — fork it, change the rubric, ship your own version.
+
+## Built with
+
+- **[Next.js 15](https://nextjs.org)** — the website framework
+- **[Tailwind CSS](https://tailwindcss.com)** — the styling
+- **[Framer Motion](https://www.framer.com/motion/)** — the holo card animations
+- **[Claude](https://www.anthropic.com/claude)** (optional) — for smarter signal extraction
+- **[Vercel](https://vercel.com)** — where it's hosted
+
+## Project layout
+
+```
+src/
+├── app/              # the pages (home, dex, leaderboard, about)
+│   ├── dex/          # the field guide — index, types, individual archetypes
+│   └── c/[data]/     # the share card route (decodes URL → renders card)
+├── components/       # the holo card, upload box, tier rings, etc.
+├── data/
+│   ├── archetypes.ts # all 196 archetypes
+│   └── types-meta.ts # the 22 elemental types
+└── lib/
+    ├── tier-list.ts  # the hand-curated scoring rubric
+    ├── score.ts      # totals the categories, picks a tier
+    ├── match.ts      # picks the closest archetype
+    ├── claude.ts     # signal extraction (with regex fallback)
+    └── encode.ts     # gzip+base64 → share URL
 ```
 
-Without an API key, the app still works — it uses a regex-based signal extractor. Less nuanced, but functional. The scoring math and the holo card are identical either way.
+## Why this exists
 
-## Tech
+For fun. Mostly to argue with friends about who's more cracked.
 
-- **Next.js 15** (App Router) + **React 19** + **TypeScript**
-- **Tailwind v3** for styling
-- **unpdf** for in-memory PDF text extraction (no native deps, Vercel-friendly)
-- **@anthropic-ai/sdk** for LLM-based signal extraction (optional)
-- **zod** for response schema validation
-- **gzip + base64url** for URL-encoded result storage (no DB)
-- **Cormorant Garamond + JetBrains Mono** (via next/font)
-
-## Deploying to Vercel
-
-```bash
-npx vercel
-# follow prompts; add ANTHROPIC_API_KEY in the Vercel dashboard if you want Claude scoring
-```
-
-That's it. Nothing else to set up — the app is stateless. Every share link contains the full result, gzip-compressed and base64-encoded into the URL.
-
-## Architecture notes
-
-- `src/lib/tier-list.ts` — the rubric. Hand-curated S/A/B/C/D entries with name patterns + regex matchers.
-- `src/lib/score.ts` — the scoring engine. Pure function from signals → CrackedResult.
-- `src/lib/match.ts` — archetype matcher. L2 distance on sub-stats + score range + tier compatibility.
-- `src/lib/claude.ts` — Anthropic SDK integration + regex fallback.
-- `src/lib/pdf.ts` — `unpdf`-based text extraction (Vercel-edge-friendly).
-- `src/lib/encode.ts` — gzip + base64url for share URLs.
-- `src/data/archetypes.ts` — the Cracked Dex content (~30KB, the soul of the project).
-- `src/components/HoloCard.tsx` — the shareable trading-card component with 3D mouse tilt + animated holo foil.
-
-## Editing the rubric
-
-Want to argue about a tier placement? Edit `src/lib/tier-list.ts`. Each entry is a `{ label, tier, patterns, regex? }`. The scoring engine consumes the rubric at runtime — no codegen.
-
-Want to add or rewrite an archetype? Edit `src/data/archetypes.ts`. The Dex pages regenerate automatically (`generateStaticParams` from the archetype array).
-
-## Honest limits
-
-- LinkedIn PDFs are thin on hackathons, open source, and online presence. The OSINT enrichment layer (Twitter / GitHub / Devpost scraping) isn't built yet.
-- Regex fallback misses nuance — set `ANTHROPIC_API_KEY` for real Claude-grade extraction.
-- The tier list is opinionated by design. PR your case if you disagree.
+It's also a working example of:
+- A website that does real work but stores **literally nothing** (the URL is the database)
+- A hand-curated taste artifact (the tier list + dex) wrapped in a real product
+- LLM-assisted PDF parsing that gracefully falls back to deterministic regex
 
 ## License
 
-MIT. Have fun. Don't use this to actually rank people in performance reviews.
+MIT. Steal it. Fork it. Make your own.
