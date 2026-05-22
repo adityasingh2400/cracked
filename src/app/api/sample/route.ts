@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { scoreSignals } from "@/lib/score";
 import { encodeResult } from "@/lib/encode";
-import type { ExtractedSignal } from "@/lib/types";
+import type { ExtractedSignal, Tier } from "@/lib/types";
 
 export const runtime = "nodejs";
 
@@ -81,15 +81,36 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // Mythic preview: overall A but league S — the "league-S only" frame.
-  const mythic = req.nextUrl.searchParams.get("mythic") === "1";
-  if (mythic && result.league && result.league.leagueTier !== "S") {
+  // Generic grade preview — overrides absolute tier + leagueTier so each
+  // visual grade (ascended / mythic / rare-holo / rare / uncommon / common)
+  // renders without needing real signals to back it.
+  const gradeOverride = (req.nextUrl.searchParams.get("grade") ?? "").toLowerCase();
+  const GRADE_MAP: Record<string, { tier: Tier; leagueTier: Tier; total: number; percentile: number; verdict: string; flavor: string }> = {
+    ascended: { tier: "S", leagueTier: "S", total: 94, percentile: 99, verdict: "MIT, Anthropic founding, IMO gold, Rhodes, MacArthur, Thiel + YC, NeurIPS first-author, Nature paper, $200M exit, $1B startup. Calibration ceiling.", flavor: "Once a decade. Built different." },
+    mythic:   { tier: "A", leagueTier: "S", total: 84, percentile: 96, verdict: "MIT EECS, Anthropic, Mercury Fellowship, Putnam, IMO Bronze, YC batch, NeurIPS co-author. Cohort-S — peers can't touch it.", flavor: "Built the thing. Shipped it anyway." },
+    "rare-holo": { tier: "A", leagueTier: "A", total: 75, percentile: 78, verdict: "MIT EECS, Anthropic, HackMIT grand prize, Mercury Fellowship before 23. Add a YC batch or a viral side project and they're untouchable.", flavor: "Compiled in basements. Shipped at dawn." },
+    a:        { tier: "A", leagueTier: "A", total: 75, percentile: 78, verdict: "MIT EECS, Anthropic, HackMIT grand prize, Mercury Fellowship before 23. Add a YC batch or a viral side project and they're untouchable.", flavor: "Compiled in basements. Shipped at dawn." },
+    rare:     { tier: "B", leagueTier: "B", total: 64, percentile: 62, verdict: "Brown CS, Stripe SWE, two real internships, a hackathon win. Solid trajectory — the next checkpoint decides whether it compounds.", flavor: "On the verge." },
+    b:        { tier: "B", leagueTier: "B", total: 64, percentile: 62, verdict: "Brown CS, Stripe SWE, two real internships, a hackathon win. Solid trajectory — the next checkpoint decides whether it compounds.", flavor: "On the verge." },
+    uncommon: { tier: "C", leagueTier: "C", total: 48, percentile: 42, verdict: "State school CS, mid-tier SaaS engineer, one boot-strapped side project. Real work, real shipping — just hasn't found the leverage yet.", flavor: "The arc is just beginning." },
+    c:        { tier: "C", leagueTier: "C", total: 48, percentile: 42, verdict: "State school CS, mid-tier SaaS engineer, one boot-strapped side project. Real work, real shipping — just hasn't found the leverage yet.", flavor: "The arc is just beginning." },
+    common:   { tier: "D", leagueTier: "D", total: 22, percentile: 18, verdict: "Bootcamp grad, junior eng at a regional shop, no public output. Plenty of runway — none of it compounded yet.", flavor: "The signals haven't shown up yet." },
+    d:        { tier: "D", leagueTier: "D", total: 22, percentile: 18, verdict: "Bootcamp grad, junior eng at a regional shop, no public output. Plenty of runway — none of it compounded yet.", flavor: "The signals haven't shown up yet." },
+  };
+  const g = GRADE_MAP[gradeOverride];
+  if (g) {
     result = {
       ...result,
-      tier: "A" as const,
-      league: { ...result.league, leagueTier: "S" as const, percentile: 93 },
+      tier: g.tier,
+      total: g.total,
+      verdict: g.verdict,
+      flavor: g.flavor,
+      league: result.league
+        ? { ...result.league, leagueTier: g.leagueTier, percentile: g.percentile }
+        : result.league,
     };
   }
+
   const encoded = encodeResult(result);
   return NextResponse.json({ encoded, result });
 }
