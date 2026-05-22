@@ -56,11 +56,10 @@ interface GradeTheme {
   sparkleCount: number;
   sparkleColor: string;
   embers: number;
-  lightning: boolean;
   haloBurst: boolean;
   cornerCrests: boolean;
   // Border
-  borderStyle: "fade" | "hairline" | "single" | "double" | "double-gold" | "primal";
+  borderStyle: "fade" | "hairline" | "single" | "double" | "double-gold";
   // Tier badge style
   badgeAnimate: boolean;
   // Drop shadow / glow intensity
@@ -89,10 +88,9 @@ const GRADE_THEMES: Record<CardGrade, GradeTheme> = {
     sparkleCount: 36,
     sparkleColor: "#FFE5A8",
     embers: 26,
-    lightning: true,
     haloBurst: true,
     cornerCrests: true,
-    borderStyle: "primal",
+    borderStyle: "double-gold",
     badgeAnimate: true,
     cardGlow: 1.0,
   },
@@ -114,7 +112,6 @@ const GRADE_THEMES: Record<CardGrade, GradeTheme> = {
     sparkleCount: 22,
     sparkleColor: "#FFE5A8",
     embers: 14,
-    lightning: true,
     haloBurst: true,
     cornerCrests: true,
     borderStyle: "double-gold",
@@ -139,7 +136,6 @@ const GRADE_THEMES: Record<CardGrade, GradeTheme> = {
     sparkleCount: 12,
     sparkleColor: "#C4A0FF",
     embers: 0,
-    lightning: false,
     haloBurst: false,
     cornerCrests: false,
     borderStyle: "double",
@@ -163,7 +159,6 @@ const GRADE_THEMES: Record<CardGrade, GradeTheme> = {
     sparkleCount: 6,
     sparkleColor: "#7DD8E8",
     embers: 0,
-    lightning: false,
     haloBurst: false,
     cornerCrests: false,
     borderStyle: "single",
@@ -187,7 +182,6 @@ const GRADE_THEMES: Record<CardGrade, GradeTheme> = {
     sparkleCount: 3,
     sparkleColor: "#D9CCB8",
     embers: 0,
-    lightning: false,
     haloBurst: false,
     cornerCrests: false,
     borderStyle: "hairline",
@@ -211,7 +205,6 @@ const GRADE_THEMES: Record<CardGrade, GradeTheme> = {
     sparkleCount: 0,
     sparkleColor: "#8B7A6B",
     embers: 0,
-    lightning: false,
     haloBurst: false,
     cornerCrests: false,
     borderStyle: "fade",
@@ -521,64 +514,7 @@ export function HoloCard({
           </div>
         )}
 
-        {/* Lightning streak — Mythic + Ascended both, Mythic more subtle */}
-        {theme.lightning && (
-          <svg
-            className="absolute inset-0 w-full h-full rounded-[24px] pointer-events-none z-[6]"
-            viewBox="0 0 200 300"
-            preserveAspectRatio="none"
-            style={{ mixBlendMode: "screen" }}
-          >
-            <defs>
-              <filter id={`lightning-glow-${grade}`}>
-                <feGaussianBlur stdDeviation={grade === "mega-s" ? "3" : "2"} result="b" />
-                <feMerge>
-                  <feMergeNode in="b" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-            <path
-              d="M 130 -10 L 90 90 L 120 100 L 70 220 L 105 200 L 60 310"
-              fill="none"
-              stroke="#FFF7D1"
-              strokeWidth={grade === "mega-s" ? "2.8" : "2.0"}
-              filter={`url(#lightning-glow-${grade})`}
-              style={{
-                animation: grade === "mega-s"
-                  ? "holoLightning 3.6s steps(1,end) infinite"
-                  : "holoLightning 6.2s steps(1,end) infinite",
-                opacity: grade === "mega-s" ? 1 : 0.75,
-              }}
-            />
-            <path
-              d="M 50 -10 L 75 80 L 55 95 L 95 200 L 70 215 L 90 310"
-              fill="none"
-              stroke="#FFE5A8"
-              strokeWidth={grade === "mega-s" ? "1.8" : "1.2"}
-              filter={`url(#lightning-glow-${grade})`}
-              style={{
-                animation: grade === "mega-s"
-                  ? "holoLightning2 4.8s steps(1,end) infinite"
-                  : "holoLightning2 8.4s steps(1,end) infinite",
-                opacity: grade === "mega-s" ? 0.85 : 0.55,
-              }}
-            />
-            {grade === "mega-s" && (
-              <path
-                d="M 170 -10 L 140 70 L 165 85 L 130 180 L 155 195 L 110 310"
-                fill="none"
-                stroke="#FFFFFF"
-                strokeWidth="1.6"
-                filter={`url(#lightning-glow-${grade})`}
-                style={{ animation: "holoLightning3 5.2s steps(1,end) infinite" }}
-                opacity="0.9"
-              />
-            )}
-          </svg>
-        )}
-
-        {/* MEGA-only: halo burst behind the name (radial cosmic flare) */}
+        {/* halo burst behind the name (radial cosmic flare) */}
         {theme.haloBurst && (
           <div
             className="absolute pointer-events-none"
@@ -852,23 +788,6 @@ export function HoloCard({
           0%   { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-        @keyframes holoLightning {
-          0%, 70%, 100% { opacity: 0; }
-          71%, 73%      { opacity: 1; }
-          72%           { opacity: 0.3; }
-          74%, 76%      { opacity: 0.85; }
-          75%           { opacity: 0.1; }
-        }
-        @keyframes holoLightning2 {
-          0%, 45%, 100% { opacity: 0; }
-          46%, 48%      { opacity: 0.9; }
-          47%           { opacity: 0.2; }
-        }
-        @keyframes holoLightning3 {
-          0%, 30%, 100% { opacity: 0; }
-          31%, 33%      { opacity: 1; }
-          32%           { opacity: 0.2; }
-        }
         @keyframes holoBadgePulse {
           0%, 100% { box-shadow: 0 0 30px ${theme.ring}, inset 0 -3px 6px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.35); }
           50%      { box-shadow: 0 0 50px ${theme.ring}, 0 0 90px ${theme.ring}, inset 0 -3px 6px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.45); }
@@ -891,48 +810,6 @@ function BorderFrame({
   primary: string;
   secondary: string;
 }) {
-  // PRIMAL — rainbow outer + gold + cream inner ornate frame for mega-s.
-  if (style === "primal") {
-    return (
-      <>
-        {/* outer rainbow ring */}
-        <div
-          className="absolute rounded-[20px] pointer-events-none"
-          style={{
-            inset: 8,
-            padding: 1,
-            background:
-              "conic-gradient(from 0deg, #FF5A2E, #FCD34D, #06B6D4, #8B5CF6, #EC4899, #FF5A2E)",
-            WebkitMask:
-              "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-            mask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-            WebkitMaskComposite: "xor",
-            maskComposite: "exclude",
-            animation: "holoMegaShimmer 12s linear infinite",
-          }}
-        />
-        {/* gold middle */}
-        <div
-          className="absolute rounded-[16px] pointer-events-none"
-          style={{
-            inset: 14,
-            border: `1.5px solid ${primary}`,
-            boxShadow:
-              "inset 0 0 0 3px rgba(0,0,0,0.5), inset 0 0 0 4px rgba(255,229,168,0.45), inset 0 0 80px rgba(255,90,46,0.18)",
-          }}
-        />
-        {/* cream inner hairline */}
-        <div
-          className="absolute rounded-[12px] pointer-events-none"
-          style={{
-            inset: 20,
-            border: "1px solid rgba(242,232,220,0.18)",
-          }}
-        />
-      </>
-    );
-  }
-
   if (style === "double-gold") {
     return (
       <div
