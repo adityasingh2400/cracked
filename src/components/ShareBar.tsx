@@ -26,20 +26,42 @@ export function ShareBar({ result }: { result: CrackedResult }) {
       : `https://twitter.com/intent/tweet?text=${tweetText}&url=${encodeURIComponent(window.location.href)}`;
 
   return (
-    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 justify-center">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 justify-center">
       <button
         onClick={copyLink}
-        className="px-5 py-2.5 rounded-md border border-white/15 text-white/85 font-mono text-[11px] tracking-[0.18em] uppercase hover:border-gold/40 hover:text-gold transition"
+        className="arcade-btn px-5 py-3 rounded-full border-[3px] border-ink bg-cream text-ink font-display text-[13px] tracking-tight transition"
+        style={{ boxShadow: "5px 5px 0 var(--ink)" }}
+        onMouseEnter={(e) => {
+          const t = e.currentTarget;
+          t.style.boxShadow = "7px 7px 0 var(--ink)";
+          t.style.transform = "translate(-2px,-2px)";
+        }}
+        onMouseLeave={(e) => {
+          const t = e.currentTarget;
+          t.style.boxShadow = "5px 5px 0 var(--ink)";
+          t.style.transform = "";
+        }}
       >
-        {copied ? "✓ link copied" : "Copy share link"}
+        {copied ? "✓ LINK COPIED" : "COPY SHARE LINK"}
       </button>
       <a
         href={tweetUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="px-5 py-2.5 rounded-md bg-gradient-to-br from-foil-violet to-foil-pink text-white font-mono text-[11px] tracking-[0.18em] uppercase hover:brightness-110 transition text-center"
+        className="arcade-btn px-5 py-3 rounded-full border-[3px] border-ink bg-cherry text-paper font-display text-[13px] tracking-tight text-center transition"
+        style={{ boxShadow: "5px 5px 0 var(--ink)" }}
+        onMouseEnter={(e) => {
+          const t = e.currentTarget;
+          t.style.boxShadow = "7px 7px 0 var(--ink)";
+          t.style.transform = "translate(-2px,-2px)";
+        }}
+        onMouseLeave={(e) => {
+          const t = e.currentTarget;
+          t.style.boxShadow = "5px 5px 0 var(--ink)";
+          t.style.transform = "";
+        }}
       >
-        Post on X
+        POST ON X →
       </a>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
 
@@ -25,7 +25,7 @@ const PHASE_LOGS: Record<Phase, string[]> = {
     "→ inferring age cohort from grad years...",
     "→ placing into age cohort (≤16 · 17-19 · 20-22 · 23-26 · 27-32 · 33+)",
     "→ computing sub-stats: hack / grind / taste / rizz",
-    "→ matching against the cracked dex (196 archetypes)",
+    "→ matching against the cracked dex",
     "→ rendering verdict prose...",
   ],
   done: ["✓ done. redirecting to your card..."],
@@ -68,7 +68,6 @@ export function UploadDropzone() {
         return;
       }
 
-      // kick off phase animation in parallel with the actual request
       const animation = (async () => {
         await advancePhase("uploading", 250);
         await advancePhase("investigating", 350);
@@ -84,7 +83,7 @@ export function UploadDropzone() {
           body: form,
           signal: abortRef.current.signal,
         });
-        await animation; // make sure logs finish before we transition
+        await animation;
         if (!res.ok) {
           const j = await res.json().catch(() => ({}));
           throw new Error(j.error || `HTTP ${res.status}`);
@@ -135,7 +134,8 @@ export function UploadDropzone() {
       />
 
       {error && (
-        <div className="mt-5 max-w-xl mx-auto p-4 rounded-lg border border-red-500/30 bg-red-500/5 text-red-200 font-mono text-[12px]">
+        <div className="mt-5 max-w-xl mx-auto p-4 rounded-2xl border-2 border-cherry bg-blush text-ink font-mono text-[12px]"
+             style={{ boxShadow: "5px 5px 0 var(--cherry)" }}>
           {error}
         </div>
       )}
@@ -151,7 +151,7 @@ export function UploadDropzone() {
               router.push(`/c/${encoded}`);
             } catch {}
           }}
-          className="font-mono text-[11px] tracking-[0.18em] uppercase text-white/40 hover:text-white transition"
+          className="font-mono text-[11px] tracking-[0.18em] uppercase text-ink-soft hover:text-cherry transition cursor-pointer"
         >
           → or see a sample card first
         </button>
@@ -184,21 +184,50 @@ function DropZone({
       onDragLeave={() => setDragOver(false)}
       onDrop={onDrop}
       className={clsx(
-        "max-w-xl mx-auto rounded-2xl border-2 border-dashed transition-all cursor-pointer",
-        "py-12 px-8 flex flex-col items-center gap-3 text-center",
-        dragOver
-          ? "border-gold/60 bg-gold/5 scale-[1.01]"
-          : "border-white/15 hover:border-white/30 hover:bg-white/[0.02]"
+        "relative max-w-xl mx-auto rounded-3xl transition-all cursor-pointer",
+        "py-12 px-8 flex flex-col items-center gap-3 text-center group",
+        dragOver ? "scale-[1.02]" : ""
       )}
+      style={{
+        background: "var(--cream)",
+        border: "3px solid var(--ink)",
+        boxShadow: dragOver ? "14px 14px 0 var(--cherry)" : "10px 10px 0 var(--cherry)",
+        transform: dragOver ? "translate(-4px,-4px)" : undefined,
+      }}
+      onMouseEnter={(e) => {
+        const t = e.currentTarget as HTMLDivElement;
+        t.style.boxShadow = "14px 14px 0 var(--cherry)";
+        t.style.transform = "translate(-4px,-4px)";
+      }}
+      onMouseLeave={(e) => {
+        const t = e.currentTarget as HTMLDivElement;
+        t.style.boxShadow = "10px 10px 0 var(--cherry)";
+        t.style.transform = "";
+      }}
     >
-      <div className="font-display text-2xl text-white/90">Drop your LinkedIn PDF</div>
-      <div className="font-mono text-[11px] tracking-[0.16em] text-white/45 uppercase">
-        or click to choose · max 10mb
+      {/* DROP HERE sticker */}
+      <span
+        className="absolute -top-3 right-6 bg-cherry text-paper font-mono font-bold text-[11px] tracking-[0.2em] uppercase px-3 py-1.5 rounded-full border-2 border-ink animate-wiggle"
+        style={{ transform: "rotate(6deg)" }}
+      >
+        DROP HERE
+      </span>
+
+      {/* + circle */}
+      <div
+        className="w-16 h-16 rounded-full border-[3px] border-ink grid place-items-center font-display text-[40px] text-ink mb-2 transition-transform duration-300 group-hover:rotate-180 group-hover:scale-110"
+        style={{ background: "linear-gradient(180deg, var(--marigold), var(--mango))" }}
+      >
+        +
       </div>
-      <div className="mt-2 flex items-center gap-2 font-mono text-[10px] text-white/35">
-        <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10">.PDF</span>
-        <span>·</span>
-        <span>processed in your browser ↔ server, never stored</span>
+
+      <div className="font-display text-3xl text-ink leading-none">Drop your LinkedIn PDF</div>
+      <div className="text-ink-soft text-[15px]">Or click to browse. We don&apos;t keep it.</div>
+
+      <div className="mt-3 flex gap-2 flex-wrap justify-center">
+        <span className="font-mono text-[11px] font-bold tracking-[0.1em] uppercase px-3 py-1.5 rounded-full bg-blush border-2 border-ink text-ink">.PDF</span>
+        <span className="font-mono text-[11px] font-bold tracking-[0.1em] uppercase px-3 py-1.5 rounded-full bg-blush border-2 border-ink text-ink">10MB MAX</span>
+        <span className="font-mono text-[11px] font-bold tracking-[0.1em] uppercase px-3 py-1.5 rounded-full bg-cherry text-paper border-2 border-ink">8s TO SCORE</span>
       </div>
     </div>
   );
@@ -206,18 +235,21 @@ function DropZone({
 
 function TerminalLog({ lines, phase }: { lines: string[]; phase: Phase }) {
   return (
-    <div className="max-w-xl mx-auto mt-2 rounded-2xl bg-ink-900/80 border border-white/10 p-5 font-mono text-[12px] text-white/85 backdrop-blur-sm">
+    <div
+      className="max-w-xl mx-auto mt-2 rounded-2xl bg-ink p-5 font-mono text-[12px] text-paper border-[3px] border-ink"
+      style={{ boxShadow: "8px 8px 0 var(--cherry)" }}
+    >
       <div className="flex items-center gap-2 mb-3">
-        <span className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
-        <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
-        <span className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
-        <span className="ml-2 text-[10px] tracking-[0.22em] uppercase text-white/40">
+        <span className="w-3 h-3 rounded-full bg-cherry" />
+        <span className="w-3 h-3 rounded-full bg-marigold" />
+        <span className="w-3 h-3 rounded-full" style={{ background: "#5ED677" }} />
+        <span className="ml-2 text-[10px] tracking-[0.22em] uppercase text-paper/60">
           cracked@analyzer · {phase}
         </span>
       </div>
-      <pre className="leading-[1.7] whitespace-pre-wrap text-foil-cyan/90">
+      <pre className="leading-[1.7] whitespace-pre-wrap text-paper/95">
         {lines.map((l, i) => (
-          <div key={i} style={{ color: l.startsWith("→") ? "rgba(252,211,77,0.85)" : "rgba(232,232,236,0.95)" }}>
+          <div key={i} style={{ color: l.startsWith("→") ? "var(--marigold)" : "var(--paper)" }}>
             {l}
             {i === lines.length - 1 && phase !== "done" && phase !== "error" && (
               <span className="cursor-blink ml-1" />
