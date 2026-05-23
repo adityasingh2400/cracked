@@ -1,103 +1,128 @@
-import Link from "next/link";
 import { UploadDropzone } from "@/components/UploadDropzone";
-import { ARCHETYPES, type ArchetypeType } from "@/data/archetypes";
+import { ARCHETYPES } from "@/data/archetypes";
 import { TYPES_META, TYPES_ORDERED } from "@/data/types-meta";
-import { HoloTile } from "@/components/HoloTile";
 import { ArchetypeMini } from "@/components/ArchetypeMini";
+import { LandingFX } from "./LandingFX";
+import { Hero } from "./Hero";
+import { TypeCardGrid } from "./TypeCardGrid";
 
 export default function Landing() {
-  // Top S-tier archetypes as the bottom-of-fold "canon" preview
   const canon = ARCHETYPES.filter((a) => a.tier === "S").slice().reverse().slice(0, 6);
 
-  return (
-    <div className="px-5 sm:px-8">
-      {/* HERO */}
-      <section className="pt-16 sm:pt-28 pb-12 max-w-5xl mx-auto text-center">
-        <div className="font-mono text-[11px] tracking-[0.32em] uppercase text-gold/80 mb-6">
-          THE CRACKED INDEX · A FIELD GUIDE
-        </div>
-        <h1 className="font-display font-semibold leading-[0.95] tracking-tight text-[68px] sm:text-[120px]">
-          <span className="text-white">how cracked</span>
-          <br />
-          <span className="text-amber-foil">are you?</span>
-        </h1>
-        <p className="mt-7 max-w-xl mx-auto text-[16px] sm:text-[17px] text-white/65 text-balance leading-relaxed">
-          Drop your LinkedIn PDF. We weigh every signal — schools, jobs, hackathons, fellowships,
-          open source, all of it — and match you to one of <Link href="/dex" className="text-gold underline decoration-gold/40 underline-offset-4 hover:decoration-gold">{ARCHETYPES.length} archetypes</Link> across <Link href="/dex" className="text-gold underline decoration-gold/40 underline-offset-4 hover:decoration-gold">{TYPES_ORDERED.length} elemental types</Link>.
-        </p>
-      </section>
+  // Pre-compute archetype breakdowns per type for the flip-card backs.
+  const typeBreakdowns = TYPES_ORDERED.map((t) => {
+    const meta = TYPES_META[t];
+    const all = ARCHETYPES.filter((a) => a.types[0] === t);
+    return {
+      key: t,
+      meta,
+      count: all.length,
+      topTier: all.find((a) => a.tier === "S")?.tier ?? all[0]?.tier ?? "B",
+      members: all
+        .slice()
+        .sort((a, b) => b.number - a.number)
+        .slice(0, 5)
+        .map((a) => ({ slug: a.slug, name: a.name, tier: a.tier })),
+    };
+  });
 
-      {/* UPLOAD */}
-      <section className="pb-10 max-w-5xl mx-auto">
+  return (
+    <div className="px-5 sm:px-8 relative">
+      <LandingFX />
+
+      <Hero />
+
+      <section className="pb-10 max-w-3xl mx-auto relative z-[2]">
         <UploadDropzone />
       </section>
 
-      {/* HOW-TO */}
-      <section className="pb-24 max-w-3xl mx-auto">
-        <div className="text-center font-mono text-[10px] tracking-[0.28em] uppercase text-white/40 mb-6">
-          Getting your PDF · 8 seconds
+      <section className="pb-24 max-w-3xl mx-auto relative z-[2]">
+        <div className="text-center font-mono text-[10px] font-bold tracking-[0.28em] uppercase text-ink-soft mb-5">
+          // GETTING YOUR PDF · 8 SECONDS //
         </div>
-        <ol className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <ol className="grid grid-cols-1 sm:grid-cols-3 gap-5">
           {STEPS.map((s, i) => (
-            <li key={i} className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
-              <div className="flex items-baseline gap-3 mb-2.5">
-                <span className="font-display text-3xl font-semibold text-amber-foil">{i + 1}</span>
-                <span className="font-mono text-[10px] tracking-[0.16em] text-white/40 uppercase">
-                  {s.label}
-                </span>
+            <li
+              key={i}
+              className="relative rounded-2xl p-5 pt-7"
+              style={{
+                background: "var(--cream)",
+                border: "3px solid var(--ink)",
+                boxShadow: "5px 5px 0 var(--ink)",
+                transform: i % 2 === 0 ? "rotate(-0.6deg)" : "rotate(0.5deg)",
+              }}
+            >
+              <span
+                className="absolute -top-4 left-5 w-10 h-10 rounded-full border-[3px] border-ink bg-marigold grid place-items-center font-display text-[18px] text-ink"
+                style={{ boxShadow: "3px 3px 0 var(--cherry)" }}
+              >
+                {i + 1}
+              </span>
+              <div className="font-mono text-[10px] font-bold tracking-[0.18em] text-cherry uppercase mb-2">
+                {s.label}
               </div>
-              <div className="text-[14px] text-white/80 leading-snug">{s.body}</div>
+              <div className="text-[15px] text-ink leading-snug">{s.body}</div>
             </li>
           ))}
         </ol>
-        <div className="mt-3 text-center font-mono text-[10px] text-white/35">
-          desktop only — linkedin app doesn't expose the PDF export
+        <div className="mt-4 text-center font-mono text-[10px] font-bold tracking-[0.16em] text-ink-soft uppercase">
+          desktop only — linkedin app doesn&apos;t expose the PDF export
         </div>
       </section>
 
-      {/* THE SEVEN TYPES — holo tile strip */}
-      <section className="pb-24 max-w-6xl mx-auto">
-        <div className="flex items-end justify-between mb-6">
+      {/* THE 9 ELEMENTAL TYPES — flip cards */}
+      <section className="pb-24 max-w-6xl mx-auto relative z-[2]">
+        <div className="flex items-end justify-between mb-6 flex-wrap gap-4">
           <div>
-            <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-gold/80">
-              The {TYPES_ORDERED.length} types
+            <div className="font-mono text-[11px] font-bold tracking-[0.28em] uppercase text-cherry-deep mb-2">
+              ★ THE 9 ELEMENTAL TYPES
             </div>
-            <h2 className="mt-2 font-display text-4xl text-white">
-              Pick your <span className="text-amber-foil">element</span>
+            <h2 className="font-display text-[44px] sm:text-[60px] leading-[0.9] text-ink">
+              PICK YOUR{" "}
+              <span
+                className="inline-block px-3 -rotate-1 border-[3px] border-ink"
+                style={{ background: "var(--marigold)", boxShadow: "4px 4px 0 var(--cherry)" }}
+              >
+                ELEMENT
+              </span>
             </h2>
           </div>
-          <Link
+          <a
             href="/dex"
-            className="font-mono text-[11px] tracking-[0.18em] uppercase text-white/55 hover:text-white transition"
+            className="font-display text-[13px] px-4 py-2.5 rounded-full border-[3px] border-ink bg-cream text-ink transition hover:-translate-x-0.5 hover:-translate-y-0.5"
+            style={{ boxShadow: "4px 4px 0 var(--cherry)" }}
           >
-            full dex →
-          </Link>
+            FULL DEX →
+          </a>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {TYPES_ORDERED.map((t) => (
-            <TypePeek key={t} t={t} />
-          ))}
-        </div>
+        <TypeCardGrid breakdowns={typeBreakdowns} />
       </section>
 
-      {/* CANON PREVIEW */}
-      <section className="pb-32 max-w-6xl mx-auto">
-        <div className="flex items-end justify-between mb-6">
+      {/* S-TIER CANON */}
+      <section className="pb-32 max-w-6xl mx-auto relative z-[2]">
+        <div className="flex items-end justify-between mb-6 flex-wrap gap-4">
           <div>
-            <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-gold/80">
-              S-tier canon · the mythic peak
+            <div className="font-mono text-[11px] font-bold tracking-[0.28em] uppercase text-cherry-deep mb-2">
+              ★ S-TIER CANON · THE MYTHIC PEAK
             </div>
-            <h2 className="mt-2 font-display text-4xl text-white">
-              The names you hear at <span className="text-amber-foil">dinners</span>
+            <h2 className="font-display text-[40px] sm:text-[56px] leading-[0.9] text-ink">
+              THE NAMES YOU HEAR<br />AT{" "}
+              <span
+                className="inline-block px-3 -rotate-1 border-[3px] border-ink"
+                style={{ background: "var(--cherry)", color: "var(--paper)", boxShadow: "4px 4px 0 var(--ink)" }}
+              >
+                DINNERS
+              </span>
             </h2>
           </div>
-          <Link
+          <a
             href="/dex"
-            className="font-mono text-[11px] tracking-[0.18em] uppercase text-white/55 hover:text-white transition"
+            className="font-display text-[13px] px-4 py-2.5 rounded-full border-[3px] border-ink bg-cream text-ink transition hover:-translate-x-0.5 hover:-translate-y-0.5"
+            style={{ boxShadow: "4px 4px 0 var(--cherry)" }}
           >
-            view all {ARCHETYPES.length} →
-          </Link>
+            VIEW ALL {ARCHETYPES.length} →
+          </a>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {canon.map((a) => (
@@ -110,25 +135,7 @@ export default function Landing() {
 }
 
 const STEPS = [
-  { label: "Open", body: "Go to your LinkedIn profile on desktop." },
-  { label: "Click", body: "Hit the 'More' button → 'Save to PDF'." },
-  { label: "Drop", body: "Drag the file into the box above. Done." },
+  { label: "open", body: "Go to your LinkedIn profile on desktop." },
+  { label: "click", body: "Hit the 'More' button → 'Save to PDF'." },
+  { label: "drop", body: "Drag the file into the box above. Done." },
 ];
-
-function TypePeek({ t }: { t: ArchetypeType }) {
-  const meta = TYPES_META[t];
-  const count = ARCHETYPES.filter((a) => a.types[0] === t).length;
-  return (
-    <HoloTile
-      href={`/dex/types/${meta.slug}`}
-      foil={meta.foil}
-      accent={meta.accent}
-      glyph={meta.glyph}
-      title={meta.name}
-      subtitle={meta.motto}
-      count={count}
-      aspect="square"
-      intensity={0.5}
-    />
-  );
-}

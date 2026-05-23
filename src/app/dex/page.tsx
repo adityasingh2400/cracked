@@ -8,7 +8,7 @@ import type { Tier } from "@/lib/types";
 export const metadata = {
   title: "The Cracked Dex · A field guide to crackedness",
   description:
-    "Twenty-two elemental types, two hundred archetypes, one defensible ranking of how cracked is possible.",
+    "Nine elemental types, thirty-three archetypes, one defensible ranking of how cracked is possible.",
 };
 
 function archsForType(t: ArchetypeType): Archetype[] {
@@ -26,40 +26,40 @@ function tierCounts(arr: Archetype[]): Record<Tier, number> {
 }
 
 export default function DexIndex() {
-  // featured S-tier archetypes for the "canon" strip
-  const canon = ARCHETYPES.filter((a) => a.tier === "S")
-    .slice()
-    .reverse()
-    .slice(0, 6);
+  const canon = ARCHETYPES.filter((a) => a.tier === "S").slice().reverse().slice(0, 6);
 
   return (
-    <div className="px-5 sm:px-8 pt-16 pb-32">
+    <div className="px-5 sm:px-8 pt-12 pb-32">
       {/* HEADER */}
       <section className="max-w-5xl mx-auto text-center mb-16">
-        <div className="font-mono text-[11px] tracking-[0.32em] uppercase text-gold/80 mb-5">
-          The Cracked Dex · Vol. I
+        <div className="arcade-stamp mb-6">
+          ★ The Cracked Dex · Vol. I
         </div>
-        <h1 className="font-display font-semibold text-[64px] sm:text-[112px] leading-[0.93] tracking-tight text-white">
-          A <span className="text-amber-foil">field guide</span><br />to crackedness
+        <h1 className="font-display text-[56px] sm:text-[100px] leading-[0.9] tracking-tight text-ink">
+          A{" "}
+          <span
+            className="inline-block px-3 -rotate-1 border-[3px] border-ink"
+            style={{ background: "var(--marigold)", boxShadow: "5px 5px 0 var(--cherry)" }}
+          >
+            FIELD GUIDE
+          </span>
+          <br />
+          TO <span className="text-arcade-holo inline-block">CRACKEDNESS</span>
         </h1>
-        <p className="mt-8 max-w-2xl mx-auto text-[16px] sm:text-[17px] text-white/65 text-balance leading-relaxed">
-          Twenty-two elemental types. Nearly two hundred archetypes. One
-          defensible ranking of how cracked it's possible to be. Pick a type to
-          drill in — or read straight through, least to most.
+        <p className="mt-7 max-w-2xl mx-auto text-[16px] sm:text-[18px] font-serif italic text-ink-soft text-balance leading-snug">
+          Nine elemental types. {ARCHETYPES.length} archetypes. One defensible ranking of how cracked it&apos;s possible to be. Pick a type to drill in — or read straight through, least to most.
         </p>
-        <div className="mt-8 flex items-center justify-center gap-3 font-mono text-[10px] tracking-[0.22em] uppercase text-white/40">
-          <span>{TYPES_ORDERED.length} types</span>
-          <span className="text-gold/60">·</span>
-          <span>{ARCHETYPES.length} archetypes</span>
-          <span className="text-gold/60">·</span>
-          <span>tier ranked</span>
+        <div className="mt-8 flex items-center justify-center gap-3 flex-wrap">
+          <span className="arcade-stamp">{TYPES_ORDERED.length} TYPES</span>
+          <span className="arcade-stamp" style={{ background: "var(--marigold)" }}>{ARCHETYPES.length} ARCHETYPES</span>
+          <span className="arcade-stamp" style={{ background: "var(--cherry)", color: "var(--paper)" }}>★ TIER RANKED</span>
         </div>
       </section>
 
-      {/* THE 7 TYPES */}
+      {/* THE 9 TYPES */}
       <section className="max-w-6xl mx-auto mb-24">
-        <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-white/40 mb-5">
-          The twenty-two types
+        <div className="font-mono text-[11px] font-bold tracking-[0.28em] uppercase text-cherry-deep mb-5">
+          // THE {TYPES_ORDERED.length} ELEMENTAL TYPES //
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {TYPES_ORDERED.map((t, i) => {
@@ -87,14 +87,14 @@ export default function DexIndex() {
 
       {/* CANON */}
       <section className="max-w-6xl mx-auto mb-24">
-        <div className="flex items-end justify-between mb-5">
+        <div className="flex items-end justify-between mb-6 flex-wrap gap-3">
           <div>
-            <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-gold/80">
-              S-tier canon
+            <div className="font-mono text-[11px] font-bold tracking-[0.28em] uppercase text-cherry-deep mb-2">
+              ★ S-TIER CANON
             </div>
-            <h2 className="mt-2 font-display text-3xl text-white">The mythic tier</h2>
+            <h2 className="font-display text-[40px] text-ink leading-none">THE MYTHIC TIER</h2>
           </div>
-          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/40">
+          <span className="font-mono text-[10px] font-bold tracking-[0.18em] uppercase text-ink-soft">
             {ARCHETYPES.filter((a) => a.tier === "S").length} entries · the names you hear at dinners
           </span>
         </div>
@@ -106,7 +106,7 @@ export default function DexIndex() {
         <div className="mt-6 text-center">
           <Link
             href="#all"
-            className="font-mono text-[11px] tracking-[0.18em] uppercase text-white/55 hover:text-white transition"
+            className="font-mono text-[11px] font-bold tracking-[0.18em] uppercase text-ink hover:text-cherry transition"
           >
             see all {ARCHETYPES.length} below ↓
           </Link>
@@ -115,14 +115,16 @@ export default function DexIndex() {
 
       {/* ALL ARCHETYPES — LINEAR INDEX */}
       <section id="all" className="max-w-6xl mx-auto">
-        <div className="flex items-end justify-between mb-5 border-b border-white/10 pb-4">
+        <div className="flex items-end justify-between mb-6 pb-4 border-b-2 border-ink/15 flex-wrap gap-3">
           <div>
-            <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-white/40">
-              the linear index
+            <div className="font-mono text-[11px] font-bold tracking-[0.28em] uppercase text-cherry-deep mb-2">
+              // THE LINEAR INDEX //
             </div>
-            <h2 className="mt-2 font-display text-3xl text-white">All {ARCHETYPES.length}, ascending</h2>
+            <h2 className="font-display text-[36px] text-ink leading-none">
+              ALL {ARCHETYPES.length}, ASCENDING
+            </h2>
           </div>
-          <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/40">
+          <span className="font-mono text-[10px] font-bold tracking-[0.18em] uppercase text-ink-soft">
             #001 → #{String(ARCHETYPES.length).padStart(3, "0")} · least to most cracked
           </span>
         </div>

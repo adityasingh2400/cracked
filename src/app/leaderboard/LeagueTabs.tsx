@@ -17,32 +17,31 @@ export function LeagueTabs() {
 
   return (
     <>
-      {/* Tab bar — horizontal scroll on small screens. */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 mb-8 -mx-2 px-2 scrollbar-thin">
+      {/* Tab bar — chunky arcade pills with hard shadow */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-8 -mx-2 px-2 scrollbar-thin">
         {TABS.map((t) => {
           const league = LEAGUES.find((l) => l.key === t.key);
           const isActive = active === t.key;
-          const accent = league?.accent ?? "#FCD34D";
+          const accent = league?.accent ?? "#FFC53D";
           return (
             <button
               key={t.key}
               onClick={() => setActive(t.key)}
-              className="font-mono text-[11px] tracking-[0.18em] uppercase px-3.5 py-2 rounded-lg border whitespace-nowrap transition cursor-pointer"
+              className="font-display text-[13px] px-4 py-2.5 rounded-full border-[3px] border-ink whitespace-nowrap transition cursor-pointer"
               style={{
-                borderColor: isActive ? `${accent}80` : "rgba(255,255,255,0.10)",
-                background: isActive ? `${accent}14` : "rgba(255,255,255,0.02)",
-                color: isActive ? accent : "rgba(255,255,255,0.65)",
-                boxShadow: isActive ? `0 0 16px ${accent}25` : undefined,
+                background: isActive ? accent : "var(--cream)",
+                color: "var(--ink)",
+                boxShadow: isActive ? "4px 4px 0 var(--ink)" : "3px 3px 0 var(--ink-soft)",
+                transform: isActive ? "translate(-1px,-1px)" : "",
               }}
             >
               <span className="mr-1.5">{t.glyph}</span>
-              {t.label}
+              {t.label.toUpperCase()}
             </button>
           );
         })}
       </div>
 
-      {/* Tab body */}
       {active === "all-time" && <AllTimeBoard />}
       {activeLeague && <LeagueBoard league={activeLeague} />}
     </>

@@ -8,22 +8,15 @@ export const metadata = {
 
 export default function Leaderboard() {
   return (
-    <div className="px-5 sm:px-8 pt-20 pb-24 max-w-5xl mx-auto">
-      {/* HEADER */}
+    <div className="px-5 sm:px-8 pt-12 pb-24 max-w-5xl mx-auto">
       <div className="text-center mb-12">
-        <div className="font-mono text-[11px] tracking-[0.32em] uppercase text-gold/80 mb-5">
-          The Cracked Leaderboard
-        </div>
-        <h1 className="font-display font-semibold text-[64px] sm:text-[88px] leading-[0.95] tracking-tight text-white">
-          The wall of <span className="text-foil">fame</span>
+        <div className="arcade-stamp mb-6">★ The Cracked Leaderboard</div>
+        <h1 className="font-display text-[56px] sm:text-[88px] leading-[0.9] tracking-tight text-ink">
+          THE WALL OF{" "}
+          <span className="text-arcade-holo inline-block">FAME</span>
         </h1>
-        <p className="mt-6 max-w-2xl mx-auto text-[16px] text-white/65 text-balance leading-relaxed">
-          Two ways to rank. <span className="text-white/90">All-Time</span> measures
-          you against everyone, ever — the absolute 0-100. The{" "}
-          <span className="text-white/90">age cohort</span> boards rank you against people
-          your age, so a 17-year-old IMO medalist isn&apos;t competing with a 40-year-old
-          MacArthur Fellow. Older cohorts aren&apos;t more cracked — the bar just moves with
-          you.
+        <p className="mt-6 max-w-2xl mx-auto text-[16px] font-serif italic text-ink-soft text-balance leading-snug">
+          Two ways to rank. <span className="font-bold not-italic text-ink">All-Time</span> measures you against everyone, ever — the absolute 0-100. The <span className="font-bold not-italic text-ink">age cohort</span> boards rank you against people your age, so a 17-year-old IMO medalist isn&apos;t competing with a 40-year-old MacArthur Fellow. Older cohorts aren&apos;t more cracked — the bar just moves with you.
         </p>
       </div>
 

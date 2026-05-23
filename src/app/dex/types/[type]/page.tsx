@@ -39,9 +39,7 @@ export default async function TypePage({ params }: Props) {
     (a) => a.types[0] !== meta.key && a.types.includes(meta.key)
   );
 
-  const byTier: Record<Tier, Archetype[]> = {
-    S: [], A: [], B: [], C: [], D: [],
-  };
+  const byTier: Record<Tier, Archetype[]> = { S: [], A: [], B: [], C: [], D: [] };
   for (const a of inType) byTier[a.tier].push(a);
 
   return (
@@ -50,7 +48,7 @@ export default async function TypePage({ params }: Props) {
       <div className="max-w-6xl mx-auto mb-8">
         <Link
           href="/dex"
-          className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/45 hover:text-white transition"
+          className="font-mono text-[11px] font-bold tracking-[0.22em] uppercase text-ink-soft hover:text-cherry transition"
         >
           ← all types
         </Link>
@@ -59,44 +57,40 @@ export default async function TypePage({ params }: Props) {
       {/* HERO */}
       <section className="max-w-6xl mx-auto mb-16">
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_460px] gap-12 items-center">
-          {/* Left: text */}
           <div>
             <div
-              className="font-mono text-[11px] tracking-[0.28em] uppercase mb-4"
-              style={{ color: meta.accent }}
+              className="arcade-stamp mb-5"
+              style={{ background: meta.accent, color: "var(--ink)" }}
             >
-              TYPE · {meta.name.toUpperCase()}
+              ★ TYPE · {meta.name.toUpperCase()}
             </div>
-            <h1 className="font-display font-semibold text-[64px] sm:text-[92px] leading-[0.93] tracking-tight text-white">
-              {meta.name}
+            <h1 className="font-display text-[64px] sm:text-[100px] leading-[0.9] tracking-tight text-ink">
+              {meta.name.toUpperCase()}
             </h1>
-            <p className="mt-4 font-display italic text-[22px] text-white/65">"{meta.motto}"</p>
-            <p className="mt-6 max-w-xl text-[16px] text-white/75 leading-relaxed text-pretty">
+            <p className="mt-4 font-serif italic text-[22px] text-ink-soft">&ldquo;{meta.motto}&rdquo;</p>
+            <p className="mt-6 max-w-xl text-[16px] text-ink leading-relaxed text-pretty">
               {meta.description}
             </p>
 
-            {/* Signature sub-stat */}
             <div className="mt-7 flex items-center gap-4">
-              <div className="font-mono text-[10px] tracking-[0.24em] uppercase text-white/40">
+              <div className="font-mono text-[10px] font-bold tracking-[0.24em] uppercase text-ink-soft">
                 Signature sub-stat
               </div>
               <div
-                className="font-display text-2xl tracking-tight"
+                className="font-display text-[22px] leading-none"
                 style={{ color: meta.accent }}
               >
                 {meta.signature.toUpperCase()}
               </div>
             </div>
 
-            {/* Stats row */}
             <div className="mt-7 grid grid-cols-3 gap-3 max-w-md">
               <Stat label="Archetypes" value={String(inType.length)} />
               <Stat label="Cross-type" value={String(secondaryInType.length)} />
-              <Stat label="S-tier" value={String(byTier.S.length)} />
+              <Stat label="S-tier" value={String(byTier.S.length)} bg={byTier.S.length > 0 ? "var(--cherry)" : undefined} color={byTier.S.length > 0 ? "var(--paper)" : undefined} />
             </div>
           </div>
 
-          {/* Right: glyph tile */}
           <div className="mx-auto w-full max-w-md">
             <HoloTile
               href={`/dex/types/${meta.slug}`}
@@ -115,7 +109,6 @@ export default async function TypePage({ params }: Props) {
               }}
               count={inType.length}
               aspect="card"
-              intensity={0.85}
             />
           </div>
         </div>
@@ -128,19 +121,21 @@ export default async function TypePage({ params }: Props) {
           if (arr.length === 0) return null;
           return (
             <div key={t}>
-              <div className="flex items-end justify-between mb-4 pb-3 border-b border-white/10">
-                <h2
-                  className="font-display text-3xl"
-                  style={{
-                    background: `linear-gradient(90deg, ${meta.accent}, #fff)`,
-                    WebkitBackgroundClip: "text",
-                    backgroundClip: "text",
-                    color: "transparent",
-                  }}
-                >
-                  Tier {t}
+              <div className="flex items-end justify-between mb-4 pb-3 border-b-2 border-ink/15">
+                <h2 className="font-display text-[36px] leading-none text-ink">
+                  TIER{" "}
+                  <span
+                    className="inline-block px-3 -rotate-1 border-[3px] border-ink ml-1"
+                    style={{
+                      background: t === "S" ? "var(--cherry)" : t === "A" ? "var(--mango)" : meta.accent,
+                      color: t === "S" || t === "C" || t === "D" ? "var(--paper)" : "var(--ink)",
+                      boxShadow: "3px 3px 0 var(--ink)",
+                    }}
+                  >
+                    {t}
+                  </span>
                 </h2>
-                <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/45">
+                <span className="font-mono text-[10px] font-bold tracking-[0.22em] uppercase text-ink-soft">
                   {arr.length} {arr.length === 1 ? "entry" : "entries"}
                 </span>
               </div>
@@ -157,16 +152,16 @@ export default async function TypePage({ params }: Props) {
       {/* CROSS-TYPE */}
       {secondaryInType.length > 0 && (
         <section className="max-w-6xl mx-auto mt-20">
-          <div className="flex items-end justify-between mb-4 pb-3 border-b border-white/10">
+          <div className="flex items-end justify-between mb-4 pb-3 border-b-2 border-ink/15 flex-wrap gap-2">
             <div>
-              <div className="font-mono text-[10px] tracking-[0.24em] uppercase text-white/40">
-                Cross-type
+              <div className="font-mono text-[11px] font-bold tracking-[0.24em] uppercase text-cherry-deep">
+                // CROSS-TYPE //
               </div>
-              <h2 className="mt-1 font-display text-2xl text-white">
-                Primarily other types — also {meta.name}
+              <h2 className="mt-1 font-display text-[28px] text-ink leading-none">
+                PRIMARILY OTHER — ALSO {meta.name.toUpperCase()}
               </h2>
             </div>
-            <span className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/45">
+            <span className="font-mono text-[10px] font-bold tracking-[0.22em] uppercase text-ink-soft">
               {secondaryInType.length} {secondaryInType.length === 1 ? "entry" : "entries"}
             </span>
           </div>
@@ -180,8 +175,8 @@ export default async function TypePage({ params }: Props) {
 
       {/* ADJACENT */}
       <section className="max-w-6xl mx-auto mt-24">
-        <div className="font-mono text-[10px] tracking-[0.24em] uppercase text-white/40 mb-5">
-          Adjacent types
+        <div className="font-mono text-[11px] font-bold tracking-[0.24em] uppercase text-cherry-deep mb-5">
+          // ADJACENT TYPES //
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {meta.adjacent.map((t) => {
@@ -201,7 +196,7 @@ export default async function TypePage({ params }: Props) {
                 foil={m.foil}
                 accent={m.accent}
                 glyph={m.glyph}
-                eyebrow={`SEE ALSO`}
+                eyebrow="SEE ALSO"
                 title={m.name}
                 subtitle={m.motto}
                 count={arr.length}
@@ -216,11 +211,18 @@ export default async function TypePage({ params }: Props) {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, bg, color }: { label: string; value: string; bg?: string; color?: string }) {
   return (
-    <div>
-      <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/40">{label}</div>
-      <div className="mt-1 font-display text-3xl text-white">{value}</div>
+    <div
+      className="rounded-2xl p-3 border-2 border-ink"
+      style={{
+        background: bg ?? "var(--cream)",
+        color: color ?? "var(--ink)",
+        boxShadow: "3px 3px 0 var(--ink)",
+      }}
+    >
+      <div className="font-mono text-[10px] font-bold tracking-[0.22em] uppercase opacity-70">{label}</div>
+      <div className="mt-1 font-display text-[28px] leading-none">{value}</div>
     </div>
   );
 }
