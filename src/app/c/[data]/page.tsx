@@ -1,82 +1,136 @@
+// /c/[data] — the v1.0 share card view route.
+//
+// Decodes the share blob (gzip+base64 from src/lib/encode.ts), renders
+// the v1.0 card composition: FamilyBadge + TierBadge + PercentileTrio +
+// ChainBanner + SubStatRow + MissingAchievements. Backwards-compatible
+// with v0.7 share URLs (which lack family/percentiles — defaults applied).
+//
+// OG metadata points to /api/og/[data] which renders the same data as
+// a StaticCard PNG for Twitter/X/iMessage previews.
+
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { HoloCard } from "@/components/HoloCard";
 import { ShareBar } from "@/components/ShareBar";
-import { ArchetypeMini } from "@/components/ArchetypeMini";
-import { HoloTile } from "@/components/HoloTile";
 import { decodeResult } from "@/lib/encode";
-import { archetypeBySlug, ARCHETYPES } from "@/data/archetypes";
-import { TYPES_META } from "@/data/types-meta";
 import { getLeague } from "@/data/leagues";
+import { FAMILIES_META } from "@/data/families";
+import { HoloCardV1 } from "@/components/HoloCardV1";
+import { CeremonyReveal } from "@/components/card/CeremonyReveal";
+import { formatTier } from "@/lib/types";
 import type { Metadata } from "next";
+import type { CrackedResultV1, Family, PercentileTrio as Trio } from "@/lib/types";
 
 interface PageProps {
   params: Promise<{ data: string }>;
 }
 
+const DEFAULT_FAMILY: Family = "engineering";
+const DEFAULT_TRIO: Trio = {
+  withinFamilyCohort: 50,
+  crossFamilyCohort: 50,
+  global: 50,
+};
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { data } = await params;
-  const result = decodeResult(data);
+  const result = decodeResult(data) as CrackedResultV1 | null;
   if (!result) return { title: "Cracked · result not found" };
-  // Derive label from the league key on every render — stale labels baked
-  // into older encoded share-links are ignored in favor of the current names.
-  const liveLabel = result.league ? getLeague(result.league.league).label : "";
-  const league = result.league ? ` · ${result.league.leagueTier} at ${liveLabel}` : "";
+
+  const family = result.primaryFamily ?? DEFAULT_FAMILY;
+  const familyName = FAMILIES_META[family]?.name ?? "Cracked";
+  const cohortLabel = result.league ? getLeague(result.league.league).label : "";
+  const pct = result.percentiles?.withinFamilyCohort ?? 50;
+  const topPct = (100 - pct).toFixed(1);
+
+  const tierLabel = formatTier(result.tier, result.tierStars);
+  const title = `${result.name} is ${tierLabel} in ${familyName}`;
+  const description = `${result.name} — top ${topPct}% of ${cohortLabel || "their cohort"} in ${familyName}. How cracked are you?`;
+
   return {
-    title: `${result.name} · ${result.total}/100 · TIER ${result.tier}${league} · Cracked`,
-    description: result.verdict,
+    title: `${title} · Cracked`,
+    description,
     openGraph: {
-      title: `${result.name} scored ${result.total}/100${league} on Cracked`,
-      description: result.verdict,
+      title,
+      description,
+      images: [{ url: `/api/og/${data}`, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [`/api/og/${data}`],
     },
   };
 }
 
 export default async function CardPage({ params }: PageProps) {
   const { data } = await params;
-  const result = decodeResult(data);
+  const result = decodeResult(data) as CrackedResultV1 | null;
   if (!result) notFound();
 
-  const archetype = archetypeBySlug(result.matchedArchetype) ?? ARCHETYPES[0];
-  const primaryType = TYPES_META[archetype.types[0]];
-  const allTypes = archetype.types.map((t) => TYPES_META[t]);
-
-  // Neighbors: one above, one below in the dex, same type if possible
-  const sameTypeArchs = ARCHETYPES.filter((a) => a.types[0] === archetype.types[0]);
-  const idx = sameTypeArchs.findIndex((a) => a.slug === archetype.slug);
-  const above = sameTypeArchs[idx + 1] ?? ARCHETYPES.find((a) => a.number === archetype.number + 1);
-  const below = sameTypeArchs[idx - 1] ?? ARCHETYPES.find((a) => a.number === archetype.number - 1);
+  const family: Family = result.primaryFamily ?? DEFAULT_FAMILY;
+  const secondary: Family | undefined = result.secondaryFamily;
+  const familyMeta = FAMILIES_META[family];
+  const percentiles: Trio = result.percentiles ?? DEFAULT_TRIO;
+  const cohortLabel = result.league ? getLeague(result.league.league).label : "all cohorts";
+  const headlineChain = result.families?.find((f) => f.family === family)?.activeChains[0];
 
   return (
     <div className="px-5 sm:px-8 pt-12 pb-16">
-      {/* HOLO CARD */}
-      <section className="max-w-2xl mx-auto">
-        <HoloCard result={result} archetype={archetype} />
+      {/* HOLO CARD — Pokemon-TCG-grade v1.0 composition */}
+      <section className="max-w-xl mx-auto">
+        <CeremonyReveal tier={result.tier}>
+          <HoloCardV1 result={result} />
+        </CeremonyReveal>
+
+        {/* Verdict / flavor — outside the card so they don't compete with the holo */}
+        {(result.verdict || result.flavor) && (
+          <div className="mt-6 text-center max-w-md mx-auto">
+            {result.verdict && (
+              <p className="text-sm text-white/80 italic leading-relaxed">
+                "{result.verdict}"
+              </p>
+            )}
+            {result.flavor && (
+              <p className="mt-2 font-display italic text-amber-foil/70">
+                {result.flavor}
+              </p>
+            )}
+          </div>
+        )}
+
+        {result.calibrating && (
+          <div className="mt-4 text-center">
+            <span className="px-3 py-1 rounded-md bg-amber-foil/15 text-amber-foil font-mono text-[10px] tracking-[0.15em] uppercase">
+              calibrating · re-score when claude reconnects
+            </span>
+          </div>
+        )}
       </section>
 
       {/* SHARE */}
-      <section className="mt-10 max-w-2xl mx-auto">
+      <section className="mt-8 max-w-2xl mx-auto">
         <ShareBar result={result} />
       </section>
 
-      {/* LEAGUE EXPLAINER — only when a placement exists */}
+      {/* LEAGUE EXPLAINER */}
       {result.league && (
         <section className="mt-12 max-w-2xl mx-auto">
           <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 sm:p-6">
             <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-gold/80 mb-2">
-              Why two grades?
+              Two grades, one you.
             </div>
             <p className="text-[14px] text-white/70 leading-relaxed">
-              You scored <span className="text-white font-medium">{result.total}/100</span>{" "}
-              against the absolute rubric (tier{" "}
-              <span className="text-white">{result.tier}</span>). At{" "}
-              <span className="text-white">
-                {getLeague(result.league.league).label}
+              You landed{" "}
+              <span className="text-white font-medium">tier {formatTier(result.tier, result.tierStars)}</span> in{" "}
+              <span className="text-white">{familyMeta.name}</span>. At{" "}
+              <span className="text-white">{getLeague(result.league.league).label}</span>{" "}
+              you're more cracked than{" "}
+              <span className="text-amber-foil font-medium">
+                {percentiles.withinFamilyCohort.toFixed(1)}%
               </span>{" "}
-              your cohort tier is{" "}
-              <span className="text-white">{result.league.leagueTier}</span> — same score, different
-              bar. Older cohorts aren&apos;t more cracked, they&apos;ve just had more time to stack
-              signals, so the bar moves with you.{" "}
+              of your cohort in {familyMeta.shortName}. Older cohorts aren't more cracked,
+              they've just had more time to stack signals — so the bar moves with you.{" "}
               {result.league.ageSource === "inferred" && (
                 <>
                   Age was inferred as <span className="text-white">{result.league.age}</span>.
@@ -88,143 +142,29 @@ export default async function CardPage({ params }: PageProps) {
         </section>
       )}
 
-      {/* ARCHETYPE CALLOUT — type-themed */}
-      <section className="mt-20 max-w-6xl mx-auto">
-        <div className="text-center mb-6">
-          <div
-            className="font-mono text-[10px] tracking-[0.28em] uppercase"
-            style={{ color: primaryType.accent }}
-          >
-            Dex match · {Math.round(result.archetypeMatchScore * 100)}% confidence
-          </div>
-          <h2 className="mt-2 font-display text-3xl sm:text-4xl text-white">
-            You most resemble{" "}
-            <Link
-              href={`/dex/${archetype.slug}`}
-              className="transition hover:opacity-80"
-              style={{
-                background: `linear-gradient(90deg, ${primaryType.accent}, #fff)`,
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                color: "transparent",
-              }}
-            >
-              {archetype.name}
-            </Link>
-          </h2>
-          <div className="mt-1.5 font-display italic text-white/55">"{archetype.tagline}"</div>
-
-          {/* type chips */}
-          <div className="mt-4 flex items-center justify-center gap-2 flex-wrap">
-            {allTypes.map((m) => (
-              <Link
-                key={m.key}
-                href={`/dex/types/${m.slug}`}
-                className="font-mono text-[10px] tracking-[0.2em] uppercase px-2.5 py-1 rounded border transition hover:brightness-125"
-                style={{
-                  color: m.accent,
-                  borderColor: `${m.accent}40`,
-                  background: `${m.accent}08`,
-                }}
-              >
-                {m.glyph} {m.name}
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-[440px_1fr] gap-6">
-          {/* Holo tile preview */}
-          <div className="mx-auto w-full max-w-md">
-            <HoloTile
-              href={`/dex/${archetype.slug}`}
-              foil={primaryType.foil}
-              accent={primaryType.accent}
-              glyph={archetype.glyph}
-              eyebrow={`#${String(archetype.number).padStart(3, "0")} · ${primaryType.name.toUpperCase()}`}
-              title={archetype.name}
-              subtitle={archetype.tagline}
-              caption={`${archetype.scoreRange[0]}–${archetype.scoreRange[1]} / 100 · tier ${archetype.tier}`}
-              aspect="card"
-              intensity={0.7}
-            />
-          </div>
-
-          {/* Profile + justification */}
-          <div
-            className="rounded-2xl p-6 sm:p-7 border bg-white/[0.02]"
-            style={{
-              borderColor: `${primaryType.accent}25`,
-              boxShadow: `0 0 32px ${primaryType.accent}10`,
-            }}
-          >
-            <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/45 mb-2">
-              The profile
-            </div>
-            <p className="text-[15px] text-white/85 leading-relaxed mb-5 text-pretty">{archetype.profile}</p>
-            <div
-              className="font-mono text-[10px] tracking-[0.22em] uppercase mb-2"
-              style={{ color: primaryType.accent }}
-            >
-              Why this rank
-            </div>
-            <p className="text-[14px] text-white/70 leading-relaxed text-pretty mb-5">{archetype.justification}</p>
-            <Link
-              href={`/dex/${archetype.slug}`}
-              className="inline-block font-mono text-[11px] tracking-[0.18em] uppercase transition hover:opacity-80"
-              style={{ color: primaryType.accent }}
-            >
-              full entry →
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* NEIGHBORING ARCHETYPES */}
-      {(below || above) && (
-        <section className="mt-16 max-w-6xl mx-auto">
-          <div className="font-mono text-[10px] tracking-[0.22em] uppercase text-white/45 mb-4 text-center">
-            One rank below · one rank above
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl mx-auto">
-            {below && <ArchetypeMini archetype={below} />}
-            {above && <ArchetypeMini archetype={above} />}
-          </div>
-        </section>
-      )}
-
-      {/* BREAKDOWN */}
-      <section className="mt-20 max-w-3xl mx-auto">
-        <div className="flex items-baseline justify-between mb-6">
-          <h2 className="font-display text-3xl text-white">The signal breakdown</h2>
-          <div className="font-mono text-[10px] tracking-[0.2em] uppercase text-white/40">
-            6 categories · {result.categories.reduce((n, c) => n + c.signals.length, 0)} signals
-          </div>
-        </div>
-        <div className="space-y-3">
-          {result.categories.map((c) => (
-            <CategoryRow key={c.key} cat={c} />
-          ))}
-        </div>
-      </section>
-
       {/* CTA */}
-      <section className="mt-24 max-w-2xl mx-auto text-center">
+      <section className="mt-20 max-w-2xl mx-auto text-center">
         <div className="font-display italic text-white/55 mb-4">
           Built for screenshotting and arguing about.
         </div>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href="/"
-            className="px-5 py-3 rounded-md bg-gradient-to-br from-foil-violet to-foil-pink text-white font-mono text-[12px] tracking-[0.18em] uppercase hover:brightness-110 transition"
+            className="px-5 py-3 rounded-md bg-gradient-to-br from-amber-foil to-foil-pink text-black font-mono text-[12px] tracking-[0.18em] uppercase hover:brightness-110 transition"
           >
-            Score someone else
+            Crack someone else
           </Link>
           <Link
-            href="/dex"
-            className="px-5 py-3 rounded-md border border-white/15 text-white/85 font-mono text-[12px] tracking-[0.18em] uppercase hover:border-gold/40 hover:text-gold transition"
+            href={`/dex/family/${familyMeta.slug}`}
+            className="px-5 py-3 rounded-md border border-white/15 text-white/85 font-mono text-[12px] tracking-[0.18em] uppercase hover:border-amber-foil/40 hover:text-amber-foil transition"
           >
-            Browse the Dex
+            What gets you to {nextTierLabel(result.tier)}?
+          </Link>
+          <Link
+            href="/leaderboard"
+            className="px-5 py-3 rounded-md border border-white/15 text-white/85 font-mono text-[12px] tracking-[0.18em] uppercase hover:border-amber-foil/40 hover:text-amber-foil transition"
+          >
+            Leaderboard
           </Link>
         </div>
       </section>
@@ -232,61 +172,14 @@ export default async function CardPage({ params }: PageProps) {
   );
 }
 
-import type { CategoryScore } from "@/lib/types";
-
-function CategoryRow({ cat }: { cat: CategoryScore }) {
-  const tierColor: Record<string, string> = {
-    S: "text-foil-gold",
-    A: "text-foil-violet",
-    B: "text-foil-cyan",
-    C: "text-slate-300",
-    D: "text-zinc-500",
-  };
-  const pct = Math.round((cat.credited / cat.cap) * 100);
-
-  return (
-    <details className="group rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden">
-      <summary className="cursor-pointer list-none p-5 flex items-center gap-4 hover:bg-white/[0.02] transition">
-        <div className="flex-1">
-          <div className="flex items-baseline gap-3">
-            <span className="font-display text-xl text-white">{cat.label}</span>
-            <span className={`font-mono text-[10px] tracking-[0.18em] uppercase ${tierColor[cat.topTier]}`}>
-              top tier: {cat.topTier}
-            </span>
-          </div>
-          <div className="mt-2 h-1.5 rounded-full bg-white/5 overflow-hidden max-w-md">
-            <div
-              className="h-full bg-gradient-to-r from-foil-violet to-foil-pink rounded-full"
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-        </div>
-        <div className="text-right">
-          <div className="font-mono text-2xl tabular text-white">{cat.credited.toFixed(1)}</div>
-          <div className="font-mono text-[10px] tracking-[0.18em] text-white/40 uppercase">
-            / {cat.cap}
-          </div>
-        </div>
-        <div className="font-mono text-[10px] text-white/40 ml-2 group-open:rotate-90 transition">▸</div>
-      </summary>
-      <div className="border-t border-white/8 p-5 space-y-2">
-        {cat.signals.length === 0 ? (
-          <div className="font-mono text-[12px] text-white/35">no signals detected</div>
-        ) : (
-          cat.signals.map((s, i) => (
-            <div key={i} className="flex items-baseline gap-3 text-[13px]">
-              <span
-                className={`font-mono text-[10px] tracking-[0.18em] uppercase w-6 ${tierColor[s.tier]}`}
-              >
-                {s.tier}
-              </span>
-              <span className="text-white/80 flex-1">{s.raw}</span>
-              {s.detail && <span className="text-white/40 text-[12px]">· {s.detail}</span>}
-              <span className="font-mono text-[11px] text-white/50 tabular">{s.points}pt</span>
-            </div>
-          ))
-        )}
-      </div>
-    </details>
-  );
+function nextTierLabel(t: string): string {
+  switch (t) {
+    case "ASCENDED": return "the next legend";
+    case "MYTHIC": return "ASCENDED";
+    case "S": return "MYTHIC";
+    case "A": return "S";
+    case "B": return "A";
+    case "C": return "B";
+    default: return "C";
+  }
 }

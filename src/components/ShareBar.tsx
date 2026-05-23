@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import type { CrackedResult } from "@/lib/types";
+import type { CrackedResultV1 } from "@/lib/types";
+import { formatTier } from "@/lib/types";
 
-export function ShareBar({ result }: { result: CrackedResult }) {
+export function ShareBar({ result }: { result: CrackedResultV1 }) {
   const [copied, setCopied] = useState(false);
 
   const copyLink = async () => {
@@ -14,7 +15,7 @@ export function ShareBar({ result }: { result: CrackedResult }) {
   };
 
   const tweetText = encodeURIComponent(
-    `${result.name} scored ${result.total}/100 (TIER ${result.tier}) on Cracked · ${result.verdict.slice(0, 80)}${result.verdict.length > 80 ? "..." : ""}`
+    `${result.name} is ${formatTier(result.tier, result.tierStars)} on Cracked · ${result.verdict.slice(0, 80)}${result.verdict.length > 80 ? "..." : ""}`
   );
   const tweetUrl =
     typeof window === "undefined"

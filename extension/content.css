@@ -1,0 +1,47 @@
+/* cracked.com extension styles — minimal, fits LinkedIn's existing look. */
+
+.cracked-ext-button {
+  margin-left: 12px;
+  padding: 6px 14px;
+  border: 1px solid #FCD34D;
+  background: linear-gradient(135deg, #1C0A05 0%, #3A1F08 100%);
+  color: #FFE5A8;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.cracked-ext-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(252, 211, 77, 0.35);
+}
+.cracked-ext-button:active {
+  transform: translateY(0);
+}
+
+.cracked-ext-tier-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  vertical-align: middle;
+  background: #18181B;
+  color: #fff;
+}
+.cracked-tier-d        { background: #525252; }
+.cracked-tier-c        { background: #2563EB; }
+.cracked-tier-b        { background: #16A34A; }
+.cracked-tier-a        { background: #A78BFA; color: #1C0A05; }
+.cracked-tier-s        { background: #FCD34D; color: #1C0A05; }
+.cracked-tier-mythic   { background: linear-gradient(90deg, #FF5A2E, #EC4899); color: #fff; }
+.cracked-tier-ascended {
+  background: linear-gradient(90deg, #FFD27A 0%, #FF5A2E 50%, #EC4899 100%);
+  color: #1C0A05;
+  box-shadow: 0 0 8px rgba(255, 197, 100, 0.6);
+}

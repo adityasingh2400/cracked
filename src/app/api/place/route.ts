@@ -29,7 +29,8 @@ export async function POST(req: NextRequest) {
     }
 
     const league = placeInLeague({
-      total: result.total,
+      tier: result.tier,
+      tierStars: result.tierStars,
       age,
       ageSource: "user",
       ageConfidence: 1,

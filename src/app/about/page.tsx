@@ -28,15 +28,15 @@ export default function About() {
             hackathons, fellowships, open source, online presence. Everything that could matter.
           </ListItem>
           <ListItem n={3}>
-            Each signal is matched against the rubric and assigned a tier (S/A/B/C/D, worth 10/7/4/2/1 points).
+            Each signal is matched against the achievement library inside one of nine career families.
           </ListItem>
           <ListItem n={4}>
-            Six categories aggregate to 100 total points. Education caps at 15, work at 25, accolades at 25,
-            founder at 15, open source at 10, signal at 10.
+            The strongest family sets your tier. D through S also get a 1-3 star rank; MYTHIC and
+            ASCENDED stay special.
           </ListItem>
           <ListItem n={5}>
-            Sub-stats (HACK / GRIND / TASTE / RIZZ) are computed from the categories. The matched
-            archetype is the closest of 196 by total + sub-stat + tier compatibility.
+            Chains detect stacked combinations, like Stanford CS into a frontier lab, and can bump
+            the family tier above standalone achievements.
           </ListItem>
           <ListItem n={6}>
             The whole result is gzip+base64-encoded into your share URL. There is no database. The

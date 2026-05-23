@@ -1,0 +1,198 @@
+// Law & Public Service family — starter achievement library for v1.0 launch.
+
+import type { Achievement, Chain } from "@/lib/types";
+
+export const LAW_PUBLIC_SERVICE_ACHIEVEMENTS: Achievement[] = [
+  // ASCENDED
+  {
+    id: "lps_scotus_justice",
+    family: "law_public_service",
+    tier: "ASCENDED",
+    label: "Supreme Court Justice",
+    description: "Lifetime appointment to the highest US court.",
+    signals: [{ kind: "free_text", patterns: [/Supreme Court Justice|Associate Justice of the Supreme Court/i] }],
+    evidence: ["Sonia Sotomayor", "John Roberts"],
+  },
+  {
+    id: "lps_cabinet_secretary",
+    family: "law_public_service",
+    tier: "ASCENDED",
+    label: "Cabinet Secretary / Senator",
+    description: "US Senator or Cabinet Secretary. Senate-confirmed apex of civic service.",
+    signals: [{ kind: "free_text", patterns: [/U\.S\. Senator|United States Senator|Secretary of State|Secretary of Treasury|Cabinet Secretary/i] }],
+    evidence: ["historical figures"],
+  },
+  {
+    id: "lps_general_officer",
+    family: "law_public_service",
+    tier: "ASCENDED",
+    label: "General / Admiral (O-7+)",
+    description: "Flag-rank military officer. Career-defining.",
+    signals: [{ kind: "free_text", patterns: [/General \(Ret\.\)|Lieutenant General|Major General|Brigadier General|Admiral/i] }],
+    evidence: ["Stanley McChrystal"],
+  },
+  // MYTHIC
+  {
+    id: "lps_scotus_clerk",
+    family: "law_public_service",
+    tier: "MYTHIC",
+    label: "Supreme Court clerk",
+    description: "One-year clerkship for a Supreme Court Justice.",
+    signals: [{ kind: "free_text", patterns: [/SCOTUS clerk|Supreme Court clerkship|clerked for Justice/i] }],
+    ageCap: 32,
+    evidence: ["Many BigLaw partners"],
+  },
+  {
+    id: "lps_article_iii_judge",
+    family: "law_public_service",
+    tier: "MYTHIC",
+    label: "Article III federal judge",
+    description: "Senate-confirmed federal judge.",
+    signals: [{ kind: "free_text", patterns: [/U\.S\. District Judge|Federal Circuit Judge|Article III/i] }],
+    evidence: ["broad federal bench"],
+  },
+  {
+    id: "lps_biglaw_partner",
+    family: "law_public_service",
+    tier: "MYTHIC",
+    label: "BigLaw partner (Cravath / Wachtell / S&C)",
+    description: "Equity partner at a top-tier law firm.",
+    signals: [
+      { kind: "company", match: ["Cravath", "Wachtell Lipton", "Sullivan & Cromwell", "Skadden", "Davis Polk", "Simpson Thacher", "Kirkland & Ellis"], title: ["Partner"] },
+    ],
+    evidence: ["broad"],
+  },
+  {
+    id: "lps_yls_hls",
+    family: "law_public_service",
+    tier: "MYTHIC",
+    label: "Yale Law / Harvard Law / Stanford Law JD",
+    description: "JD from a top-3 law school.",
+    signals: [{ kind: "school", match: ["Yale Law", "Harvard Law", "Stanford Law"] }],
+    evidence: ["very broad"],
+  },
+  // S
+  {
+    id: "lps_t14_law",
+    family: "law_public_service",
+    tier: "S",
+    label: "Top-14 law school JD",
+    description: "JD from a T14 law school (Columbia, Chicago, NYU, Penn, UVA, Mich, Berkeley, Northwestern, Cornell, Duke, Georgetown).",
+    signals: [{ kind: "school", match: ["Columbia Law", "Chicago Law", "NYU Law", "Penn Law", "Virginia Law", "Michigan Law", "Berkeley Law", "Northwestern Law", "Cornell Law", "Duke Law", "Georgetown Law"] }],
+    evidence: ["broad"],
+  },
+  {
+    id: "lps_west_point_annapolis",
+    family: "law_public_service",
+    tier: "S",
+    label: "West Point / Annapolis / Air Force Academy graduate",
+    description: "Service academy graduate.",
+    signals: [{ kind: "school", match: ["United States Military Academy", "West Point", "Annapolis", "United States Naval Academy", "Air Force Academy"] }],
+    evidence: ["broad"],
+  },
+  {
+    id: "lps_federal_clerk",
+    family: "law_public_service",
+    tier: "S",
+    label: "Federal Circuit / District Court clerk",
+    description: "Federal court clerkship (Circuit > District).",
+    signals: [{ kind: "free_text", patterns: [/federal clerkship|circuit clerk|district court clerk/i] }],
+    ageCap: 30,
+    evidence: ["broad BigLaw associates"],
+  },
+  {
+    id: "lps_biglaw_associate",
+    family: "law_public_service",
+    tier: "S",
+    label: "BigLaw associate",
+    description: "Associate at a Vault 100 law firm.",
+    signals: [
+      { kind: "company", match: ["Cravath", "Wachtell", "Sullivan & Cromwell", "Skadden", "Davis Polk", "Simpson Thacher", "Kirkland & Ellis", "Latham & Watkins"], title: ["Associate"] },
+    ],
+    evidence: ["thousands"],
+  },
+  // A
+  {
+    id: "lps_special_forces",
+    family: "law_public_service",
+    tier: "A",
+    label: "Special operations forces",
+    description: "Ranger, Navy SEAL, Green Beret, or equivalent.",
+    signals: [{ kind: "free_text", patterns: [/Ranger|Navy SEAL|Green Beret|Special Forces|Special Operations|MARSOC/i] }],
+    evidence: ["broad"],
+  },
+  {
+    id: "lps_state_dept_foreign_service",
+    family: "law_public_service",
+    tier: "A",
+    label: "State Department / Foreign Service Officer",
+    description: "Career diplomat or State Department officer.",
+    signals: [{ kind: "free_text", patterns: [/Foreign Service Officer|State Department|U\.S\. Department of State/i] }],
+    evidence: ["broad"],
+  },
+  // B
+  {
+    id: "lps_military_officer",
+    family: "law_public_service",
+    tier: "B",
+    label: "Commissioned military officer (O-1 to O-6)",
+    description: "Active-duty or reserve commissioned officer.",
+    signals: [{ kind: "free_text", patterns: [/Captain|Major|Lieutenant Colonel|Colonel|Lieutenant Commander|Commander/i] }],
+    evidence: ["very broad"],
+  },
+  // C
+  {
+    id: "lps_state_legislator",
+    family: "law_public_service",
+    tier: "C",
+    label: "State legislator / local elected official",
+    description: "State legislator or city council member.",
+    signals: [{ kind: "free_text", patterns: [/State Representative|State Senator|City Council/i] }],
+    evidence: ["broad"],
+  },
+  // D
+  {
+    id: "lps_law_student",
+    family: "law_public_service",
+    tier: "D",
+    label: "Law student / aspiring",
+    description: "Currently a law student or pre-law.",
+    signals: [{ kind: "free_text", patterns: [/JD Candidate|law student|1L|2L|3L/i] }],
+    evidence: ["very large"],
+  },
+];
+
+export const LAW_PUBLIC_SERVICE_CHAINS: Chain[] = [
+  {
+    id: "lps_chain_yls_scotus",
+    name: "The SCOTUS Track",
+    family: "law_public_service",
+    requires: ["lps_yls_hls", "lps_scotus_clerk"],
+    bumpTo: "ASCENDED",
+    description: "Top-3 law school + SCOTUS clerkship — the lifetime credential.",
+  },
+  {
+    id: "lps_chain_biglaw_partner_track",
+    name: "BigLaw Partner Track",
+    family: "law_public_service",
+    requires: ["lps_t14_law", "lps_biglaw_associate", "lps_biglaw_partner"],
+    bumpTo: "ASCENDED",
+    description: "T14 JD → BigLaw associate → BigLaw partner — the 8-year canonical path.",
+  },
+  {
+    id: "lps_chain_west_point_special",
+    name: "Service Academy → SOF",
+    family: "law_public_service",
+    requires: ["lps_west_point_annapolis", "lps_special_forces"],
+    bumpTo: "MYTHIC",
+    description: "Service academy graduate + Special Operations Forces.",
+  },
+  {
+    id: "lps_chain_clerk_to_judge",
+    name: "Clerk to Bench",
+    family: "law_public_service",
+    requires: ["lps_federal_clerk", "lps_article_iii_judge"],
+    bumpTo: "ASCENDED",
+    description: "Federal clerk → federal bench. The judicial track.",
+  },
+];

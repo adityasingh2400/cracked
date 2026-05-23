@@ -19,3 +19,4 @@ data/*.db-*
 next-env.d.ts
 .vercel
 .gstack/
+.claude/

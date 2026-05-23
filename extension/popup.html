@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>cracked</title>
+    <style>
+      :root {
+        --bg: #0A0402;
+        --fg: #FFE5A8;
+        --accent: #FCD34D;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 16px;
+        background: linear-gradient(155deg, #1C0A05 0%, #0A0402 100%);
+        color: var(--fg);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        width: 280px;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--accent);
+        letter-spacing: -0.01em;
+      }
+      p {
+        margin: 0 0 16px;
+        color: rgba(255, 229, 168, 0.65);
+        font-size: 13px;
+        line-height: 1.4;
+      }
+      button {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        border: 1px solid var(--accent);
+        background: linear-gradient(135deg, #1C0A05 0%, #3A1F08 100%);
+        color: var(--accent);
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: transform 120ms ease, box-shadow 120ms ease;
+      }
+      button:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(252, 211, 77, 0.35); }
+      .footer {
+        margin-top: 14px;
+        font-size: 11px;
+        color: rgba(255, 229, 168, 0.4);
+        text-align: center;
+      }
+      .footer a { color: var(--accent); text-decoration: none; }
+    </style>
+  </head>
+  <body>
+    <h1>cracked</h1>
+    <p>One-click crack on any LinkedIn profile you're viewing. Open a profile, click below.</p>
+    <button id="go">⚡ Crack this profile</button>
+    <div class="footer">
+      <a href="https://cracked-woad.vercel.app" target="_blank" rel="noopener">cracked.com</a>
+    </div>
+    <script>
+      document.getElementById("go").addEventListener("click", () => {
+        chrome.runtime.sendMessage({ kind: "crackActiveTab" }, () => {
+          window.close();
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,6 +1,5 @@
-// Age cohorts = age-relative competitive buckets. The site computes an absolute
-// 0-100 score against the rubric, then drops you into the right cohort based
-// on age and re-grades S/A/B/C/D against your peers, not against everyone.
+// Age cohorts = age-relative competitive buckets. The site scores achievements
+// inside a career family, then uses age to frame the percentile claim.
 //
 // IMPORTANT: cohorts are pure age ranges (≤16, 17-19, 20-22, 23-26, 27-32, 33+).
 // They are NOT ranked names ("Rookie → Legend") because that ordering would
@@ -16,13 +15,7 @@
 //   median is 45, MacArthur median is mid-40s) so splitting the 33+ cohort
 //   into 33-45 vs 46+ would be false precision.
 //
-// Cutoffs are anchored against the existing absolute thresholds
-// (≥90 = S abs, ≥75 = A abs, ≥60 = B abs, ≥40 = C abs) — see lib/tier-list.
-// They drop substantially for younger cohorts because there's been less time
-// to stack signals; they converge with the absolute rubric in the 33+ cohort
-// where the handicap has saturated.
-//
-// Calibration sources behind each league's cutoffs and exemplars:
+// Calibration sources behind each league's exemplars:
 // - Hard age caps verified per program: IMO ≤19, ISEF HS-only, Davidson ≤18,
 //   Thiel ≤22, Rhodes ≤24 (≤25 medics), Marshall ≤2y post-BA, Schwarzman <29
 //   on Aug 1, Forbes 30U30 ≤29 on Dec 31, Sloan Research Fellow tenure-track
@@ -32,9 +25,9 @@
 //   classic "27" claim to ~24-26 median under Garry Tan.
 // - Per-cohort re-weighting of the 6 category caps (so the 14-year-old isn't
 //   structurally capped at ~60 by missing Work/Founder signal) is a
-//   v2 follow-up — for v1 the cohort cutoffs alone do the work.
+//   v2 follow-up — for v1 the cohort label and percentile framing do the work.
 
-import type { LeagueKey, Tier } from "@/lib/types";
+import type { LeagueKey } from "@/lib/types";
 
 export interface League {
   key: LeagueKey;
@@ -47,8 +40,6 @@ export interface League {
   glyph: string;
   /** Accent color hex (matches the foil palette). */
   accent: string;
-  /** Cutoffs on the 0-100 absolute scale that map → league tier. */
-  cutoffs: Record<Tier, number>;
   /** P50 expected absolute score for this league — used for percentile center. */
   baseline: number;
   /** ~25-word flavor line for cards / hover state. */
@@ -68,7 +59,6 @@ export const LEAGUES: League[] = [
     ageMax: 16,
     glyph: "①",
     accent: "#22D3EE",
-    cutoffs: { S: 48, A: 34, B: 22, C: 12, D: 0 },
     baseline: 18,
     tagline: "Middle school · early high school",
     flavor: "Nothing is expected yet, so anything you do counts double. The S-tier here is doing the work most people only attempt at 25.",
@@ -88,7 +78,6 @@ export const LEAGUES: League[] = [
     ageMax: 19,
     glyph: "②",
     accent: "#A78BFA",
-    cutoffs: { S: 60, A: 44, B: 30, C: 18, D: 0 },
     baseline: 26,
     tagline: "Late high school · freshman year",
     flavor: "Programs, schools, and funds are already circling. The S-tier here decides which orbit to pick.",
@@ -108,7 +97,6 @@ export const LEAGUES: League[] = [
     ageMax: 22,
     glyph: "③",
     accent: "#EC4899",
-    cutoffs: { S: 72, A: 56, B: 40, C: 25, D: 0 },
     baseline: 38,
     tagline: "Late undergrad · the internship circuit",
     flavor: "Where the funnel sorts hard. Frontier-lab return offers, YC batches, and named fellowships are the four currencies that matter.",
@@ -128,7 +116,6 @@ export const LEAGUES: League[] = [
     ageMax: 26,
     glyph: "④",
     accent: "#FCD34D",
-    cutoffs: { S: 82, A: 65, B: 48, C: 30, D: 0 },
     baseline: 50,
     tagline: "New grad · early career",
     flavor: "First checkpoint where bullshit stops working. Equity, papers, and prizes are the only currency — and the age-gated prizes are closing fast.",
@@ -149,7 +136,6 @@ export const LEAGUES: League[] = [
     ageMax: 32,
     glyph: "⑤",
     accent: "#F59E0B",
-    cutoffs: { S: 88, A: 72, B: 55, C: 38, D: 0 },
     baseline: 62,
     tagline: "Mid career · the receipts are due",
     flavor: "Decade in. Talent has sorted, time-excuses expire. The body of work is finally legible — exit, promote, paper, partnership.",
@@ -170,7 +156,6 @@ export const LEAGUES: League[] = [
     ageMax: null,
     glyph: "⑥",
     accent: "#FCD34D",
-    cutoffs: { S: 92, A: 78, B: 62, C: 42, D: 0 },
     baseline: 70,
     tagline: "Established · the record speaks",
     flavor: "Past the age where 'potential' counts. The handicap saturates — from here on it's the same bar as the absolute board, and either the resume is real or it isn't.",
