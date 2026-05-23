@@ -20,17 +20,20 @@ interface HoloCardProps {
 
 // =============================================================================
 // CARD GRADE — Pokemon-style rarity progression.
-// mega-s = absolute S-tier overall (the rarest, most ornate, full-effect frame)
-// s      = league S but not absolute S — really cool, less extreme
-// a/b/c/d = ordinary tiers, descending
+// The card frame uses the cohort tier as the primary grade. The absolute tier
+// only acts as a ceiling: hitting absolute S unlocks the ASCENDED frame, which
+// is the only grade strong enough to sit above MYTHIC (cohort S).
+//   mega-s  ASCENDED · absolute S (the rarest, full-effect frame)
+//   s       MYTHIC   · cohort S but not absolute S
+//   a–d              · cohort tier (falls back to absolute when no cohort)
 // =============================================================================
 type CardGrade = "mega-s" | "s" | "a" | "b" | "c" | "d";
 
 function getCardGrade(result: CrackedResult): CardGrade {
-  const lt = result.league?.leagueTier;
+  const cohortTier = result.league?.leagueTier;
   if (result.tier === "S") return "mega-s";
-  if (lt === "S") return "s";
-  return result.tier.toLowerCase() as CardGrade;
+  if (cohortTier === "S") return "s";
+  return (cohortTier ?? result.tier).toLowerCase() as CardGrade;
 }
 
 interface GradeTheme {

@@ -61,7 +61,6 @@ export function placeInLeague(input: PlacementInput): LeaguePlacement {
   const percentile = leaguePercentile(input.total, league);
   return {
     league: league.key,
-    leagueLabel: league.label,
     leagueTier,
     percentile,
     age: input.age,

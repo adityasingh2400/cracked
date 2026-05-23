@@ -80,15 +80,6 @@
     background: var(--walnut-line);
   }
 
-  /* dotted divider, kept for legacy use */
-  .divider-dots {
-    background-image: linear-gradient(90deg, rgba(232, 181, 71, 0.28) 50%, transparent 0);
-    background-size: 6px 1px;
-    background-repeat: repeat-x;
-    background-position: left center;
-    height: 1px;
-  }
-
   /* ember-glow utility — soft amber halo behind important elements */
   .glow-amber {
     box-shadow:

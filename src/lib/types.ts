@@ -66,11 +66,13 @@ export interface SubStats {
  * Result of placing an absolute score into an age-relative league.
  * Same person, two grades: the absolute "your raw score" and the league
  * "how you stack vs your age cohort". The product leads with the league grade.
+ *
+ * Display strings (label, tagline, accent…) are NOT snapshotted here — the UI
+ * derives them from the league key on every render so renames in data/leagues
+ * propagate to every existing share link without re-encoding.
  */
 export interface LeaguePlacement {
   league: LeagueKey;
-  /** Display name, e.g. "Pro League". */
-  leagueLabel: string;
   /** League-relative tier — what S/A/B/C/D means INSIDE this age bucket. */
   leagueTier: Tier;
   /** 1-99 — where you fall in your league's score range. 50 = median for league. */
@@ -91,7 +93,11 @@ export interface CrackedResult {
   name: string;
   total: number;          // 0-100
   tier: Tier;             // mapped from total (absolute)
-  /** Age-relative placement. Optional so legacy share-links still decode. */
+  /**
+   * Age-relative placement. Optional because age inference can return 0
+   * confidence on a sparse resume — when that happens we still want a card,
+   * just without the cohort grade.
+   */
   league?: LeaguePlacement;
   subStats: SubStats;
   categories: CategoryScore[];
@@ -101,17 +107,4 @@ export interface CrackedResult {
   archetypeMatchScore: number;    // 0-1, how close the match is
   createdAt: string;      // ISO
   modelUsed: "claude" | "regex-fallback";
-}
-
-export interface LeaderboardRow {
-  id: string;
-  name: string;
-  handle?: string | null;
-  city?: string | null;
-  total: number;
-  tier: Tier;
-  league?: LeagueKey;
-  leagueTier?: Tier;
-  age?: number;
-  createdAt: string;
 }

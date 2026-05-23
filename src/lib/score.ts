@@ -79,7 +79,8 @@ export function scoreSignals(args: ScoreInput): CrackedResult {
   const subStats = computeSubStats(categories);
   const match = matchArchetype({ total, tier, subStats });
 
-  // Age-relative placement (optional — older share links predate this).
+  // Age-relative placement — omitted only when age inference returned nothing
+  // usable (0 confidence on a sparse resume). The card handles that case.
   let league: LeaguePlacement | undefined;
   if (typeof age === "number" && age > 0 && age < 120) {
     league = placeInLeague({

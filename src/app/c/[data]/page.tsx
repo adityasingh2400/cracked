@@ -18,15 +18,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { data } = await params;
   const result = decodeResult(data);
   if (!result) return { title: "Cracked · result not found" };
-  // Derive label from the league key on every render — stale labels baked
-  // into older encoded share-links are ignored in favor of the current names.
-  const liveLabel = result.league ? getLeague(result.league.league).label : "";
-  const league = result.league ? ` · ${result.league.leagueTier} at ${liveLabel}` : "";
+  // Lead with the cohort grade when one exists — that's the product's headline
+  // number. Fall back to the absolute tier on the (rare) sparse-resume case
+  // where age inference returned nothing usable.
+  const headline = result.league
+    ? `TIER ${result.league.leagueTier} at ${getLeague(result.league.league).label}`
+    : `TIER ${result.tier}`;
   return {
-    title: `${result.name} · ${result.total}/100 · TIER ${result.tier}${league} · Cracked`,
+    title: `${result.name} · ${result.total}/100 · ${headline} · Cracked`,
     description: result.verdict,
     openGraph: {
-      title: `${result.name} scored ${result.total}/100${league} on Cracked`,
+      title: `${result.name} · ${result.total}/100 · ${headline} on Cracked`,
       description: result.verdict,
     },
   };

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { CrackedResult } from "@/lib/types";
+import { getLeague } from "@/data/leagues";
 
 export function ShareBar({ result }: { result: CrackedResult }) {
   const [copied, setCopied] = useState(false);
@@ -13,8 +14,11 @@ export function ShareBar({ result }: { result: CrackedResult }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const grade = result.league
+    ? `TIER ${result.league.leagueTier} at ${getLeague(result.league.league).shortLabel}`
+    : `TIER ${result.tier}`;
   const tweetText = encodeURIComponent(
-    `${result.name} scored ${result.total}/100 (TIER ${result.tier}) on Cracked · ${result.verdict.slice(0, 80)}${result.verdict.length > 80 ? "..." : ""}`
+    `${result.name} scored ${result.total}/100 · ${grade} on Cracked · ${result.verdict.slice(0, 80)}${result.verdict.length > 80 ? "..." : ""}`
   );
   const tweetUrl =
     typeof window === "undefined"
