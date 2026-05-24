@@ -28,7 +28,11 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "bun run dev",
+    // In CI we serve the production build the workflow already produced.
+    // `next dev` keeps an HMR socket open and compiles routes on first hit,
+    // which stalls context teardown under parallel load. `next start` has
+    // neither, so the suite is stable. Locally we keep `next dev` for speed.
+    command: process.env.CI ? "bun run start" : "bun run dev",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
