@@ -4,106 +4,186 @@
 
 @layer base {
   :root {
-    --bg-1: #1F1612;
-    --bg-2: #2A1F1B;
-    --bg-3: #362720;
-    --cream: #F2E8DC;
-    --amber: #E8B547;
-    --amber-light: #FFE5A8;
-    --amber-deep: #B98A2E;
-    --walnut-line: rgba(232, 181, 71, 0.18);
+    --blush:    #FFE4D6;
+    --peach:    #FFCFA8;
+    --apricot:  #FFB07A;
+    --mango:    #FFA532;
+    --cherry:   #FF6B5C;
+    --cherry-d: #E03E2D;
+    --marigold: #FFC53D;
+    --marigold-d: #E0A41F;
+    --paper:    #FFF6EC;
+    --cream:    #FFFAF2;
+    --ink:      #3C1F15;
+    --ink-soft: #6E3F2E;
+    --ink-fade: #9C7560;
   }
 
   html, body {
-    background: var(--bg-1);
-    color: var(--cream);
+    background: var(--paper);
+    color: var(--ink);
     font-family: var(--font-sans), Inter, system-ui, -apple-system, sans-serif;
-    font-size: 17px;
-    line-height: 1.6;
+    font-size: 16px;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   body {
-    /* warm candle-glow ambient — amber halos top-left and bottom-right, no cold blue/pink */
+    /* Sunset Arcade — blush → peach → apricot → mango */
     background:
-      radial-gradient(ellipse 60% 50% at 18% 0%, rgba(232, 181, 71, 0.12) 0%, transparent 55%),
-      radial-gradient(ellipse 50% 50% at 88% 100%, rgba(232, 181, 71, 0.07) 0%, transparent 60%),
-      radial-gradient(ellipse 80% 60% at 50% 130%, rgba(232, 181, 71, 0.05) 0%, transparent 60%),
-      linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+      linear-gradient(180deg, var(--blush) 0%, var(--peach) 38%, var(--apricot) 78%, var(--mango) 100%);
     background-attachment: fixed;
     min-height: 100vh;
+    position: relative;
+  }
+
+  /* Riso dot overlay — multiplies a tiny dot pattern over the entire page.
+     Sits above the gradient and below all content (z-index: 0). */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      radial-gradient(circle at 0 0, rgba(255, 107, 92, 0.10) 1px, transparent 1.5px),
+      radial-gradient(circle at 4px 4px, rgba(60, 31, 21, 0.06) 1px, transparent 1.5px);
+    background-size: 8px 8px, 8px 8px;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    z-index: 0;
+    opacity: 0.55;
   }
 
   ::selection {
-    background: rgba(232, 181, 71, 0.35);
-    color: #fff;
+    background: var(--marigold);
+    color: var(--ink);
   }
 
-  /* Headlines breathe a little — Fraunces optical sizes */
-  h1, h2, h3 {
-    font-feature-settings: "ss01", "ss02";
+  h1, h2, h3, h4 {
+    font-feature-settings: normal;
   }
 }
 
 @layer utilities {
   .text-balance { text-wrap: balance; }
-  .text-pretty { text-wrap: pretty; }
+  .text-pretty  { text-wrap: pretty; }
 
-  /* foil text — kept for the holo card's name, but used SPARINGLY in the warm reskin.
-     Reskinned pages prefer .text-amber-foil for headline emphasis. */
+  /* Holographic headline — sweeping rainbow on a stroked outline.
+     Used on hero CRACKED word and section accents. */
+  .text-arcade-holo {
+    background: linear-gradient(110deg,
+      #FF6B5C 0%, #FFA532 20%, #FFC53D 40%, #FFFAF2 50%,
+      #FFC53D 60%, #FFA532 80%, #FF6B5C 100%);
+    background-size: 250% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-stroke: 2px #3C1F15;
+    animation: holoPan 4s linear infinite;
+  }
+
+  /* Legacy `.text-amber-foil` is kept because V1 pages still use it for
+     headline accents. Re-pointed to a warm honey-gold gradient that sits
+     well on the light bg. */
+  .text-amber-foil {
+    background: linear-gradient(180deg, #FFE5A8 0%, #E8B547 55%, #B98A2E 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: drop-shadow(0 0 18px rgba(232, 181, 71, 0.20));
+  }
+
+  /* `.text-foil` rainbow kept for HoloCardV1 internals. */
   .text-foil {
     background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 35%, #FCD34D 65%, #06B6D4 100%);
     background-size: 200% 200%;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: foil-pan 12s ease-in-out infinite;
+    animation: foilShift 12s ease-in-out infinite;
   }
 
-  /* warmer headline accent — molten amber gradient with a tiny glow */
-  .text-amber-foil {
-    background: linear-gradient(180deg, #FFE5A8 0%, #E8B547 55%, #B98A2E 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    filter: drop-shadow(0 0 28px rgba(232, 181, 71, 0.30));
-  }
+  .text-gold    { color: var(--marigold); }
+  .text-cherry  { color: var(--cherry); }
+  .text-ink     { color: var(--ink); }
 
-  .text-gold {
-    color: var(--amber);
-  }
-
-  /* a single hairline divider for editorial sections */
   .hairline {
     height: 1px;
-    background: var(--walnut-line);
+    background: rgba(60, 31, 21, 0.18);
   }
 
-  /* dotted divider, kept for legacy use */
-  .divider-dots {
-    background-image: linear-gradient(90deg, rgba(232, 181, 71, 0.28) 50%, transparent 0);
-    background-size: 6px 1px;
-    background-repeat: repeat-x;
-    background-position: left center;
-    height: 1px;
+  /* Sticker stamp — pill with hard cherry drop shadow */
+  .arcade-stamp {
+    display: inline-block;
+    padding: 7px 16px;
+    background: var(--cream);
+    border: 2px solid var(--ink);
+    border-radius: 999px;
+    font-family: var(--font-mono), "JetBrains Mono", monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink);
+    box-shadow: 3px 3px 0 var(--cherry);
   }
 
-  /* ember-glow utility — soft amber halo behind important elements */
-  .glow-amber {
-    box-shadow:
-      0 0 0 1px rgba(232, 181, 71, 0.18),
-      0 0 50px -10px rgba(232, 181, 71, 0.35);
+  .arcade-card {
+    background: var(--cream);
+    border: 3px solid var(--ink);
+    border-radius: 20px;
+    box-shadow: 6px 6px 0 var(--ink);
   }
+
+  /* Marquee strip wrapper */
+  .marquee-strip {
+    background: var(--ink);
+    color: var(--cream);
+    overflow: hidden;
+    border-top: 2px solid var(--ink);
+    border-bottom: 2px solid var(--ink);
+    padding: 9px 0;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 40px;
+    width: max-content;
+    animation: marquee 38s linear infinite;
+    will-change: transform;
+    font-family: var(--font-display), "Bowlby One", serif;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .marquee-track > span {
+    display: inline-flex; align-items: center; gap: 16px;
+  }
+
+  /* HoloCardV1 preserves its own dark gloss — isolate it from the page so
+     its foil reads cleanly. */
+  .holo-card-wrap { isolation: isolate; }
+
+  .tabular { font-variant-numeric: tabular-nums; }
 }
 
-@keyframes foil-pan {
+@keyframes holoPan {
+  0%   { background-position: 200% 50%; }
+  100% { background-position: -50% 50%; }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(14deg); }
+  50%      { transform: rotate(10deg) translateY(-2px); }
+}
+@keyframes foilShift {
   0%, 100% { background-position: 0% 50%; }
   50%      { background-position: 100% 50%; }
 }
-
 @keyframes blink {
-  0%, 60% { opacity: 1; }
+  0%, 60%   { opacity: 1; }
   61%, 100% { opacity: 0; }
 }
 
@@ -111,168 +191,5 @@
   content: "▌";
   margin-left: 4px;
   animation: blink 1s steps(2) infinite;
-  color: var(--amber);
-}
-
-.tabular {
-  font-variant-numeric: tabular-nums;
-}
-
-/* ============================================================
-   ASCENDED reveal ceremony — per /plan-eng-review T-CEREMONY.
-   Triggered by CeremonyReveal.tsx when tier === ASCENDED.
-   ============================================================ */
-.ceremony-reveal {
-  position: relative;
-  opacity: 0;
-  transform: scale(0.96);
-  transition: opacity 600ms ease, transform 600ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-.ceremony-reveal--armed {
-  opacity: 1;
-  transform: scale(1);
-}
-.ceremony-reveal--mythic {
-  transition-duration: 900ms;
-}
-.ceremony-reveal--ascended {
-  transition-duration: 1400ms;
-}
-.ceremony-reveal--ascended.ceremony-reveal--armed {
-  animation: ceremony-ascended-pulse 2.4s ease-out;
-}
-@keyframes ceremony-ascended-pulse {
-  0%   { filter: brightness(1) saturate(1); }
-  35%  { filter: brightness(1.6) saturate(1.4); }
-  70%  { filter: brightness(1.1) saturate(1.1); }
-  100% { filter: brightness(1) saturate(1); }
-}
-
-.ceremony-halo {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1;
-}
-.ceremony-halo-ring {
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  border: 2px solid rgba(255, 197, 100, 0.6);
-  border-radius: 50%;
-  animation: ceremony-halo-expand 1.6s ease-out forwards;
-}
-.ceremony-halo-ring--delay {
-  animation-delay: 400ms;
-  border-color: rgba(236, 72, 153, 0.5);
-}
-@keyframes ceremony-halo-expand {
-  0%   { opacity: 0.9; transform: scale(0.4); }
-  100% { opacity: 0;   transform: scale(2.6); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ceremony-reveal,
-  .ceremony-reveal--armed,
-  .ceremony-halo-ring {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-
-/* ============================================================
-   HoloCardV1 keyframes — recovered from v0.7 + extended for v1.0.
-   Used by HoloCardV1.tsx for per-tier holo treatment.
-   ============================================================ */
-@keyframes holoTwinkle {
-  0%, 100% { opacity: 0; transform: scale(0.5); }
-  50%      { opacity: 0.95; transform: scale(1); }
-}
-@keyframes holoEmberRise {
-  0%   { transform: translateY(0) scale(1.2); opacity: 0; }
-  8%   { opacity: 1; }
-  40%  { transform: translateY(-160px) scale(0.85); opacity: 0.9; }
-  75%  { transform: translateY(-300px) scale(0.45); opacity: 0.5; }
-  100% { transform: translateY(-420px) scale(0.1); opacity: 0; }
-}
-@keyframes holoFloorBreathe {
-  0%, 100% { opacity: 0.6; transform: scaleY(1); }
-  50%      { opacity: 1; transform: scaleY(1.08); }
-}
-@keyframes holoHaloPulse {
-  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-  50%      { opacity: 0.95; transform: translate(-50%, -50%) scale(1.08); }
-}
-@keyframes holoMegaShimmer {
-  0%   { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-@keyframes holoLiquidChrome {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-/* Aurora drifts via background-position so the div STAYS PUT and only the
-   gradient slides. Earlier transform-based version was creating "rotating
-   ghost rectangles" when the inner div translated outside the card boundary. */
-@keyframes holoAuroraDrift {
-  0%   { background-position: 0% 30%;   opacity: 0.55; }
-  25%  { background-position: 60% 70%;  opacity: 0.85; }
-  50%  { background-position: 100% 40%; opacity: 0.70; }
-  75%  { background-position: 40% 10%;  opacity: 0.85; }
-  100% { background-position: 0% 30%;   opacity: 0.55; }
-}
-@keyframes holoSigilPulse {
-  0%, 100% { filter: drop-shadow(0 0 8px currentColor) drop-shadow(0 0 18px currentColor); opacity: 0.95; }
-  50%      { filter: drop-shadow(0 0 16px currentColor) drop-shadow(0 0 32px currentColor); opacity: 1; }
-}
-/* AchievementConstellation faint connecting lines breathe between dots. */
-@keyframes constLinePulse {
-  0%, 100% { stroke-opacity: 0.15; }
-  50%      { stroke-opacity: 0.55; }
-}
-/* BorderRing — stroke-dashoffset rotates around the perimeter so a glowing
-   segment "runs" the border without translating any layer (mask-composite
-   approach caused ghost rectangles when the inner div escaped clip bounds). */
-@keyframes borderRingSpin {
-  0%   { stroke-dashoffset: 0; }
-  100% { stroke-dashoffset: -800; }
-}
-/* Ken Burns slow zoom + drift for the illustration photo background. */
-@keyframes photoKenBurns {
-  0%   { transform: scale(1.06) translate(0%, 0%); }
-  50%  { transform: scale(1.14) translate(-1.5%, 1%); }
-  100% { transform: scale(1.06) translate(0%, 0%); }
-}
-/* Particle motion — rising embers float up and fade out near top. */
-@keyframes particleRise {
-  0%   { transform: translateY(0) translateX(0); opacity: 0; }
-  10%  { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { transform: translateY(-100vh) translateX(8px); opacity: 0; }
-}
-/* Drift motes float horizontally with a gentle vertical sway. */
-@keyframes particleDrift {
-  0%   { transform: translate(0, 0); opacity: 0; }
-  20%  { opacity: 1; }
-  50%  { transform: translate(30px, -8px); }
-  80%  { opacity: 1; }
-  100% { transform: translate(60px, 4px); opacity: 0; }
-}
-/* Code rain glyphs fall straight down. */
-@keyframes particleFall {
-  0%   { transform: translateY(0); opacity: 0; }
-  10%  { opacity: 1; }
-  90%  { opacity: 1; }
-  100% { transform: translateY(100vh); opacity: 0; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .holo-card *,
-  .holo-card {
-    animation: none !important;
-    transition: none !important;
-  }
+  color: var(--marigold);
 }
