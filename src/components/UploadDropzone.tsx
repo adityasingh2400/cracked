@@ -4,6 +4,10 @@
 // Accepts up to 10 images (png/jpeg/webp/gif) and/or PDFs. Files are sent
 // to /api/analyze-uploads, which runs Claude Vision over them and returns
 // a CrackedResultV1 share URL.
+//
+// Sunset Arcade chrome: chunky cherry-shadowed dropzone, animated DROP
+// HERE sticker, arcade chip filetypes, arcade name/age inputs, terminal
+// log on an ink panel with cherry hard-shadow.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -31,9 +35,10 @@ const PHASE_LOGS: Record<Phase, string[]> = {
     "→ cross-referencing across documents",
   ],
   scoring: [
-    "→ matching against 196 dex archetypes",
-    "→ placing you on the 9 family ladders",
-    "→ computing cohort percentile (top X%)",
+    "→ matching against the 9 family achievement libraries",
+    "→ detecting chain combos",
+    "→ placing into age cohort",
+    "→ computing percentiles · within-family · cross-family · global",
     "→ rendering verdict prose...",
   ],
   done: ["✓ done. redirecting to your card..."],
@@ -57,8 +62,6 @@ export function UploadDropzone() {
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  // Restore previously-selected files on first mount so a failed attempt
-  // doesn't force the user to re-drop everything.
   useEffect(() => {
     let alive = true;
     loadFiles().then((restored) => {
@@ -74,13 +77,10 @@ export function UploadDropzone() {
       alive = false;
     };
   }, []);
-  // Persist file state on every change. IndexedDB stores blobs natively.
+
   useEffect(() => {
-    if (files.length === 0) {
-      clearFiles().catch(() => {});
-    } else {
-      saveFiles(files).catch(() => {});
-    }
+    if (files.length === 0) clearFiles().catch(() => {});
+    else saveFiles(files).catch(() => {});
   }, [files]);
   useEffect(() => {
     try { sessionStorage.setItem("cracked.upload.name", name); } catch {}
@@ -89,8 +89,7 @@ export function UploadDropzone() {
     try { sessionStorage.setItem("cracked.upload.age", age); } catch {}
   }, [age]);
 
-  const appendLog = (line: string) =>
-    setLogs((prev) => [...prev, line]);
+  const appendLog = (line: string) => setLogs((prev) => [...prev, line]);
 
   const advancePhase = useCallback(async (to: Phase, delay = 400) => {
     setPhase(to);
@@ -116,10 +115,7 @@ export function UploadDropzone() {
         return { ok: files, err: `Unsupported file: ${f.name}` };
       }
       if (f.size > MAX_FILE_MB * 1024 * 1024) {
-        return {
-          ok: files,
-          err: `${f.name} is over ${MAX_FILE_MB}MB.`,
-        };
+        return { ok: files, err: `${f.name} is over ${MAX_FILE_MB}MB.` };
       }
     }
     return { ok: merged };
@@ -149,7 +145,6 @@ export function UploadDropzone() {
   const onPick = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     onAddFiles(Array.from(e.target.files));
-    // Reset the input so re-picking the same file fires onChange again.
     e.target.value = "";
   };
 
@@ -200,7 +195,7 @@ export function UploadDropzone() {
   const isWorking = phase !== "idle" && phase !== "error";
 
   return (
-    <div className="w-full">
+    <div className="w-full arcade-no-confetti">
       {!isWorking && (
         <>
           <DropZone
@@ -210,32 +205,39 @@ export function UploadDropzone() {
             onClick={() => inputRef.current?.click()}
             hasFiles={files.length > 0}
           />
+          {files.length > 0 && <FilePreview files={files} onRemove={removeFile} />}
           {files.length > 0 && (
-            <FilePreview files={files} onRemove={removeFile} />
-          )}
-          {files.length > 0 && (
-            <div className="max-w-xl mx-auto mt-4 flex flex-col sm:flex-row gap-3">
+            <div className="max-w-xl mx-auto mt-5 flex flex-col sm:flex-row gap-3">
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Your name (optional)"
-                className="flex-1 px-3 py-2 rounded-md bg-black/30 border border-white/15 text-white placeholder:text-white/30 font-mono text-[13px] focus:border-gold/60 focus:outline-none"
+                className="flex-1 px-4 py-3 rounded-full border-[3px] border-ink bg-cream text-ink placeholder:text-ink-fade font-mono text-[13px] focus:outline-none"
+                style={{ boxShadow: "3px 3px 0 var(--ink)" }}
               />
               <input
                 type="number"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
-                placeholder="Age (optional)"
+                placeholder="Age"
                 min={10}
                 max={100}
-                className="w-full sm:w-32 px-3 py-2 rounded-md bg-black/30 border border-white/15 text-white placeholder:text-white/30 font-mono text-[13px] focus:border-gold/60 focus:outline-none"
+                className="w-full sm:w-28 px-4 py-3 rounded-full border-[3px] border-ink bg-cream text-ink placeholder:text-ink-fade font-mono text-[13px] focus:outline-none"
+                style={{ boxShadow: "3px 3px 0 var(--ink)" }}
               />
               <button
                 onClick={submit}
-                className="px-5 py-2 rounded-md bg-amber-foil text-black font-mono text-[12px] tracking-[0.18em] uppercase font-bold hover:opacity-90"
+                className="px-6 py-3 rounded-full border-[3px] border-ink bg-cherry text-paper font-display text-[14px] transition hover:-translate-x-0.5 hover:-translate-y-0.5"
+                style={{ boxShadow: "5px 5px 0 var(--ink)" }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow = "7px 7px 0 var(--ink)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow = "5px 5px 0 var(--ink)";
+                }}
               >
-                Crack me
+                CRACK ME →
               </button>
             </div>
           )}
@@ -251,7 +253,10 @@ export function UploadDropzone() {
       />
 
       {error && (
-        <div className="mt-5 max-w-xl mx-auto p-4 rounded-lg border border-red-500/30 bg-red-500/5 text-red-200 font-mono text-[12px]">
+        <div
+          className="mt-5 max-w-xl mx-auto p-4 rounded-2xl border-[3px] border-cherry bg-blush text-ink font-mono text-[12px]"
+          style={{ boxShadow: "5px 5px 0 var(--cherry)" }}
+        >
           {error}
         </div>
       )}
@@ -267,7 +272,7 @@ export function UploadDropzone() {
               router.push(`/c/${encoded}`);
             } catch {}
           }}
-          className="font-mono text-[11px] tracking-[0.18em] uppercase text-white/40 hover:text-white transition"
+          className="font-mono text-[11px] font-bold tracking-[0.18em] uppercase text-ink-soft hover:text-cherry transition cursor-pointer"
         >
           → or see a sample card first
         </button>
@@ -302,34 +307,59 @@ function DropZone({
       onDragLeave={() => setDragOver(false)}
       onDrop={onDrop}
       className={clsx(
-        "max-w-xl mx-auto rounded-2xl border-2 border-dashed transition-all cursor-pointer",
-        "py-10 px-8 flex flex-col items-center gap-3 text-center",
-        dragOver
-          ? "border-gold/60 bg-gold/5 scale-[1.01]"
-          : "border-white/15 hover:border-white/30 hover:bg-white/[0.02]"
+        "relative max-w-xl mx-auto rounded-3xl py-10 px-8 flex flex-col items-center gap-3 text-center cursor-pointer transition-all group",
+        dragOver ? "scale-[1.02]" : ""
       )}
+      style={{
+        background: "var(--cream)",
+        border: "3px solid var(--ink)",
+        boxShadow: dragOver ? "14px 14px 0 var(--cherry)" : "10px 10px 0 var(--cherry)",
+        transform: dragOver ? "translate(-4px,-4px)" : undefined,
+      }}
+      onMouseEnter={(e) => {
+        const t = e.currentTarget as HTMLDivElement;
+        t.style.boxShadow = "14px 14px 0 var(--cherry)";
+        t.style.transform = "translate(-4px,-4px)";
+      }}
+      onMouseLeave={(e) => {
+        const t = e.currentTarget as HTMLDivElement;
+        t.style.boxShadow = "10px 10px 0 var(--cherry)";
+        t.style.transform = "";
+      }}
     >
-      <div className="font-display text-2xl text-white/90">
-        {hasFiles ? "Add more files" : "Drop screenshots or PDFs"}
+      <span
+        className="absolute -top-3 right-6 bg-cherry text-paper font-mono font-bold text-[11px] tracking-[0.2em] uppercase px-3 py-1.5 rounded-full border-2 border-ink animate-wiggle"
+        style={{ transform: "rotate(6deg)" }}
+      >
+        DROP HERE
+      </span>
+
+      <div
+        className="w-16 h-16 rounded-full border-[3px] border-ink grid place-items-center font-display text-[40px] text-ink mb-2 transition-transform duration-300 group-hover:rotate-180 group-hover:scale-110 leading-none"
+        style={{ background: "linear-gradient(180deg, var(--marigold), var(--mango))" }}
+      >
+        +
       </div>
-      <div className="font-mono text-[11px] tracking-[0.16em] text-white/45 uppercase">
-        or click to choose · up to {MAX_FILES} files · {MAX_FILE_MB}mb each
+
+      <div className="font-display text-2xl text-ink leading-none">
+        {hasFiles ? "ADD MORE FILES" : "DROP SCREENSHOTS OR PDFS"}
       </div>
-      <div className="mt-2 flex flex-wrap items-center justify-center gap-2 font-mono text-[10px] text-white/35">
-        <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10">
-          .PNG
+      <div className="text-ink-soft text-[14px]">
+        Or click to browse · up to {MAX_FILES} files · {MAX_FILE_MB}mb each
+      </div>
+
+      <div className="mt-2 flex gap-2 flex-wrap justify-center">
+        {[".PNG", ".JPG", ".WEBP", ".PDF"].map((ext) => (
+          <span
+            key={ext}
+            className="font-mono text-[11px] font-bold tracking-[0.1em] uppercase px-3 py-1.5 rounded-full bg-blush border-2 border-ink text-ink"
+          >
+            {ext}
+          </span>
+        ))}
+        <span className="font-mono text-[11px] font-bold tracking-[0.1em] uppercase px-3 py-1.5 rounded-full bg-cherry text-paper border-2 border-ink">
+          NEVER STORED
         </span>
-        <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10">
-          .JPG
-        </span>
-        <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10">
-          .WEBP
-        </span>
-        <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10">
-          .PDF
-        </span>
-        <span>·</span>
-        <span>never stored</span>
       </div>
     </div>
   );
@@ -343,7 +373,7 @@ function FilePreview({
   onRemove: (i: number) => void;
 }) {
   return (
-    <div className="max-w-xl mx-auto mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+    <div className="max-w-xl mx-auto mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
       {files.map((f, i) => {
         const isPdf =
           f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf");
@@ -351,7 +381,8 @@ function FilePreview({
         return (
           <div
             key={`${f.name}-${i}`}
-            className="relative aspect-square rounded-lg overflow-hidden border border-white/10 bg-black/40 group"
+            className="relative aspect-square rounded-xl overflow-hidden border-[3px] border-ink bg-cream group"
+            style={{ boxShadow: "3px 3px 0 var(--ink)" }}
           >
             {url ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -362,17 +393,18 @@ function FilePreview({
                 onLoad={() => URL.revokeObjectURL(url)}
               />
             ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center text-amber-foil">
-                <div className="text-2xl">📄</div>
-                <div className="font-mono text-[9px] mt-1 px-1 truncate w-full text-center text-white/60">
+              <div className="w-full h-full flex flex-col items-center justify-center bg-marigold text-ink p-2">
+                <div className="text-3xl">📄</div>
+                <div className="font-mono text-[9px] font-bold mt-1 truncate w-full text-center text-ink">
                   {f.name}
                 </div>
               </div>
             )}
             <button
               onClick={() => onRemove(i)}
-              className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/70 text-white/80 hover:bg-red-500/80 hover:text-white text-xs flex items-center justify-center"
+              className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full bg-cherry text-paper border-2 border-ink hover:bg-cherry-deep text-sm font-bold leading-none flex items-center justify-center"
               aria-label={`Remove ${f.name}`}
+              style={{ boxShadow: "2px 2px 0 var(--ink)" }}
             >
               ×
             </button>
@@ -385,25 +417,21 @@ function FilePreview({
 
 function TerminalLog({ lines, phase }: { lines: string[]; phase: Phase }) {
   return (
-    <div className="max-w-xl mx-auto mt-2 rounded-2xl bg-ink-900/80 border border-white/10 p-5 font-mono text-[12px] text-white/85 backdrop-blur-sm">
+    <div
+      className="max-w-xl mx-auto mt-2 rounded-2xl bg-ink p-5 font-mono text-[12px] text-paper border-[3px] border-ink"
+      style={{ boxShadow: "8px 8px 0 var(--cherry)" }}
+    >
       <div className="flex items-center gap-2 mb-3">
-        <span className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
-        <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
-        <span className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
-        <span className="ml-2 text-[10px] tracking-[0.22em] uppercase text-white/40">
+        <span className="w-3 h-3 rounded-full bg-cherry" />
+        <span className="w-3 h-3 rounded-full bg-marigold" />
+        <span className="w-3 h-3 rounded-full" style={{ background: "#5ED677" }} />
+        <span className="ml-2 text-[10px] tracking-[0.22em] uppercase text-paper/60">
           cracked@analyzer · {phase}
         </span>
       </div>
-      <pre className="leading-[1.7] whitespace-pre-wrap text-foil-cyan/90">
+      <pre className="leading-[1.7] whitespace-pre-wrap text-paper/95">
         {lines.map((l, i) => (
-          <div
-            key={i}
-            style={{
-              color: l.startsWith("→")
-                ? "rgba(252,211,77,0.85)"
-                : "rgba(232,232,236,0.95)",
-            }}
-          >
+          <div key={i} style={{ color: l.startsWith("→") ? "var(--marigold)" : "var(--paper)" }}>
             {l}
             {i === lines.length - 1 && phase !== "done" && phase !== "error" && (
               <span className="cursor-blink ml-1" />
