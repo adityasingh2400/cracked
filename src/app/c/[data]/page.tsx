@@ -1,12 +1,9 @@
 // /c/[data] — the v1.0 share card view route.
 //
-// Decodes the share blob (gzip+base64 from src/lib/encode.ts), renders
-// the v1.0 card composition: FamilyBadge + TierBadge + PercentileTrio +
-// ChainBanner + SubStatRow + MissingAchievements. Backwards-compatible
-// with v0.7 share URLs (which lack family/percentiles — defaults applied).
-//
-// OG metadata points to /api/og/[data] which renders the same data as
-// a StaticCard PNG for Twitter/X/iMessage previews.
+// Decodes the share blob (gzip+base64 from src/lib/encode.ts) and renders the
+// HoloCardV1 composition wrapped in CeremonyReveal. The card itself stays
+// glossy + dark (a trading card is a trading card); the page chrome around
+// it is Sunset Arcade — cherry hard shadows, marigold stamps, arcade CTAs.
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -69,30 +66,30 @@ export default async function CardPage({ params }: PageProps) {
   if (!result) notFound();
 
   const family: Family = result.primaryFamily ?? DEFAULT_FAMILY;
-  const secondary: Family | undefined = result.secondaryFamily;
   const familyMeta = FAMILIES_META[family];
   const percentiles: Trio = result.percentiles ?? DEFAULT_TRIO;
-  const cohortLabel = result.league ? getLeague(result.league.league).label : "all cohorts";
-  const headlineChain = result.families?.find((f) => f.family === family)?.activeChains[0];
 
   return (
-    <div className="px-5 sm:px-8 pt-12 pb-16">
+    <div className="px-5 sm:px-8 pt-10 pb-16">
       {/* HOLO CARD — Pokemon-TCG-grade v1.0 composition */}
-      <section className="max-w-xl mx-auto">
+      <section className="max-w-xl mx-auto arcade-no-confetti">
         <CeremonyReveal tier={result.tier}>
           <HoloCardV1 result={result} />
         </CeremonyReveal>
 
-        {/* Verdict / flavor — outside the card so they don't compete with the holo */}
+        {/* Verdict + flavor — arcade card outside the holo so they don't compete */}
         {(result.verdict || result.flavor) && (
-          <div className="mt-6 text-center max-w-md mx-auto">
+          <div
+            className="mt-7 max-w-md mx-auto rounded-2xl border-[3px] border-ink bg-cream p-5 text-center"
+            style={{ boxShadow: "5px 5px 0 var(--ink)" }}
+          >
             {result.verdict && (
-              <p className="text-sm text-white/80 italic leading-relaxed">
-                "{result.verdict}"
+              <p className="font-serif italic text-[15px] text-ink leading-relaxed">
+                &ldquo;{result.verdict}&rdquo;
               </p>
             )}
             {result.flavor && (
-              <p className="mt-2 font-display italic text-amber-foil/70">
+              <p className="mt-3 font-display text-[14px] text-cherry-deep tracking-[0.02em]">
                 {result.flavor}
               </p>
             )}
@@ -101,7 +98,10 @@ export default async function CardPage({ params }: PageProps) {
 
         {result.calibrating && (
           <div className="mt-4 text-center">
-            <span className="px-3 py-1 rounded-md bg-amber-foil/15 text-amber-foil font-mono text-[10px] tracking-[0.15em] uppercase">
+            <span
+              className="font-mono text-[10px] font-bold tracking-[0.15em] uppercase px-3 py-1.5 rounded-full bg-marigold text-ink border-2 border-ink"
+              style={{ boxShadow: "2px 2px 0 var(--ink)" }}
+            >
               calibrating · re-score when claude reconnects
             </span>
           </div>
@@ -115,26 +115,28 @@ export default async function CardPage({ params }: PageProps) {
 
       {/* LEAGUE EXPLAINER */}
       {result.league && (
-        <section className="mt-12 max-w-2xl mx-auto">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 sm:p-6">
-            <div className="font-mono text-[10px] tracking-[0.28em] uppercase text-gold/80 mb-2">
-              Two grades, one you.
+        <section className="mt-14 max-w-2xl mx-auto">
+          <div
+            className="rounded-2xl border-[3px] border-ink bg-cream p-5 sm:p-6"
+            style={{ boxShadow: "5px 5px 0 var(--ink)" }}
+          >
+            <div className="font-mono text-[11px] font-bold tracking-[0.28em] uppercase text-cherry-deep mb-2">
+              // TWO GRADES, ONE YOU //
             </div>
-            <p className="text-[14px] text-white/70 leading-relaxed">
-              You landed{" "}
-              <span className="text-white font-medium">tier {formatTier(result.tier, result.tierStars)}</span> in{" "}
-              <span className="text-white">{familyMeta.name}</span>. At{" "}
-              <span className="text-white">{getLeague(result.league.league).label}</span>{" "}
-              you're more cracked than{" "}
-              <span className="text-amber-foil font-medium">
+            <p className="text-[15px] text-ink leading-relaxed">
+              You landed tier{" "}
+              <span className="font-display text-[15px] text-cherry">
+                {formatTier(result.tier, result.tierStars)}
+              </span>{" "}
+              in <span className="font-bold">{familyMeta.name}</span>. At{" "}
+              <span className="font-bold">{getLeague(result.league.league).label}</span> you&apos;re more cracked than{" "}
+              <span className="font-display text-arcade-holo">
                 {percentiles.withinFamilyCohort.toFixed(1)}%
               </span>{" "}
-              of your cohort in {familyMeta.shortName}. Older cohorts aren't more cracked,
-              they've just had more time to stack signals — so the bar moves with you.{" "}
+              of your cohort in {familyMeta.shortName}. Older cohorts aren&apos;t more cracked, they&apos;ve just had more time to stack signals — so the bar moves with you.{" "}
               {result.league.ageSource === "inferred" && (
                 <>
-                  Age was inferred as <span className="text-white">{result.league.age}</span>.
-                  Click the age pill on the card to correct it.
+                  Age was inferred as <span className="font-bold">{result.league.age}</span>. Click the age pill on the card to correct it.
                 </>
               )}
             </p>
@@ -142,29 +144,32 @@ export default async function CardPage({ params }: PageProps) {
         </section>
       )}
 
-      {/* CTA */}
+      {/* CTA — arcade button trio */}
       <section className="mt-20 max-w-2xl mx-auto text-center">
-        <div className="font-display italic text-white/55 mb-4">
+        <div className="font-serif italic text-ink-soft mb-5 text-[17px]">
           Built for screenshotting and arguing about.
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center flex-wrap">
           <Link
             href="/"
-            className="px-5 py-3 rounded-md bg-gradient-to-br from-amber-foil to-foil-pink text-black font-mono text-[12px] tracking-[0.18em] uppercase hover:brightness-110 transition"
+            className="px-6 py-3 rounded-full border-[3px] border-ink bg-cherry text-paper font-display text-[13px] leading-none transition hover:-translate-x-0.5 hover:-translate-y-0.5"
+            style={{ boxShadow: "5px 5px 0 var(--ink)" }}
           >
-            Crack someone else
+            CRACK SOMEONE ELSE →
           </Link>
           <Link
             href={`/dex/family/${familyMeta.slug}`}
-            className="px-5 py-3 rounded-md border border-white/15 text-white/85 font-mono text-[12px] tracking-[0.18em] uppercase hover:border-amber-foil/40 hover:text-amber-foil transition"
+            className="px-6 py-3 rounded-full border-[3px] border-ink bg-cream text-ink font-display text-[13px] leading-none transition hover:-translate-x-0.5 hover:-translate-y-0.5"
+            style={{ boxShadow: "5px 5px 0 var(--ink)" }}
           >
-            What gets you to {nextTierLabel(result.tier)}?
+            {nextTierLabel(result.tier)}
           </Link>
           <Link
             href="/leaderboard"
-            className="px-5 py-3 rounded-md border border-white/15 text-white/85 font-mono text-[12px] tracking-[0.18em] uppercase hover:border-amber-foil/40 hover:text-amber-foil transition"
+            className="px-6 py-3 rounded-full border-[3px] border-ink bg-marigold text-ink font-display text-[13px] leading-none transition hover:-translate-x-0.5 hover:-translate-y-0.5"
+            style={{ boxShadow: "5px 5px 0 var(--ink)" }}
           >
-            Leaderboard
+            LEADERBOARD →
           </Link>
         </div>
       </section>
@@ -174,12 +179,12 @@ export default async function CardPage({ params }: PageProps) {
 
 function nextTierLabel(t: string): string {
   switch (t) {
-    case "ASCENDED": return "the next legend";
-    case "MYTHIC": return "ASCENDED";
-    case "S": return "MYTHIC";
-    case "A": return "S";
-    case "B": return "A";
-    case "C": return "B";
-    default: return "C";
+    case "ASCENDED": return "WHAT IS LEFT?";
+    case "MYTHIC":   return "REACH ASCENDED →";
+    case "S":        return "REACH MYTHIC →";
+    case "A":        return "REACH S →";
+    case "B":        return "REACH A →";
+    case "C":        return "REACH B →";
+    default:         return "REACH C →";
   }
 }

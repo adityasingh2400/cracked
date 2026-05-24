@@ -1,8 +1,8 @@
-// Bookmarklet handoff route — receives base64-encoded ExtractedSignals from the
-// user's LinkedIn tab, posts to /api/analyze, redirects to the share-URL card.
+// Bookmarklet handoff route — receives base64-encoded ExtractedSignals from
+// the user's LinkedIn tab, posts to /api/analyze, redirects to the share-URL
+// card. Arcade chrome: chunky cherry-shadowed status panel.
 //
-// useSearchParams must be wrapped in Suspense per Next.js 15 (static-render
-// bailout safety) — see https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+// useSearchParams must be wrapped in Suspense per Next.js 15.
 
 "use client";
 
@@ -70,23 +70,40 @@ function HandoffInner() {
   }, [router, sp]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-5">
-      <div className="max-w-md text-center">
+    <div className="min-h-[70vh] flex items-center justify-center px-5">
+      <div
+        className="max-w-md w-full rounded-3xl border-[3px] border-ink bg-cream p-8 text-center"
+        style={{ boxShadow: "8px 8px 0 var(--cherry)" }}
+      >
         {error ? (
           <>
-            <h1 className="font-display text-3xl text-white mb-3">Hiccup</h1>
-            <p className="text-white/65 mb-6">{error}</p>
+            <div className="arcade-stamp mb-4" style={{ background: "var(--cherry)", color: "var(--paper)" }}>
+              ★ HICCUP
+            </div>
+            <h1 className="font-display text-[36px] text-ink leading-none mb-4">
+              SOMETHING BROKE
+            </h1>
+            <p className="font-serif italic text-ink-soft mb-6">{error}</p>
             <a
               href="/"
-              className="inline-block px-4 py-2 rounded-md border border-white/20 text-white hover:bg-white/5"
+              className="inline-block px-5 py-2.5 rounded-full border-[3px] border-ink bg-ink text-paper font-display text-[13px] leading-none transition hover:-translate-x-0.5 hover:-translate-y-0.5"
+              style={{ boxShadow: "5px 5px 0 var(--cherry)" }}
             >
-              go home
+              GO HOME →
             </a>
           </>
         ) : (
           <>
-            <div className="font-display text-3xl text-amber-foil mb-2">cracking…</div>
-            <div className="text-white/60 text-sm">analyzing your profile</div>
+            <div className="arcade-stamp mb-4">★ BOOKMARKLET</div>
+            <h1 className="font-display text-[44px] text-ink leading-none mb-3">
+              <span className="text-arcade-holo">CRACKING…</span>
+            </h1>
+            <p className="font-serif italic text-ink-soft">analyzing your profile</p>
+            <div className="mt-6 flex justify-center gap-2">
+              <Dot delay={0} />
+              <Dot delay={0.15} />
+              <Dot delay={0.3} />
+            </div>
           </>
         )}
       </div>
@@ -94,14 +111,31 @@ function HandoffInner() {
   );
 }
 
+function Dot({ delay }: { delay: number }) {
+  return (
+    <span
+      className="w-3 h-3 rounded-full bg-cherry"
+      style={{
+        animation: `pulseGlow 1.2s ease-in-out ${delay}s infinite`,
+      }}
+    />
+  );
+}
+
 export default function BookmarkletHandoff() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center px-5">
-          <div className="max-w-md text-center">
-            <div className="font-display text-3xl text-amber-foil mb-2">cracking…</div>
-            <div className="text-white/60 text-sm">loading</div>
+        <div className="min-h-[70vh] flex items-center justify-center px-5">
+          <div
+            className="max-w-md w-full rounded-3xl border-[3px] border-ink bg-cream p-8 text-center"
+            style={{ boxShadow: "8px 8px 0 var(--cherry)" }}
+          >
+            <div className="arcade-stamp mb-4">★ BOOKMARKLET</div>
+            <div className="font-display text-[44px] text-ink leading-none mb-3">
+              <span className="text-arcade-holo">CRACKING…</span>
+            </div>
+            <div className="font-serif italic text-ink-soft text-sm">loading</div>
           </div>
         </div>
       }
