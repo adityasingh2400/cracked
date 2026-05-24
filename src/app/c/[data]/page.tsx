@@ -11,7 +11,7 @@ import { ShareBar } from "@/components/ShareBar";
 import { decodeResult } from "@/lib/encode";
 import { getLeague } from "@/data/leagues";
 import { FAMILIES_META } from "@/data/families";
-import { HoloCardV1 } from "@/components/HoloCardV1";
+import { HoloCardV2 } from "@/components/HoloCardV2";
 import { CeremonyReveal } from "@/components/card/CeremonyReveal";
 import { formatTier } from "@/lib/types";
 import type { Metadata } from "next";
@@ -74,7 +74,7 @@ export default async function CardPage({ params }: PageProps) {
       {/* HOLO CARD — Pokemon-TCG-grade v1.0 composition */}
       <section className="max-w-xl mx-auto arcade-no-confetti">
         <CeremonyReveal tier={result.tier}>
-          <HoloCardV1 result={result} />
+          <HoloCardV2 result={result} />
         </CeremonyReveal>
 
         {/* Verdict + flavor — arcade card outside the holo so they don't compete */}
