@@ -1,4 +1,4 @@
-// MissingAchievements — the retention-loop panel shown on the result page.
+// MissingAchievements - the retention-loop panel shown on the result page.
 // "You're A in Engineering. Three things you could add to hit S: ..."
 //
 // Per /plan-eng-review Section 0 step 12 + Week 3 deliverable: shows 3 next-tier

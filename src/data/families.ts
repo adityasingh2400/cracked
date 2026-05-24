@@ -6,7 +6,7 @@ import type { Family } from "@/lib/types";
 
 export interface FamilyMeta {
   key: Family;
-  /** URL slug — single word, lowercase. */
+  /** URL slug - single word, lowercase. */
   slug: string;
   /** Display name shown on card + dex + leaderboard. */
   name: string;
@@ -20,7 +20,7 @@ export interface FamilyMeta {
   glyph: string;
   /** Hex color for the family chip + accent. */
   accent: string;
-  /** Holo foil colors for the family — drives the card's holo treatment. */
+  /** Holo foil colors for the family - drives the card's holo treatment. */
   foil: { primary: string; secondary: string; tertiary: string };
   /** Adjacent families (for "if you're strong here, check also" links). */
   adjacent: Family[];
@@ -47,7 +47,7 @@ export const FAMILIES_META: Record<Family, FamilyMeta> = {
     shortName: "ACADEMIA",
     motto: "Cited by the people you'd cite.",
     description:
-      "The frontier-research family. PhDs, professors, olympiad medalists, lab researchers, scholars. Graded by citations, papers in Nature/Science/NeurIPS, named scholarships (Rhodes, Marshall, Hertz), and time spent at Anthropic/OpenAI/DeepMind/Broad/Whitehead. Pure pedigree compounds — until the work has to.",
+      "The frontier-research family. PhDs, professors, olympiad medalists, lab researchers, scholars. Graded by citations, papers in Nature/Science/NeurIPS, named scholarships (Rhodes, Marshall, Hertz), and time spent at Anthropic/OpenAI/DeepMind/Broad/Whitehead. Pure pedigree compounds - until the work has to.",
     glyph: "❖",
     accent: "#A78BFA",
     foil: { primary: "#A78BFA", secondary: "#7C3AED", tertiary: "#FCD34D" },
@@ -73,7 +73,7 @@ export const FAMILIES_META: Record<Family, FamilyMeta> = {
     shortName: "FINANCE",
     motto: "Right on the things that matter.",
     description:
-      "The capital family. Bankers, hedge fund traders, VCs, PE professionals, allocators. Measured by deal size, fund size, IRR, carry, and the prestige density of the rooms billed into. Goldman TMT, Jane Street, Sequoia, KKR — these are the load-bearing logos.",
+      "The capital family. Bankers, hedge fund traders, VCs, PE professionals, allocators. Measured by deal size, fund size, IRR, carry, and the prestige density of the rooms billed into. Goldman TMT, Jane Street, Sequoia, KKR - these are the load-bearing logos.",
     glyph: "◊",
     accent: "#10B981",
     foil: { primary: "#0F766E", secondary: "#0EA5E9", tertiary: "#FCD34D" },

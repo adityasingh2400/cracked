@@ -1,4 +1,4 @@
-// AvatarBubble — the small profile circle in the card's top-left zone.
+// AvatarBubble - the small profile circle in the card's top-left zone.
 //
 // Shows the user's LinkedIn profile photo if photoUrl is provided, otherwise
 // renders a clean initials fallback (per `getInitials` in src/lib/types.ts).

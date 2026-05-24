@@ -1,4 +1,4 @@
-// SpecialityLine — single labeled phrase identifying the user's niche.
+// SpecialityLine - single labeled phrase identifying the user's niche.
 // Examples: "Frontier AI Researcher", "Pediatric Cardiologist", "Olympic Sprinter"
 // LLM-derived (Claude extraction); template-fallback for regex extraction.
 

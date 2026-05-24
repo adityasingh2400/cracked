@@ -1,4 +1,4 @@
-// BorderRing — animated rectangular outline that traces the card perimeter
+// BorderRing - animated rectangular outline that traces the card perimeter
 // using SVG stroke-dashoffset. NEVER use mask-composite/transforms here:
 // earlier versions translated/rotated an inner div and produced ghost
 // rectangles when it escaped the card's clip bounds.
@@ -14,11 +14,11 @@ import type { Tier } from "@/lib/types";
 
 interface BorderRingProps {
   tier: Tier;
-  /** Family accent color — used as the ring color for S tier. */
+  /** Family accent color - used as the ring color for S tier. */
   accent: string;
   /** Border radius matching the card's outer corner. */
   radius?: number;
-  /** Card aspect — pass null for the surrounding holo-card width/height. */
+  /** Card aspect - pass null for the surrounding holo-card width/height. */
 }
 
 interface RingPlan {
@@ -83,7 +83,7 @@ export function BorderRing({ tier, accent, radius = 22 }: BorderRingProps) {
   // The SVG viewports the card. We draw an inset rounded-rect just inside
   // the card border. The path perimeter for a rounded rect of dims (W,H)
   // and radius r is: 2*(W + H) - (8-2π)·r ≈ 2W + 2H - 1.72r.
-  // We don't need exact dasharray — we want a clean offset cycle so we use
+  // We don't need exact dasharray - we want a clean offset cycle so we use
   // a large dasharray with stroke-dashoffset animation.
   return (
     <svg

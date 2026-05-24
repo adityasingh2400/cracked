@@ -1,4 +1,4 @@
-// Medicine family — starter achievement library for v1.0 launch.
+// Medicine family - starter achievement library for v1.0 launch.
 
 import type { Achievement, Chain } from "@/lib/types";
 
@@ -167,7 +167,7 @@ export const MEDICINE_CHAINS: Chain[] = [
     family: "medicine",
     requires: ["med_top_3_med_school", "med_hopkins_mgh_residency"],
     bumpTo: "ASCENDED",
-    description: "Top-3 med school into Hopkins/MGH/UCSF residency — the apex clinical track.",
+    description: "Top-3 med school into Hopkins/MGH/UCSF residency - the apex clinical track.",
   },
   {
     id: "med_chain_md_phd_attending",
@@ -175,7 +175,7 @@ export const MEDICINE_CHAINS: Chain[] = [
     family: "medicine",
     requires: ["med_md_phd", "med_attending_top_hospital"],
     bumpTo: "MYTHIC",
-    description: "MD/PhD + attending at a top hospital — the physician-scientist apex.",
+    description: "MD/PhD + attending at a top hospital - the physician-scientist apex.",
   },
   {
     id: "med_chain_biotech_apex",

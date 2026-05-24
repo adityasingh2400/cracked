@@ -1,4 +1,4 @@
-// GET /api/olympus — top-100 Mount Olympus board.
+// GET /api/olympus - top-100 Mount Olympus board.
 //
 // Reads the Redis sorted set via ZREVRANGE + MGET (O(log N + 100)).
 // Silent degradation: empty list when KV unavailable.

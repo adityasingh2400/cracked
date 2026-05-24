@@ -1,0 +1,10 @@
+---
+description: LinkedIn screenshot fixture folder for local testing
+alwaysApply: true
+---
+
+# LinkedIn Screenshot Fixtures
+
+- Use `/Users/aditya/Desktop/linkedin` as the local fixture folder for LinkedIn screenshot testing.
+- The folder contains user-provided LinkedIn screenshots and should be treated as local test input, not committed app data.
+- When testing screenshot upload/extraction flows, prefer this folder before asking for new sample screenshots.

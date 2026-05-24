@@ -1,4 +1,4 @@
-// Tests for percentile blending math — the screenshot-bait flex.
+// Tests for percentile blending math - the screenshot-bait flex.
 // Per /plan-eng-review test plan: 100% coverage required on src/lib/percentile.
 
 import { describe, expect, it } from "vitest";
@@ -33,7 +33,7 @@ describe("blendPercentile", () => {
     expect(result).toBeCloseTo(20, 1);
   });
 
-  it("when realUserCount=250, w=0.5 — half-blend", () => {
+  it("when realUserCount=250, w=0.5 - half-blend", () => {
     const result = blendPercentile({
       internalScore: 50,
       cellSyntheticPct: 80,

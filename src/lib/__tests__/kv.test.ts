@@ -1,4 +1,4 @@
-// Smoke tests for KV wrapper — verifies the silent-degradation contract.
+// Smoke tests for KV wrapper - verifies the silent-degradation contract.
 // Without KV_REST_API_URL set, every operation should return safe defaults
 // without throwing.
 
@@ -35,7 +35,7 @@ describe("profileKey normalization", () => {
 });
 
 describe("KV silent degradation (no env vars set)", () => {
-  // These tests run with no KV creds in the test env — every op must
+  // These tests run with no KV creds in the test env - every op must
   // return a safe default and not throw.
 
   it("kvAvailable returns false when not configured", () => {

@@ -1,4 +1,4 @@
-// Science & Academia family — starter achievement library for v1.0 launch.
+// Science & Academia family - starter achievement library for v1.0 launch.
 
 import type { Achievement, Chain } from "@/lib/types";
 
@@ -28,7 +28,7 @@ export const SCIENCE_ACADEMIA_ACHIEVEMENTS: Achievement[] = [
     family: "science_academia",
     tier: "ASCENDED",
     label: "MacArthur Fellow",
-    description: "The 'genius grant' — $800k, no strings, lifetime credential.",
+    description: "The 'genius grant' - $800k, no strings, lifetime credential.",
     signals: [{ kind: "award", match: ["MacArthur Fellow", "MacArthur Foundation"] }],
     evidence: ["Tarana Burke", "Daniel Spielman"],
   },
@@ -57,7 +57,7 @@ export const SCIENCE_ACADEMIA_ACHIEVEMENTS: Achievement[] = [
     family: "science_academia",
     tier: "MYTHIC",
     label: "Rhodes / Marshall / Schwarzman Scholar",
-    description: "Top postgraduate scholarships — career-defining.",
+    description: "Top postgraduate scholarships - career-defining.",
     signals: [{ kind: "award", match: ["Rhodes Scholar", "Marshall Scholar", "Schwarzman Scholar"] }],
     ageCap: 28,
     evidence: ["Bill Clinton (Rhodes)", "George Stephanopoulos"],
@@ -67,7 +67,7 @@ export const SCIENCE_ACADEMIA_ACHIEVEMENTS: Achievement[] = [
     family: "science_academia",
     tier: "MYTHIC",
     label: "Sloan Research Fellow",
-    description: "Sloan Foundation fellowship — tenure-track only, top early-career.",
+    description: "Sloan Foundation fellowship - tenure-track only, top early-career.",
     signals: [{ kind: "award", match: ["Sloan Research Fellow", "Alfred P. Sloan Fellowship"] }],
     evidence: ["broad academic"],
   },
@@ -155,7 +155,7 @@ export const SCIENCE_ACADEMIA_ACHIEVEMENTS: Achievement[] = [
     family: "science_academia",
     tier: "A",
     label: "NSF Graduate Research Fellowship",
-    description: "NSF GRFP — competitive grad school funding.",
+    description: "NSF GRFP - competitive grad school funding.",
     signals: [{ kind: "award", match: ["NSF GRFP", "National Science Foundation Graduate"] }],
     evidence: ["broad"],
   },
@@ -198,7 +198,7 @@ export const SCIENCE_ACADEMIA_CHAINS: Chain[] = [
     family: "science_academia",
     requires: ["aca_imo_gold", "aca_phd_top_program"],
     bumpTo: "ASCENDED",
-    description: "Olympiad gold + top-5 PhD — lifetime academic trajectory.",
+    description: "Olympiad gold + top-5 PhD - lifetime academic trajectory.",
   },
   {
     id: "aca_chain_putnam_neurips",
@@ -206,7 +206,7 @@ export const SCIENCE_ACADEMIA_CHAINS: Chain[] = [
     family: "science_academia",
     requires: ["aca_putnam_fellow", "aca_neurips_first_author"],
     bumpTo: "ASCENDED",
-    description: "Putnam Fellow + NeurIPS first author — the AI research apex.",
+    description: "Putnam Fellow + NeurIPS first author - the AI research apex.",
   },
   {
     id: "aca_chain_rhodes_tenure",
@@ -214,7 +214,7 @@ export const SCIENCE_ACADEMIA_CHAINS: Chain[] = [
     family: "science_academia",
     requires: ["aca_rhodes_marshall", "aca_assistant_prof_r1"],
     bumpTo: "MYTHIC",
-    description: "Rhodes/Marshall + tenure-track at R1 — the academic pedigree path.",
+    description: "Rhodes/Marshall + tenure-track at R1 - the academic pedigree path.",
   },
   {
     id: "aca_chain_nature_sloan",
@@ -222,6 +222,6 @@ export const SCIENCE_ACADEMIA_CHAINS: Chain[] = [
     family: "science_academia",
     requires: ["aca_nature_first_author", "aca_sloan_research_fellow"],
     bumpTo: "MYTHIC",
-    description: "Top-journal first author + Sloan Fellow — early-career apex.",
+    description: "Top-journal first author + Sloan Fellow - early-career apex.",
   },
 ];

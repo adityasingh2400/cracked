@@ -1,4 +1,4 @@
-// AchievementConstellation — overlays the illustration with deterministic
+// AchievementConstellation - overlays the illustration with deterministic
 // "stars" representing each matched achievement, with faint connecting lines.
 // Positions are FNV-1a hashed from achievement id + name salt so the same
 // user sees the same constellation across reloads.
@@ -14,7 +14,7 @@ import { FAMILIES_META } from "@/data/families";
 
 interface ConstellationProps {
   achievements: Array<{ id: string; label: string; family: Family; tier: Tier }>;
-  /** Salt — usually the user's name. Keeps constellations user-stable. */
+  /** Salt - usually the user's name. Keeps constellations user-stable. */
   seed: string;
   cardTier: Tier;
   /** Family of the card's primary identity (used for accent color). */

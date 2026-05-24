@@ -1,4 +1,4 @@
-// Tests for the chain detection algorithm — load-bearing v1.0 math.
+// Tests for the chain detection algorithm - load-bearing v1.0 math.
 // Per /plan-eng-review test plan: 100% coverage required on src/lib/score
 // chain detection.
 
@@ -55,7 +55,7 @@ const ycFounderSignals: ExtractedSignals = {
 };
 
 // =============================================================================
-// matchSignal — 8 SignalMatcher kinds
+// matchSignal - 8 SignalMatcher kinds
 // =============================================================================
 
 describe("matchSignal", () => {
@@ -129,7 +129,7 @@ describe("matchSignal", () => {
 });
 
 // =============================================================================
-// achievementMatches — AND semantics + ageCap
+// achievementMatches - AND semantics + ageCap
 // =============================================================================
 
 describe("achievementMatches", () => {
@@ -145,7 +145,7 @@ describe("achievementMatches", () => {
     ],
   };
 
-  it("AND-combines all matchers — both must hit", () => {
+  it("AND-combines all matchers - both must hit", () => {
     expect(achievementMatches(stanfordAnthropic, stanfordEngSignals)).toBe(true);
     expect(achievementMatches(stanfordAnthropic, ycFounderSignals)).toBe(false);
   });
@@ -171,7 +171,7 @@ describe("achievementMatches", () => {
 });
 
 // =============================================================================
-// detectChainsForFamily — chain.requires intersection + max bumpTo
+// detectChainsForFamily - chain.requires intersection + max bumpTo
 // =============================================================================
 
 describe("detectChainsForFamily", () => {
@@ -181,7 +181,7 @@ describe("detectChainsForFamily", () => {
     family: "founder",
     requires: ["eng_stanford", "founder_yc", "founder_series_a"],
     bumpTo: "ASCENDED",
-    description: "Stanford + YC + Series A — the classic pipeline.",
+    description: "Stanford + YC + Series A - the classic pipeline.",
   };
   const mythicChain: Chain = {
     id: "founder_mythic_combo",
@@ -244,7 +244,7 @@ describe("detectChainsForFamily", () => {
 });
 
 // =============================================================================
-// scoreFamily — base + chain → final tier
+// scoreFamily - base + chain → final tier
 // =============================================================================
 
 describe("scoreFamily", () => {
@@ -343,7 +343,7 @@ describe("scoreFamily", () => {
 });
 
 // =============================================================================
-// scoreAllFamilies — picks primary + secondary
+// scoreAllFamilies - picks primary + secondary
 // =============================================================================
 
 describe("scoreAllFamilies", () => {
@@ -390,7 +390,47 @@ describe("scoreAllFamilies", () => {
       library: { achievements: [stanfordCS, ycA], chains: [] },
     });
     expect(result.families.every((f) => f.finalTier === "D")).toBe(true);
+    expect(result.families.every((f) => f.tierStars === undefined)).toBe(true);
     // secondaryFamily should be undefined when no family has matched achievements
     expect(result.secondaryFamily).toBeUndefined();
+  });
+
+  it("assigns crowns only for A and S tiers", () => {
+    const sTier: Achievement = {
+      id: "eng_s_tier",
+      family: "engineering",
+      tier: "S",
+      label: "Frontier lab",
+      description: "",
+      signals: [{ kind: "company", match: ["OpenAI"] }],
+    };
+    const bTier: Achievement = {
+      id: "eng_b_tier",
+      family: "engineering",
+      tier: "B",
+      label: "Solid eng school",
+      description: "",
+      signals: [{ kind: "school", match: ["Berkeley"] }],
+    };
+    const signals: ExtractedSignals = {
+      schools: [{ name: "Berkeley" }],
+      companies: [{ name: "OpenAI", title: "Research Scientist" }],
+      awards: [],
+      publications: [],
+      funding: [],
+      open_source: [],
+      online: [],
+      raw_text: "",
+    };
+    const result = scoreAllFamilies({
+      signals,
+      library: { achievements: [sTier, bTier], chains: [] },
+    });
+    const eng = result.families.find((f) => f.family === "engineering");
+    expect(eng?.finalTier).toBe("S");
+    expect(eng?.tierStars).toBeGreaterThanOrEqual(1);
+    const creative = result.families.find((f) => f.family === "creative_audience");
+    expect(creative?.finalTier).toBe("D");
+    expect(creative?.tierStars).toBeUndefined();
   });
 });

@@ -1,11 +1,11 @@
-// Pie chart of tier distribution — per /plan-eng-review Week 3 (promoted from
+// Pie chart of tier distribution - per /plan-eng-review Week 3 (promoted from
 // Week 4 polish). Pure SVG, no external charting deps. Renders on each family
 // dex page + on result page (smaller) for the "where am I" view.
 
 import type { Tier } from "@/lib/types";
 
 interface PieProps {
-  /** percent in each tier — should sum to ~100 but the component normalizes. */
+  /** percent in each tier - should sum to ~100 but the component normalizes. */
   distribution: Record<Tier, number>;
   size?: number;
   className?: string;

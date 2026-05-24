@@ -1,12 +1,13 @@
-// /preview/tiers — static test page rendering all 7 tiers via HoloCardV2.
+// /preview/tiers - static test page rendering all 7 tiers via HoloCardV2.
 //
-// No encoded URLs, no API calls — sample CrackedResultV1 data is built
+// No encoded URLs, no API calls - sample CrackedResultV1 data is built
 // directly in this file and passed to HoloCardV2. Lets us eyeball tier
-// progression (D-1★ → ASCENDED) at a glance.
+// progression (D → S-3♔ → ASCENDED) at a glance.
 
 import { FAMILIES_ORDERED } from "@/data/families";
 import { HoloCardV2 } from "@/components/HoloCardV2";
 import type { CrackedResultV1, Tier, TierStars, Family } from "@/lib/types";
+import { supportsTierCrowns } from "@/lib/types";
 
 export const metadata = {
   title: "Tier Ladder · Cracked Design Preview",
@@ -48,7 +49,7 @@ const TIER_SAMPLES: TierSample[] = [
   {
     tier: "S",
     stars: 3,
-    label: "S-3★",
+    label: "S-3♔",
     verdict: "S-3 in Founder. Top shelf before MYTHIC.",
     flavor: "One clean push from myth.",
     family: "founder",
@@ -59,7 +60,7 @@ const TIER_SAMPLES: TierSample[] = [
   {
     tier: "A",
     stars: 2,
-    label: "A-2★",
+    label: "A-2♔",
     verdict: "A-2 in Finance. Strong institutional signal with room to compound.",
     flavor: "Compounding. Quietly.",
     family: "finance",
@@ -69,9 +70,8 @@ const TIER_SAMPLES: TierSample[] = [
   },
   {
     tier: "B",
-    stars: 2,
-    label: "B-2★",
-    verdict: "B-2 in Law & Public Service. Real signal, real trajectory.",
+    label: "B",
+    verdict: "B in Law & Public Service. Real signal, real trajectory.",
     flavor: "Climbing the docket.",
     family: "law_public_service",
     name: "R. Sterling",
@@ -80,9 +80,8 @@ const TIER_SAMPLES: TierSample[] = [
   },
   {
     tier: "C",
-    stars: 2,
-    label: "C-2★",
-    verdict: "C-2 in Athletics & Performance. The foundation is visible.",
+    label: "C",
+    verdict: "C in Athletics & Performance. The foundation is visible.",
     flavor: "The arc is just beginning.",
     family: "athletics_performance",
     name: "Elena Raya",
@@ -91,9 +90,8 @@ const TIER_SAMPLES: TierSample[] = [
   },
   {
     tier: "D",
-    stars: 1,
-    label: "D-1★",
-    verdict: "D-1 in Creative & Audience. Early signal, still gathering receipts.",
+    label: "D",
+    verdict: "D in Creative & Audience. Early signal, still gathering receipts.",
     flavor: "Day one is the best day to start.",
     family: "creative_audience",
     name: "Omar Bey",
@@ -113,7 +111,7 @@ function sampleResult(s: TierSample): CrackedResultV1 {
       league: "pro",
       leagueLabel: "23-26",
       leagueTier: s.tier,
-      leagueTierStars: s.stars,
+      leagueTierStars: supportsTierCrowns(s.tier) ? s.stars : undefined,
       percentile: Math.round(s.cohortPercentile),
       age: 25,
       ageSource: "user",
@@ -129,7 +127,7 @@ function sampleResult(s: TierSample): CrackedResultV1 {
       baseTier: f === s.family ? s.tier : "C",
       chainTier: f === s.family ? s.tier : "D",
       finalTier: f === s.family ? s.tier : "C",
-      tierStars: f === s.family ? s.stars : 1,
+      tierStars: f === s.family && supportsTierCrowns(s.tier) ? s.stars : undefined,
       matched: [],
       activeChains: [],
     })),
@@ -188,7 +186,7 @@ export default function TierLadderPage() {
             className="mt-7 max-w-2xl mx-auto text-[15px] italic leading-snug"
             style={{ fontFamily: "var(--font-cormorant)", color: "rgba(232,181,71,0.85)" }}
           >
-            Tier progression rendered through HoloCardV2 — the same component shipping on
+            Tier progression rendered through HoloCardV2 - the same component shipping on
             /c/[data]. ASCENDED gets cosmic shimmer + max effects, MYTHIC layers a halo, S+
             keeps corner ornaments, and the lower tiers ramp down on sparkles, foil, and
             border weight. Hover to feel the foil. Click to flip.

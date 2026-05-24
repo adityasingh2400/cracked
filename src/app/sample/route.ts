@@ -1,7 +1,7 @@
 // GET /sample redirects to a freshly encoded sample card.
 
 import { NextRequest, NextResponse } from "next/server";
-import { encodeResult } from "@/lib/encode";
+import { persistShareResult, sharePath } from "@/lib/share-store";
 import { buildCrackedResult } from "@/lib/result-scoring";
 import type { ExtractedSignals } from "@/lib/types";
 
@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 
 const PRESETS: Record<string, { name: string; age: number; speciality: string; signals: ExtractedSignals }> = {
   ascended: {
-    name: "Aditya — ASCENDED",
+    name: "Aditya - ASCENDED",
     age: 30,
     speciality: "Frontier AI Researcher + Founder",
     signals: {
@@ -30,7 +30,7 @@ const PRESETS: Record<string, { name: string; age: number; speciality: string; s
     },
   },
   mythic: {
-    name: "Aditya — MYTHIC",
+    name: "Aditya - MYTHIC",
     age: 25,
     speciality: "AI Startup Founder",
     signals: {
@@ -45,7 +45,7 @@ const PRESETS: Record<string, { name: string; age: number; speciality: string; s
     },
   },
   s: {
-    name: "Aditya — S",
+    name: "Aditya - S",
     age: 24,
     speciality: "Senior AI Engineer",
     signals: {
@@ -60,7 +60,7 @@ const PRESETS: Record<string, { name: string; age: number; speciality: string; s
     },
   },
   a: {
-    name: "Aditya — A",
+    name: "Aditya - A",
     age: 24,
     speciality: "Software Engineer",
     signals: {
@@ -75,7 +75,7 @@ const PRESETS: Record<string, { name: string; age: number; speciality: string; s
     },
   },
   b: {
-    name: "Aditya — B",
+    name: "Aditya - B",
     age: 24,
     speciality: "Startup Engineer",
     signals: {
@@ -90,7 +90,7 @@ const PRESETS: Record<string, { name: string; age: number; speciality: string; s
     },
   },
   c: {
-    name: "Aditya — C",
+    name: "Aditya - C",
     age: 24,
     speciality: "Software Engineer",
     signals: {
@@ -105,7 +105,7 @@ const PRESETS: Record<string, { name: string; age: number; speciality: string; s
     },
   },
   d: {
-    name: "Aditya — D",
+    name: "Aditya - D",
     age: 24,
     speciality: "Aspiring Builder",
     signals: {
@@ -136,6 +136,6 @@ export async function GET(req: NextRequest) {
     calibrating: false,
   });
 
-  const encoded = encodeResult(result);
-  return NextResponse.redirect(new URL(`/c/${encoded}`, req.url));
+  await persistShareResult(result);
+  return NextResponse.redirect(new URL(sharePath(result), req.url));
 }

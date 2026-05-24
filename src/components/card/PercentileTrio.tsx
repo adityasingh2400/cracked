@@ -1,4 +1,4 @@
-// PercentileTrio — the three screenshot-bait percentile lines.
+// PercentileTrio - the three screenshot-bait percentile lines.
 // Per /plan-eng-review Percentile Computation section, in this exact order:
 //   1. WITHIN-FAMILY, WITHIN-COHORT (primary, largest)
 //   2. CROSS-FAMILY, WITHIN-COHORT (secondary)

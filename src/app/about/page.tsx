@@ -26,7 +26,7 @@ export default function About() {
           <ListItem n={1}>
             You upload your LinkedIn export, screenshots, or use the{" "}
             <code className="font-mono text-cherry">⚡ bookmarklet</code>. Files are sent
-            to Claude Vision — never written to disk.
+            to Claude Vision - never written to disk.
           </ListItem>
           <ListItem n={2}>
             Claude extracts <em className="font-serif italic">signals</em>: schools, jobs, accolades, hackathons, fellowships, open source, online presence. Regex fallback if no API key is set.
@@ -35,7 +35,8 @@ export default function About() {
             Each signal is matched against the achievement library inside one of <strong>nine career families</strong> (Engineering, Founder, Finance, Medicine, Academia, Consulting, Law, Athletics, Creative).
           </ListItem>
           <ListItem n={4}>
-            The strongest family sets your tier. D through S also get a <strong>1-3 star rank</strong>; MYTHIC and ASCENDED stay special.
+            The strongest family sets your tier. <strong>D, C, and B</strong> are plain letter tiers.
+            <strong> A and S</strong> add a <strong>1-3 crown rank</strong> (♔); MYTHIC and ASCENDED stay special.
           </ListItem>
           <ListItem n={5}>
             <strong>Chains</strong> detect stacked combinations, like Stanford CS into a frontier lab, and can bump the family tier above standalone achievements.
@@ -48,7 +49,7 @@ export default function About() {
 
       <Section title="What we're trying to measure">
         <p>
-          &ldquo;Cracked&rdquo; is internet slang for hypercompetent. It rewards stacked, multi-domain excellence — the IMO medalist who joined Anthropic, the YC founder who exited at 28, the Putnam fellow at Jane Street. It penalizes paths that <em className="font-serif italic">look</em> impressive but don&apos;t compound (career consulting, FAANG-only, lifestyle businesses).
+          &ldquo;Cracked&rdquo; is internet slang for hypercompetent. It rewards stacked, multi-domain excellence - the IMO medalist who joined Anthropic, the YC founder who exited at 28, the Putnam fellow at Jane Street. It penalizes paths that <em className="font-serif italic">look</em> impressive but don&apos;t compound (career consulting, FAANG-only, lifestyle businesses).
         </p>
         <p className="mt-3">
           The rubric is opinionated by design. If you disagree with where something sits, the{" "}
@@ -64,7 +65,7 @@ export default function About() {
           <li>· Whether you&apos;re a <em className="font-serif italic">good person</em>. Crackedness ≠ goodness.</li>
           <li>· Whether you&apos;re <em className="font-serif italic">happy</em>. The dex is upstream of fulfillment.</li>
           <li>· Your <em className="font-serif italic">future</em>. We grade present credentials, not trajectory.</li>
-          <li>· Things LinkedIn doesn&apos;t list — open source, Twitter, side projects often missed.</li>
+          <li>· Things LinkedIn doesn&apos;t list - open source, Twitter, side projects often missed.</li>
         </ul>
       </Section>
 

@@ -62,7 +62,7 @@ function recordSpend(): void {
 }
 
 // =============================================================================
-// MAC-CLAUDE TIER — POST to Tailscale Funnel URL.
+// MAC-CLAUDE TIER - POST to Tailscale Funnel URL.
 // =============================================================================
 
 async function routeToMacClaude(
@@ -114,7 +114,7 @@ async function routeToMacClaude(
 }
 
 // =============================================================================
-// CASCADE — try top → middle → bottom, return first success.
+// CASCADE - try top → middle → bottom, return first success.
 // =============================================================================
 
 export type ScoringTier = "mac-claude" | "anthropic-api" | "regex-fallback";
@@ -148,12 +148,12 @@ export async function routeExtraction(
     );
   }
 
-  // 3. Regex fallback — always returns. Mark as calibrating.
+  // 3. Regex fallback - always returns. Mark as calibrating.
   const regex = extractWithRegex(pdfText, fallbackName);
   return { extraction: regex, tier: "regex-fallback", calibrating: true };
 }
 
-// Exported for testability — reset budget state between tests.
+// Exported for testability - reset budget state between tests.
 export function _resetBudgetForTests(): void {
   budget = { date: utcDate(), spent: 0 };
 }

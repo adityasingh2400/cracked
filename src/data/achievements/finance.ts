@@ -1,4 +1,4 @@
-// Finance family — starter achievement library for v1.0 launch.
+// Finance family - starter achievement library for v1.0 launch.
 
 import type { Achievement, Chain } from "@/lib/types";
 
@@ -201,6 +201,6 @@ export const FINANCE_CHAINS: Chain[] = [
     family: "finance",
     requires: ["fin_partner_top_vc", "fin_midas_top50"],
     bumpTo: "ASCENDED",
-    description: "Top-VC partner ON the Midas List — the apex.",
+    description: "Top-VC partner ON the Midas List - the apex.",
   },
 ];

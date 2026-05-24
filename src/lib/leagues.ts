@@ -3,7 +3,7 @@
 
 import { LEAGUES, leagueForAge } from "@/data/leagues";
 import type { LeaguePlacement, Tier, TierStars } from "./types";
-import { isSpecialTier } from "./types";
+import { supportsTierCrowns } from "./types";
 
 const STANDARD_TIER_PERCENTILE: Record<Exclude<Tier, "ASCENDED" | "MYTHIC">, [number, number, number]> = {
   D: [25, 35, 45],
@@ -13,10 +13,11 @@ const STANDARD_TIER_PERCENTILE: Record<Exclude<Tier, "ASCENDED" | "MYTHIC">, [nu
   S: [98, 99, 99.5],
 };
 
-export function tierPercentile(tier: Tier, stars?: TierStars): number {
+export function tierPercentile(tier: Tier, crowns?: TierStars): number {
   if (tier === "ASCENDED") return 99.999;
   if (tier === "MYTHIC") return 99.9;
-  const idx = Math.max(0, Math.min(2, (stars ?? 1) - 1));
+  if (!supportsTierCrowns(tier)) return STANDARD_TIER_PERCENTILE[tier][1];
+  const idx = Math.max(0, Math.min(2, (crowns ?? 1) - 1));
   return STANDARD_TIER_PERCENTILE[tier][idx];
 }
 
@@ -35,7 +36,7 @@ export function placeInLeague(input: PlacementInput): LeaguePlacement {
     league: league.key,
     leagueLabel: league.label,
     leagueTier: input.tier,
-    leagueTierStars: isSpecialTier(input.tier) ? undefined : input.tierStars ?? 1,
+    leagueTierStars: supportsTierCrowns(input.tier) ? input.tierStars ?? 1 : undefined,
     percentile,
     age: input.age,
     ageSource: input.ageSource,

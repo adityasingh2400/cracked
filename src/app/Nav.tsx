@@ -6,7 +6,7 @@ import Link from "next/link";
 export function Nav() {
   const ctaRef = useRef<HTMLAnchorElement>(null);
 
-  // Magnetic CTA — pulls toward cursor when within 200px.
+  // Magnetic CTA - pulls toward cursor when within 200px.
   useEffect(() => {
     const cta = ctaRef.current;
     if (!cta) return;
@@ -60,7 +60,7 @@ export function Nav() {
               (e.currentTarget as HTMLAnchorElement).style.boxShadow = "4px 4px 0 var(--cherry)";
             }}
           >
-            CRACK ME
+            AM I CRACKED
             <span className="absolute inset-[-4px] rounded-full pointer-events-none animate-cta-pulse" />
           </Link>
         </nav>

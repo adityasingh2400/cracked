@@ -13,6 +13,7 @@
 // propagate 5xx to clients (per /plan-eng-review Section 2.4 locked contract).
 
 import { Redis } from "@upstash/redis";
+import type { CrackedResultV1 } from "./types";
 
 const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
 const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -22,7 +23,7 @@ let _client: Redis | null = null;
 function client(): Redis | null {
   if (_client) return _client;
   if (!KV_URL || !KV_TOKEN) {
-    // Not configured — endpoints fall through to "no data" responses.
+    // Not configured - endpoints fall through to "no data" responses.
     return null;
   }
   _client = new Redis({ url: KV_URL, token: KV_TOKEN });
@@ -34,7 +35,7 @@ export function kvAvailable(): boolean {
 }
 
 // =============================================================================
-// LOOKUP — profile_url → tier data
+// LOOKUP - profile_url → tier data
 // =============================================================================
 
 export interface LookupEntry {
@@ -83,7 +84,7 @@ export async function getLookup(profileUrl: string): Promise<LookupEntry | null>
 }
 
 /**
- * Batched MGET of multiple profile URLs — used by Chrome extension browse-mode.
+ * Batched MGET of multiple profile URLs - used by Chrome extension browse-mode.
  * Per /plan-eng-review Section 4.1: this is the ONLY supported pattern for
  * lookup at scale. Returns map of url → entry (null for misses).
  */
@@ -192,7 +193,7 @@ export async function olympusTop(n = 100): Promise<OlympusRecord[]> {
 }
 
 // =============================================================================
-// SELECTOR TELEMETRY — bookmarklet field-count pings
+// SELECTOR TELEMETRY - bookmarklet field-count pings
 // =============================================================================
 
 const TELEMETRY_PREFIX = "telemetry:";
@@ -226,7 +227,7 @@ export async function recordTelemetry(
 }
 
 // =============================================================================
-// EMPIRICAL DISTRIBUTIONS — per-cell user score lists for percentile blending
+// EMPIRICAL DISTRIBUTIONS - per-cell user score lists for percentile blending
 // =============================================================================
 
 function cellKey(family: string, cohort: string): string {
@@ -265,5 +266,40 @@ export async function getCellScores(
   } catch (err) {
     console.error("kv.getCellScores failed:", err instanceof Error ? err.message : err);
     return [];
+  }
+}
+
+// =============================================================================
+// SHARE CARDS - short /c/<id> storage
+// =============================================================================
+
+const SHARE_TTL_SECONDS = 60 * 60 * 24 * 30;
+
+function shareKey(id: string): string {
+  return `share:${id}`;
+}
+
+/** Read a persisted card result by short id. Returns null on miss or error. */
+export async function getShareResult(id: string): Promise<CrackedResultV1 | null> {
+  const c = client();
+  if (!c) return null;
+  try {
+    const raw = await c.get<CrackedResultV1 | string>(shareKey(id));
+    if (!raw) return null;
+    return typeof raw === "string" ? JSON.parse(raw) : raw;
+  } catch (err) {
+    console.error("kv.getShareResult failed:", err instanceof Error ? err.message : err);
+    return null;
+  }
+}
+
+/** Persist a card result under its short id. Fire-and-forget safe. */
+export async function setShareResult(id: string, result: CrackedResultV1): Promise<void> {
+  const c = client();
+  if (!c) return;
+  try {
+    await c.set(shareKey(id), JSON.stringify(result), { ex: SHARE_TTL_SECONDS });
+  } catch (err) {
+    console.error("kv.setShareResult failed:", err instanceof Error ? err.message : err);
   }
 }

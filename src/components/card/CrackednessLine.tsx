@@ -1,4 +1,4 @@
-// CrackednessLine — single screenshot-bait flex below the tier illustration.
+// CrackednessLine - single screenshot-bait flex below the tier illustration.
 // Reads: "top 0.3% most cracked 25-year-olds"
 // Replaces the v1.0 three-line percentile strip and the cohort HP-stamp text.
 
@@ -8,7 +8,7 @@ import { FAMILIES_META } from "@/data/families";
 
 interface CrackednessLineProps {
   percentiles: PercentileTrio;
-  /** Cohort label like "23-26" or "Ages 23–26" — used to anchor the claim. */
+  /** Cohort label like "23-26" or "Ages 23–26" - used to anchor the claim. */
   cohortLabel: string;
   family: Family;
   /** Age the user actually was when scored (from result.league.age). */

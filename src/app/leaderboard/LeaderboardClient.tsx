@@ -3,7 +3,7 @@
 // Client-side leaderboard with tab strip across 9 families + 6 cohorts +
 // Mount Olympus board. Reads from /api/olympus and /api/leaderboard (future).
 // For v1.0 launch, renders empty states with copy explaining "no entries yet
-// — be the first" until real users accumulate.
+// - be the first" until real users accumulate.
 
 import { useState } from "react";
 import { FAMILIES_META, FAMILIES_ORDERED } from "@/data/families";
@@ -82,7 +82,7 @@ function OlympusBoard() {
       </p>
       <EmptyState
         title="NO LEGENDS YET."
-        copy="Mount Olympus opens once enough users have unlocked MYTHIC or ASCENDED. Be the first — drop your LinkedIn."
+        copy="Mount Olympus opens once enough users have unlocked MYTHIC or ASCENDED. Be the first - drop your LinkedIn."
       />
     </div>
   );
@@ -161,7 +161,7 @@ function FamilyBoardSelector({
 
       <EmptyState
         title={`${familyMeta.name.toUpperCase()} · ${cohortLabel.toUpperCase()}`}
-        copy="No entries yet for this slice. The board fills as people drop their LinkedIn — be the first."
+        copy="No entries yet for this slice. The board fills as people drop their LinkedIn - be the first."
         accent={familyMeta.accent}
       />
     </div>
@@ -194,7 +194,7 @@ function EmptyState({
         className="mt-2 px-6 py-3 rounded-full border-[3px] border-ink bg-cherry text-paper font-display text-[13px] leading-none transition hover:-translate-x-0.5 hover:-translate-y-0.5"
         style={{ boxShadow: "5px 5px 0 var(--ink)", color: accent ? undefined : undefined }}
       >
-        CRACK ME →
+        AM I CRACKED →
       </a>
     </div>
   );

@@ -1,4 +1,4 @@
-// StaticCard — Satori-compatible card for OG image rendering.
+// StaticCard - Satori-compatible card for OG image rendering.
 //
 // Per /plan-eng-review Section 1.1: Twitter/X/LinkedIn/iMessage scrapers can't
 // render React + Framer Motion. The live HoloCard stays Framer Motion in-app;
@@ -8,8 +8,8 @@
 // Satori constraints respected:
 //   - No Framer Motion / no transforms / no animations
 //   - No SVG filters
-//   - Tailwind not available — inline styles only
-//   - Limited gradient support — solid colors + simple linear gradients OK
+//   - Tailwind not available - inline styles only
+//   - Limited gradient support - solid colors + simple linear gradients OK
 //   - System fonts only (Satori loads its own font set)
 //
 // Layout zones (per Share Card Spec):
@@ -21,7 +21,7 @@
 //   6. cracked.com watermark
 
 import type { Family, Tier, TierStars, PercentileTrio } from "@/lib/types";
-import { formatTier } from "@/lib/types";
+import { CROWN_GLYPH, formatTier, supportsTierCrowns } from "@/lib/types";
 import { FAMILIES_META } from "@/data/families";
 
 export interface StaticCardProps {
@@ -35,48 +35,41 @@ export interface StaticCardProps {
   calibrating?: boolean;
 }
 
-const TIER_STYLES: Record<Tier, { bg: string; text: string; rarity: string; stars: string }> = {
+const TIER_STYLES: Record<Tier, { bg: string; text: string; rarity: string }> = {
   ASCENDED: {
     bg: "linear-gradient(135deg, #FFD27A 0%, #FF5A2E 50%, #EC4899 100%)",
     text: "#1C0A05",
     rarity: "ASCENDED",
-    stars: "",
   },
   MYTHIC: {
     bg: "linear-gradient(135deg, #FFE5A8 0%, #E8B547 100%)",
     text: "#1C0A05",
     rarity: "MYTHIC",
-    stars: "",
   },
   S: {
     bg: "linear-gradient(135deg, #FCD34D 0%, #F59E0B 100%)",
     text: "#1C0A05",
     rarity: "S TIER",
-    stars: "★★★",
   },
   A: {
     bg: "linear-gradient(135deg, #A78BFA 0%, #7C3AED 100%)",
     text: "#FFFFFF",
     rarity: "A TIER",
-    stars: "★★★",
   },
   B: {
     bg: "linear-gradient(135deg, #06B6D4 0%, #0E7490 100%)",
     text: "#FFFFFF",
     rarity: "B TIER",
-    stars: "★★★",
   },
   C: {
     bg: "linear-gradient(135deg, #475569 0%, #1E293B 100%)",
     text: "#FFFFFF",
     rarity: "C TIER",
-    stars: "★★★",
   },
   D: {
     bg: "linear-gradient(135deg, #404040 0%, #171717 100%)",
     text: "#A3A3A3",
     rarity: "D TIER",
-    stars: "★★★",
   },
 };
 
@@ -166,9 +159,9 @@ export function StaticCard({
           >
             {formatTier(tier, tierStars)}
           </div>
-          {tierStars && (
+          {supportsTierCrowns(tier) && tierStars && (
             <div style={{ fontSize: 36, letterSpacing: "0.2em" }}>
-              {Array.from({ length: tierStars }, () => "★").join("")}
+              {CROWN_GLYPH.repeat(tierStars)}
             </div>
           )}
           {headlineChain && (

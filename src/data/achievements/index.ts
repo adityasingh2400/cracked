@@ -1,4 +1,4 @@
-// Achievement library aggregator — combines all 9 families' Achievements + Chains
+// Achievement library aggregator - combines all 9 families' Achievements + Chains
 // into a single FamilyLibrary for the chain-detector to consume.
 //
 // Per /plan-eng-review Section 1.4 Generation Pipeline: this index is the
@@ -73,7 +73,7 @@ export function libraryForFamily(family: Family): FamilyLibrary {
  */
 if (FAMILY_LIBRARY.achievements.length === 0) {
   throw new Error(
-    "Achievement library is empty — every user would score D across all families. " +
+    "Achievement library is empty - every user would score D across all families. " +
       "Populate at least one src/data/achievements/{family}.ts before deploying."
   );
 }
@@ -83,7 +83,7 @@ for (const f of Object.keys(PER_FAMILY) as Family[]) {
   if (PER_FAMILY[f].achievements.length === 0) {
     // eslint-disable-next-line no-console
     console.warn(
-      `Family "${f}" has 0 Achievements — users in this family will all score D.`
+      `Family "${f}" has 0 Achievements - users in this family will all score D.`
     );
   }
 }

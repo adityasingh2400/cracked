@@ -1,10 +1,10 @@
-// TierBadge — the rarity stamp shown on the card and dex.
+// TierBadge - the rarity stamp shown on the card and dex.
 // Pure presentational component. No animation here (that lives in HoloCard's
 // reveal layer for ASCENDED). StaticCard reuses this without animation.
 
 import clsx from "clsx";
 import type { Tier, TierStars } from "@/lib/types";
-import { formatTier } from "@/lib/types";
+import { CROWN_GLYPH, formatTier, supportsTierCrowns } from "@/lib/types";
 
 interface TierBadgeProps {
   tier: Tier;
@@ -23,14 +23,9 @@ const TIER_LABEL: Record<Tier, string> = {
   D: "D",
 };
 
-const TIER_STARS: Record<Tier, string> = {
-  ASCENDED: "",
-  MYTHIC: "",
-  S: "★★★",
-  A: "★★★",
-  B: "★★★",
-  C: "★★★",
-  D: "★★★",
+const TIER_CROWNS: Partial<Record<Tier, string>> = {
+  S: CROWN_GLYPH.repeat(3),
+  A: CROWN_GLYPH.repeat(3),
 };
 
 const TIER_GRADIENT: Record<Tier, string> = {
@@ -61,7 +56,10 @@ const SIZE_CLASSES = {
 };
 
 export function TierBadge({ tier, tierStars, size = "md", className }: TierBadgeProps) {
-  const stars = tierStars ? Array.from({ length: tierStars }, () => "★").join("") : "";
+  const crowns =
+    supportsTierCrowns(tier) && tierStars
+      ? CROWN_GLYPH.repeat(tierStars)
+      : "";
   return (
     <div
       className={clsx(
@@ -83,9 +81,9 @@ export function TierBadge({ tier, tierStars, size = "md", className }: TierBadge
       data-testid={`tier-badge-${tier.toLowerCase()}`}
     >
       <div className="leading-none">{formatTier(tier, tierStars)}</div>
-      {size !== "sm" && stars && (
+      {size !== "sm" && crowns && (
         <div className="mt-1 leading-none" aria-hidden>
-          {stars}
+          {crowns}
         </div>
       )}
     </div>
@@ -94,7 +92,7 @@ export function TierBadge({ tier, tierStars, size = "md", className }: TierBadge
 
 export const TIER_BADGE_META = {
   TIER_LABEL,
-  TIER_STARS,
+  TIER_CROWNS,
   TIER_GRADIENT,
   TIER_TEXT_COLOR,
 };

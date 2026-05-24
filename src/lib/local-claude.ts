@@ -1,9 +1,9 @@
-// Local Claude CLI extractor — uses the user's logged-in `claude` CLI as the
+// Local Claude CLI extractor - uses the user's logged-in `claude` CLI as the
 // LLM backend instead of api.anthropic.com. Useful in localhost dev when no
 // API key is available. Spawns `claude -p` as a subprocess.
 //
 // Cost: ~$0.05 cold, ~$0.01 cache-warm per call (Haiku 4.5).
-// Latency: ~5-9 seconds. Not for production hot paths — dev convenience only.
+// Latency: ~5-9 seconds. Not for production hot paths - dev convenience only.
 
 import { spawn } from "node:child_process";
 import { writeFile, mkdir, rm } from "node:fs/promises";
@@ -25,7 +25,7 @@ const EXTRACTION_PROMPT = (filePaths: string[], name?: string, age?: number) => 
   const ageLine = age ? `They are approximately ${age} years old.` : "";
   return [
     "You're helping build someone's profile card for a fun career-summary site",
-    "(cracked.com — like a trading card for résumés). The user has provided their",
+    "(cracked.com - like a trading card for résumés). The user has provided their",
     "own résumé/LinkedIn screenshots and consented to this extraction.",
     nameLine,
     ageLine,
@@ -46,6 +46,10 @@ const EXTRACTION_PROMPT = (filePaths: string[], name?: string, age?: number) => 
     "Then derive:",
     "  - name: the person's name (use what they gave above, or read from the page)",
     "  - speciality: a 2-5 word niche descriptor (e.g. \"Frontier AI Researcher\")",
+    "  - bestAccolades: 3-6 ranked 'most cracked signals', strongest first, not generic labels",
+    "    Examples: \"Stanford CS\", \"Anthropic MTS\", \"YC W25 Founder\", \"NeurIPS Co-Author\", \"$1.5M Seed Round\".",
+    "    If they won multiple hackathons, combine it into a strong signal like \"3x Hackathon Winner\".",
+    "    Each item is {title, detail?, family?}; title <42 chars; detail <90 chars.",
     "  - verdict: 2-sentence celebratory blurb about their trajectory",
     "  - flavor: short one-line tagline",
     "  - ageInference: { age: number|null, confidence: 0-1, reasoning: string }",
@@ -230,7 +234,7 @@ export async function extractViaLocalClaude(
 }
 
 /** Coerce string→number on the few numeric fields the schema demands.
- *  Claude often writes "4,200 stars" or "12.5k" — strip non-digits, parse. */
+ *  Claude often writes "4,200 stars" or "12.5k" - strip non-digits, parse. */
 function toNum(v: unknown): number | null {
   if (typeof v === "number") return v;
   if (typeof v !== "string") return null;

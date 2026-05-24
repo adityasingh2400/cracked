@@ -1,4 +1,4 @@
-// Chain detection — the v1.0 scoring engine layered above the v0.7 rubric.
+// Chain detection - the v1.0 scoring engine layered above the v0.7 rubric.
 // Per /plan-eng-review Chain Detection Algorithm section:
 //
 // For a user with extracted signals S and family F:
@@ -83,7 +83,7 @@ export function matchSignal(
     case "funding":
       return signals.funding.some((f) => {
         const roundHit = matcher.round
-          ? f.round.toLowerCase().includes(matcher.round.toLowerCase())
+          ? (f.round?.toLowerCase().includes(matcher.round.toLowerCase()) ?? false)
           : true;
         const amountHit =
           matcher.minAmount === undefined ||
@@ -129,7 +129,7 @@ export function achievementMatches(
   signals: ExtractedSignals,
   age?: number
 ): boolean {
-  // Age cap check — some achievements only count under a certain age (e.g. Thiel ≤22).
+  // Age cap check - some achievements only count under a certain age (e.g. Thiel ≤22).
   if (achievement.ageCap !== undefined && age !== undefined && age > 0) {
     if (age > achievement.ageCap) return false;
   }
@@ -138,7 +138,7 @@ export function achievementMatches(
 }
 
 // =============================================================================
-// CHAIN DETECTION — per family.
+// CHAIN DETECTION - per family.
 // =============================================================================
 
 export function detectChainsForFamily(
@@ -203,7 +203,7 @@ export function scoreFamily(input: ScoreFamilyInputs): FamilyScore {
   }
 
   // 2. Detect chains. Chain.requires can reference Achievements from other
-  // families — use globalMatchedIds if provided, otherwise fall back to this
+  // families - use globalMatchedIds if provided, otherwise fall back to this
   // family's own matches.
   const familyChains = library.chains.filter((c) => c.family === family);
   const requiresLookup =
@@ -215,7 +215,7 @@ export function scoreFamily(input: ScoreFamilyInputs): FamilyScore {
 
   // 3. Final tier = max of base and chain.
   const finalTier = maxTier(baseTier, chainTier);
-  const tierStars = starsForFamilyTier({
+  const tierStars = crownsForFamilyTier({
     finalTier,
     matchedIds,
     activeChains,
@@ -233,14 +233,14 @@ export function scoreFamily(input: ScoreFamilyInputs): FamilyScore {
   };
 }
 
-function starsForFamilyTier(input: {
+function crownsForFamilyTier(input: {
   finalTier: Tier;
   matchedIds: string[];
   activeChains: string[];
   library: FamilyLibrary;
 }): TierStars | undefined {
   const { finalTier, matchedIds, activeChains, library } = input;
-  if (isSpecialTier(finalTier)) return undefined;
+  if (isSpecialTier(finalTier) || (finalTier !== "A" && finalTier !== "S")) return undefined;
 
   const matched = matchedIds
     .map((id) => library.achievements.find((a) => a.id === id))
@@ -262,7 +262,7 @@ function starsForFamilyTier(input: {
 export interface AllFamiliesInputs {
   signals: ExtractedSignals;
   age?: number;
-  /** Library covers all families — chain detector filters per family. */
+  /** Library covers all families - chain detector filters per family. */
   library: FamilyLibrary;
 }
 

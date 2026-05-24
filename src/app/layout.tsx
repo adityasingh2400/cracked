@@ -32,7 +32,7 @@ const display = Bowlby_One({
   display: "swap",
 });
 
-// Champion-tier display fonts — used by the /preview/champions cards.
+// Champion-tier display fonts - used by the /preview/champions cards.
 // Loaded once globally so per-family overrides are cheap.
 const cinzel = Cinzel({
   weight: ["400", "600", "700", "900"],
@@ -112,12 +112,6 @@ function Footer() {
   return (
     <footer className="relative z-[2] mt-24 px-5 sm:px-8 pt-12 pb-10 border-t-2 border-ink/15">
       <div className="max-w-6xl mx-auto">
-        <div className="flex flex-wrap gap-3 justify-center mb-7">
-          <span className="arcade-stamp">★ vol. i</span>
-          <span className="arcade-stamp">★ 9 families</span>
-          <span className="arcade-stamp">★ 7 tiers</span>
-          <span className="arcade-stamp" style={{ background: "var(--marigold)" }}>★ free forever</span>
-        </div>
         <div className="text-center">
           <div className="font-serif italic text-[15px] text-ink-soft">
             cracked · vol. i · a toy by people who should be working

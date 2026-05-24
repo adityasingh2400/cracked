@@ -1,4 +1,4 @@
-// Mount Olympus leaderboard ranking — top-100 cross-family, all-time.
+// Mount Olympus leaderboard ranking - top-100 cross-family, all-time.
 // Per /plan-eng-review Section 1.2 + 4.2:
 // - Entry threshold: MYTHIC tier or above in any family.
 // - Capacity: top 100.
@@ -61,7 +61,7 @@ export function computeOlympusScore(input: OlympusEntryInputs): number {
 }
 
 // =============================================================================
-// KV STORAGE SCHEMA — Redis sorted set keyed by olympus_score.
+// KV STORAGE SCHEMA - Redis sorted set keyed by olympus_score.
 // =============================================================================
 //
 //   ZADD  olympus:zset  <olympus_score>  <user_id>
@@ -88,7 +88,7 @@ export interface OlympusUserRecord {
   chainCount: number;
   cohort: string; // LeagueKey
   cohortPercentile: number;
-  /** Masked display name — initials only, e.g. "A.S." */
+  /** Masked display name - initials only, e.g. "A.S." */
   maskedName: string;
   /** Headline chain name for display (if any). */
   headlineChain?: string;

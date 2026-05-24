@@ -1,4 +1,4 @@
-// Bookmarklet handoff route — receives base64-encoded ExtractedSignals from
+// Bookmarklet handoff route - receives base64-encoded ExtractedSignals from
 // the user's LinkedIn tab, posts to /api/analyze, redirects to the share-URL
 // card. Arcade chrome: chunky cherry-shadowed status panel.
 //
@@ -60,7 +60,7 @@ function HandoffInner() {
         if (json.shareUrl) {
           router.replace(json.shareUrl);
         } else {
-          setError("Got a card but no share URL — please try the PDF upload.");
+          setError("Got a card but no share URL - please try the PDF upload.");
         }
       } catch (err) {
         setError("Network error talking to /api/analyze.");

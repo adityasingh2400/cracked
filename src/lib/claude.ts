@@ -14,12 +14,12 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
-import type { ExtractedSignals } from "./types";
+import type { ExtractedSignals, Family } from "./types";
 
 const MODEL = process.env.CRACKED_MODEL || "claude-sonnet-4-5";
 
 // =============================================================================
-// STRUCTURED EXTRACTION SCHEMA — what the prompt returns.
+// STRUCTURED EXTRACTION SCHEMA - what the prompt returns.
 // =============================================================================
 
 const SchoolSchema = z.object({
@@ -46,7 +46,7 @@ const PublicationSchema = z.object({
 
 const FundingSchema = z.object({
   company: z.string(),
-  round: z.string(),
+  round: z.string().default("Funding"),
   amount: z.number().optional(),
 });
 
@@ -77,6 +77,24 @@ const AgeInferenceSchema = z.object({
   reasoning: z.string(),
 });
 
+const BestAccoladeSchema = z.object({
+  title: z.string(),
+  detail: z.string().optional(),
+  family: z
+    .enum([
+      "engineering",
+      "science_academia",
+      "founder",
+      "finance",
+      "consulting_corporate",
+      "law_public_service",
+      "medicine",
+      "athletics_performance",
+      "creative_audience",
+    ])
+    .optional(),
+});
+
 export const ExtractionV1Schema = z.object({
   name: z.string(),
   signals: ExtractedSignalsSchema,
@@ -87,12 +105,15 @@ export const ExtractionV1Schema = z.object({
    *  Examples: "Frontier AI Researcher", "Pediatric Cardiologist".
    *  Empty string if signals are too thin to identify a niche. */
   speciality: z.string().default(""),
+  bestAccolades: z.array(BestAccoladeSchema).default([]),
 });
 
-export type ExtractionV1Result = z.infer<typeof ExtractionV1Schema>;
+export type ExtractionV1Result = Omit<z.infer<typeof ExtractionV1Schema>, "signals"> & {
+  signals: ExtractedSignals;
+};
 
 // =============================================================================
-// PROMPT — structured extraction for v1.0.
+// PROMPT - structured extraction for v1.0.
 // =============================================================================
 
 const SYSTEM_PROMPT_V1 = `You are an OSINT analyst grading how "cracked" someone is from their LinkedIn export.
@@ -109,21 +130,25 @@ Schema:
     companies:    [{ name, title?, tenure?: [startYear, endYear] }],
     awards:       [{ name, year? }],     // olympiads, fellowships, scholarships, prizes
     publications: [{ venue, role?: "first" | "co" | "senior" }],
-    funding:      [{ company, round, amount? }],  // for founders
+    funding:      [{ company, round?, amount? }], // for founders; omit round if not named
     open_source:  [{ project, metric? }],         // metric = stars/users
     online:       [{ platform, followers? }],
     raw_text:     string                 // full resume text, for free-text matchers
   },
   verdict: string,                       // ~30 words, biting-but-fair
   flavor: string,                        // 1 short italic line, <8 words
-  ageInference: { age, confidence: 0-1, reasoning: short string }
+  ageInference: { age, confidence: 0-1, reasoning: short string },
+  speciality: string,
+  bestAccolades: [
+    { title: string, detail?: string, family?: string }
+  ]
 }
 
 Extraction rules:
 - Use the OFFICIAL name when possible: "MIT" not "Massachusetts Institute of Technology" (both work, but MIT canonical).
 - Companies: include both the official name AND any common acronyms in name.
 - Awards: prefer the canonical award name. "USAMO" not "US Math Olympiad."
-- Funding: "round" is the named round ("Seed", "Series A", "Series B", "Series C+"). Amount in USD if mentioned.
+- Funding: "round" is optional. Only include it when a named round is visible ("Seed", "Series A", "Series B", "Series C+"). Amount in USD if mentioned.
 - Open source: project = repo name (e.g. "transformers"), metric = star count if mentioned.
 - raw_text: include the FULL resume text verbatim (or first 18k chars if truncated).
 - Be GENEROUS but EXACT. Don't invent things, don't omit things.
@@ -146,7 +171,7 @@ Age inference:
 - reasoning: short string shown to user (e.g. "BS 2024 → 25").
 
 SPECIALITY (NEW): a 2-5 word phrase capturing this person's specific niche.
-Not a job title alone — a combination that reads true to who they are.
+Not a job title alone - a combination that reads true to who they are.
 Examples:
 - Stanford CS + Anthropic → "Frontier AI Researcher"
 - MIT + Jane Street + Putnam → "Quant Trader"
@@ -159,10 +184,22 @@ Examples:
 Capitalize each word. No periods. Max 5 words. Use + or & sparingly
 when truly bimodal (e.g. "AI Founder + Researcher").
 
+BEST ACCOLADES / MOST CRACKED SIGNALS:
+- Return 3-6 specific, profile-grounded highlights ranked strongest first.
+- The first item MUST be the single most cracked achievement/signal you can defend from the evidence.
+- Items 2-3 should be the next strongest signals; the front of the card may show only these top 1-3.
+- These are the person's actual flexes, not generic achievement-library labels.
+- Good titles: "Stanford CS", "Anthropic MTS", "YC W25 Founder", "NeurIPS Co-Author", "$1.5M Seed Round", "5.4K GitHub Stars".
+- If they have won multiple hackathons, surface it as a strong combined signal, e.g. "3x Hackathon Winner" or "Multiple Hackathon Winner"; do not bury each hackathon as separate weak items.
+- Bad titles: "Founder pipeline", "Recognized achievement", "Strong profile", "Engineering A-tier".
+- Keep title under 42 chars. Keep detail under 90 chars.
+- Prefer the rarest facts first: elite school, elite role/company, awards, publications, funding, open-source traction, audience scale.
+- Set family when obvious: engineering, science_academia, founder, finance, consulting_corporate, law_public_service, medicine, athletics_performance, creative_audience.
+
 Return ONLY valid JSON matching the schema. No preamble, no fences.`;
 
 // =============================================================================
-// CLAUDE PATH — structured extraction via Anthropic API.
+// CLAUDE PATH - structured extraction via Anthropic API.
 // =============================================================================
 
 /**
@@ -187,7 +224,7 @@ export async function extractWithClaude(
       messages: [
         {
           role: "user",
-          content: `Today is ${today}. Extract structured cracked-signals from this LinkedIn export. Return JSON matching the schema (name, signals: {schools, companies, awards, publications, funding, open_source, online, raw_text}, verdict, flavor, ageInference):\n\n---\n${truncated}\n---`,
+          content: `Today is ${today}. Extract structured cracked-signals from this LinkedIn export. Return JSON matching the schema (name, signals: {schools, companies, awards, publications, funding, open_source, online, raw_text}, verdict, flavor, ageInference, speciality, bestAccolades):\n\n---\n${truncated}\n---`,
         },
       ],
     });
@@ -219,13 +256,13 @@ export async function extractWithClaude(
 }
 
 // =============================================================================
-// CLAUDE VISION PATH — accepts uploaded images + PDFs directly.
+// CLAUDE VISION PATH - accepts uploaded images + PDFs directly.
 // Each file is converted to a content block; Claude sees them in one message.
 // Returns null on any failure so callers can fall back to regex.
 // =============================================================================
 
 export type UploadFile = {
-  /** Original filename for context — Claude sees it as part of the prompt. */
+  /** Original filename for context - Claude sees it as part of the prompt. */
   name: string;
   /** MIME type. Supported: image/png, image/jpeg, image/webp, image/gif, application/pdf */
   mimeType: string;
@@ -290,7 +327,7 @@ export async function extractFromUploads(
       `Cross-reference if multiple files cover overlapping information.\n\n` +
       `Extract structured cracked-signals matching the schema. Return ONLY JSON: ` +
       `{ name, signals: { schools, companies, awards, publications, funding, ` +
-      `open_source, online, raw_text }, verdict, flavor, ageInference, speciality }. ` +
+      `open_source, online, raw_text }, verdict, flavor, ageInference, speciality, bestAccolades }. ` +
       `The raw_text field should contain a clean summary of everything extracted.`,
   });
 
@@ -367,7 +404,7 @@ export async function extractFromUploads(
 }
 
 // =============================================================================
-// REGEX FALLBACK — works without ANTHROPIC_API_KEY. Crude but normalized.
+// REGEX FALLBACK - works without ANTHROPIC_API_KEY. Crude but normalized.
 // Returns the same ExtractedSignals shape so downstream scoring doesn't care.
 // =============================================================================
 
@@ -439,13 +476,13 @@ export function extractWithRegex(
       if (m) funding.push({ company: "unknown", round: `Series ${m[1].toUpperCase()}` });
     }
 
-    // Open source — github.com URLs are a strong hint
+    // Open source - github.com URLs are a strong hint
     if (lower.includes("github.com/")) {
       const m = line.match(/github\.com\/[a-z0-9_-]+\/([a-z0-9_.-]+)/i);
       if (m) open_source.push({ project: m[1] });
     }
 
-    // Online presence — follower counts
+    // Online presence - follower counts
     if (/followers/i.test(line)) {
       const m = line.match(/([\d,]+)\s*followers/i);
       if (m) {
@@ -473,6 +510,7 @@ export function extractWithRegex(
     flavor: "",
     ageInference: inferAgeFromText(pdfText),
     speciality: templateSpeciality(cleanSignals),
+    bestAccolades: templateBestAccolades(cleanSignals),
   };
 }
 
@@ -514,6 +552,104 @@ export function templateSpeciality(s: ExtractedSignals): string {
   if (hasCreator) return "Online Creator";
   if (s.schools.length > 0) return "Early-Career Builder";
   return "Aspiring Builder";
+}
+
+export function templateBestAccolades(
+  s: ExtractedSignals
+): Array<{ title: string; detail?: string; family?: Family }> {
+  const items: Array<{ title: string; detail?: string; family?: Family }> = [];
+
+  for (const award of s.awards.slice(0, 2)) {
+    items.push({
+      title: award.name,
+      detail: award.year ? `Awarded in ${award.year}` : undefined,
+      family: inferFamilyFromText(award.name),
+    });
+  }
+  const hackathonWins = hackathonWinCount(s.raw_text);
+  if (hackathonWins >= 2) {
+    items.unshift({
+      title: hackathonWins >= 3 ? `${hackathonWins}x Hackathon Winner` : "Multiple Hackathon Winner",
+      detail: "Repeated competitive build wins",
+      family: "engineering",
+    });
+  }
+  for (const company of s.companies.slice(0, 2)) {
+    items.push({
+      title: company.title ? `${company.name} ${company.title}` : company.name,
+      detail: company.tenure ? `${company.tenure[0]}-${company.tenure[1]}` : undefined,
+      family: inferFamilyFromText(`${company.name} ${company.title ?? ""}`),
+    });
+  }
+  for (const school of s.schools.slice(0, 2)) {
+    items.push({
+      title: school.degree ? `${school.name} ${school.degree}` : school.name,
+      detail: school.gradYear ? `Class of ${school.gradYear}` : undefined,
+      family: "science_academia",
+    });
+  }
+  for (const pub of s.publications.slice(0, 2)) {
+    items.push({
+      title: pub.role ? `${pub.venue} ${pub.role}-author` : `${pub.venue} publication`,
+      detail: "Research publication signal",
+      family: "science_academia",
+    });
+  }
+  for (const funding of s.funding.slice(0, 2)) {
+    const round = funding.round ?? "Funding";
+    items.push({
+      title: `${funding.company} ${round}`,
+      detail: funding.amount ? `$${compactNumber(funding.amount)} raised` : "Funding round",
+      family: "founder",
+    });
+  }
+  for (const oss of s.open_source.slice(0, 2)) {
+    items.push({
+      title: oss.project,
+      detail: oss.metric ? `${compactNumber(oss.metric)} GitHub stars/users` : "Open-source project",
+      family: "engineering",
+    });
+  }
+
+  return dedupeAccolades(items)
+    .map((item) => ({
+      ...item,
+      title: item.title.slice(0, 42),
+      detail: item.detail?.slice(0, 90),
+    }))
+    .slice(0, 6);
+}
+
+function hackathonWinCount(text: string): number {
+  const matches = text.match(/\b(?:won|winner|winning|1st|first place|grand prize|champion)\b[^.\n]{0,80}\bhackathon\b|\bhackathon\b[^.\n]{0,80}\b(?:winner|won|1st|first place|grand prize|champion)\b/gi);
+  return matches?.length ?? 0;
+}
+
+function dedupeAccolades<T extends { title: string }>(items: T[]): T[] {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = item.title.toLowerCase().replace(/[^a-z0-9]/g, "");
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function compactNumber(n: number): string {
+  if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(n % 1_000_000_000 ? 1 : 0)}B`;
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 ? 1 : 0)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(n % 1_000 ? 1 : 0)}K`;
+  return String(n);
+}
+
+function inferFamilyFromText(text: string): Family | undefined {
+  if (/\b(yc|founder|startup|seed|series|thiel)\b/i.test(text)) return "founder";
+  if (/\b(openai|anthropic|google|meta|microsoft|nvidia|engineer|github|software|ai|ml)\b/i.test(text)) return "engineering";
+  if (/\b(neurips|nature|science|phd|research|olympiad|putnam|rhodes|stanford|mit)\b/i.test(text)) return "science_academia";
+  if (/\b(jane street|goldman|bank|vc|invest|fund|quant)\b/i.test(text)) return "finance";
+  if (/\b(mckinsey|bain|bcg|strategy|consult)\b/i.test(text)) return "consulting_corporate";
+  if (/\b(hospital|medicine|doctor|clinical|surgeon|residency)\b/i.test(text)) return "medicine";
+  return undefined;
 }
 
 function dedupBy<T>(arr: T[], key: (t: T) => string): T[] {

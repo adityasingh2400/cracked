@@ -1,14 +1,14 @@
-// /c/[data] — the v1.0 share card view route.
+// /c/[data] - the v1.0 share card view route.
 //
 // Decodes the share blob (gzip+base64 from src/lib/encode.ts) and renders the
 // HoloCardV1 composition wrapped in CeremonyReveal. The card itself stays
 // glossy + dark (a trading card is a trading card); the page chrome around
-// it is Sunset Arcade — cherry hard shadows, marigold stamps, arcade CTAs.
+// it is Sunset Arcade - cherry hard shadows, marigold stamps, arcade CTAs.
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ShareBar } from "@/components/ShareBar";
-import { decodeResult } from "@/lib/encode";
+import { resolveShareResult } from "@/lib/share-store";
 import { getLeague } from "@/data/leagues";
 import { FAMILIES_META } from "@/data/families";
 import { HoloCardV2 } from "@/components/HoloCardV2";
@@ -30,7 +30,7 @@ const DEFAULT_TRIO: Trio = {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { data } = await params;
-  const result = decodeResult(data) as CrackedResultV1 | null;
+  const result = (await resolveShareResult(data)) as CrackedResultV1 | null;
   if (!result) return { title: "Cracked · result not found" };
 
   const family = result.primaryFamily ?? DEFAULT_FAMILY;
@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const tierLabel = formatTier(result.tier, result.tierStars);
   const title = `${result.name} is ${tierLabel} in ${familyName}`;
-  const description = `${result.name} — top ${topPct}% of ${cohortLabel || "their cohort"} in ${familyName}. How cracked are you?`;
+  const description = `${result.name} - top ${topPct}% of ${cohortLabel || "their cohort"} in ${familyName}. How cracked are you?`;
 
   return {
     title: `${title} · Cracked`,
@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function CardPage({ params }: PageProps) {
   const { data } = await params;
-  const result = decodeResult(data) as CrackedResultV1 | null;
+  const result = (await resolveShareResult(data)) as CrackedResultV1 | null;
   if (!result) notFound();
 
   const family: Family = result.primaryFamily ?? DEFAULT_FAMILY;
@@ -71,13 +71,13 @@ export default async function CardPage({ params }: PageProps) {
 
   return (
     <div className="px-5 sm:px-8 pt-10 pb-16">
-      {/* HOLO CARD — Pokemon-TCG-grade v1.0 composition */}
+      {/* HOLO CARD - Pokemon-TCG-grade v1.0 composition */}
       <section className="max-w-xl mx-auto arcade-no-confetti">
         <CeremonyReveal tier={result.tier}>
           <HoloCardV2 result={result} />
         </CeremonyReveal>
 
-        {/* Verdict + flavor — arcade card outside the holo so they don't compete */}
+        {/* Verdict + flavor - arcade card outside the holo so they don't compete */}
         {(result.verdict || result.flavor) && (
           <div
             className="mt-7 max-w-md mx-auto rounded-2xl border-[3px] border-ink bg-cream p-5 text-center"
@@ -133,7 +133,7 @@ export default async function CardPage({ params }: PageProps) {
               <span className="font-display text-arcade-holo">
                 {percentiles.withinFamilyCohort.toFixed(1)}%
               </span>{" "}
-              of your cohort in {familyMeta.shortName}. Older cohorts aren&apos;t more cracked, they&apos;ve just had more time to stack signals — so the bar moves with you.{" "}
+              of your cohort in {familyMeta.shortName}. Older cohorts aren&apos;t more cracked, they&apos;ve just had more time to stack signals - so the bar moves with you.{" "}
               {result.league.ageSource === "inferred" && (
                 <>
                   Age was inferred as <span className="font-bold">{result.league.age}</span>. Click the age pill on the card to correct it.
@@ -144,7 +144,7 @@ export default async function CardPage({ params }: PageProps) {
         </section>
       )}
 
-      {/* CTA — arcade button trio */}
+      {/* CTA - arcade button trio */}
       <section className="mt-20 max-w-2xl mx-auto text-center">
         <div className="font-serif italic text-ink-soft mb-5 text-[17px]">
           Built for screenshotting and arguing about.

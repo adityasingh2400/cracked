@@ -1,9 +1,9 @@
-// Founder family — starter achievement library for v1.0 launch.
+// Founder family - starter achievement library for v1.0 launch.
 
 import type { Achievement, Chain } from "@/lib/types";
 
 export const FOUNDER_ACHIEVEMENTS: Achievement[] = [
-  // ASCENDED — lifetime-defining
+  // ASCENDED - lifetime-defining
   {
     id: "founder_unicorn_solo",
     family: "founder",
@@ -34,7 +34,7 @@ export const FOUNDER_ACHIEVEMENTS: Achievement[] = [
     signals: [{ kind: "free_text", patterns: [/IPO|taken public|went public|NYSE|NASDAQ/i] }],
     evidence: ["Brian Chesky", "Drew Houston", "Daniel Ek"],
   },
-  // MYTHIC — career-defining
+  // MYTHIC - career-defining
   {
     id: "founder_yc_series_b",
     family: "founder",
@@ -61,7 +61,7 @@ export const FOUNDER_ACHIEVEMENTS: Achievement[] = [
     family: "founder",
     tier: "MYTHIC",
     label: "Thiel Fellow ($200k, ≤22)",
-    description: "Selected as a Thiel Fellow — $200k to skip college and build. Hard age cap 22.",
+    description: "Selected as a Thiel Fellow - $200k to skip college and build. Hard age cap 22.",
     signals: [{ kind: "award", match: ["Thiel Fellow", "Thiel Fellowship"] }],
     ageCap: 22,
     evidence: ["Vitalik Buterin", "Ritesh Agarwal"],
@@ -78,7 +78,7 @@ export const FOUNDER_ACHIEVEMENTS: Achievement[] = [
     ],
     evidence: ["broad YC alumni"],
   },
-  // S — obviously cracked
+  // S - obviously cracked
   {
     id: "founder_yc_batch",
     family: "founder",
@@ -104,7 +104,7 @@ export const FOUNDER_ACHIEVEMENTS: Achievement[] = [
     id: "founder_forbes_30u30",
     family: "founder",
     tier: "S",
-    label: "Forbes 30 Under 30 — Founder list",
+    label: "Forbes 30 Under 30 - Founder list",
     description: "Recognized on the Forbes 30 Under 30 founder list. Age-capped at 29.",
     signals: [{ kind: "award", match: ["Forbes 30 Under 30", "30 Under 30"] }],
     ageCap: 29,
@@ -119,7 +119,7 @@ export const FOUNDER_ACHIEVEMENTS: Achievement[] = [
     signals: [{ kind: "award", match: ["Founders Inc", "Neo", "Z Fellows", "On Deck", "South Park Commons", "AI Grant"] }],
     evidence: ["broad alumni"],
   },
-  // A — top 5-10%
+  // A - top 5-10%
   {
     id: "founder_pre_seed",
     family: "founder",
@@ -138,7 +138,7 @@ export const FOUNDER_ACHIEVEMENTS: Achievement[] = [
     signals: [{ kind: "company", match: [""], title: ["Founder", "Co-Founder", "CEO"] }],
     evidence: ["broad"],
   },
-  // B — top 10-20%
+  // B - top 10-20%
   {
     id: "founder_self_funded",
     family: "founder",
@@ -160,7 +160,7 @@ export const FOUNDER_ACHIEVEMENTS: Achievement[] = [
     signals: [{ kind: "free_text", patterns: [/side project|launched|shipped/i] }],
     evidence: ["very broad"],
   },
-  // C — top 30-50%
+  // C - top 30-50%
   {
     id: "founder_in_progress",
     family: "founder",
@@ -173,7 +173,7 @@ export const FOUNDER_ACHIEVEMENTS: Achievement[] = [
     ],
     evidence: ["very broad"],
   },
-  // D — long tail
+  // D - long tail
   {
     id: "founder_idea_stage",
     family: "founder",
@@ -192,7 +192,7 @@ export const FOUNDER_CHAINS: Chain[] = [
     family: "founder",
     requires: ["eng_stanford_cs", "founder_yc_batch", "founder_yc_series_a_lead"],
     bumpTo: "ASCENDED",
-    description: "Stanford CS + YC + Series A — the canonical Silicon Valley pipeline.",
+    description: "Stanford CS + YC + Series A - the canonical Silicon Valley pipeline.",
   },
   {
     id: "founder_chain_thiel_unicorn",
@@ -216,7 +216,7 @@ export const FOUNDER_CHAINS: Chain[] = [
     family: "founder",
     requires: ["founder_yc_batch", "founder_yc_series_b"],
     bumpTo: "MYTHIC",
-    description: "YC batch into Series B+ — the institutional climb.",
+    description: "YC batch into Series B+ - the institutional climb.",
   },
   {
     id: "founder_chain_30u30",
@@ -224,6 +224,6 @@ export const FOUNDER_CHAINS: Chain[] = [
     family: "founder",
     requires: ["founder_forbes_30u30", "founder_yc_series_a_lead"],
     bumpTo: "MYTHIC",
-    description: "30 Under 30 + Series A — recognized + real money.",
+    description: "30 Under 30 + Series A - recognized + real money.",
   },
 ];

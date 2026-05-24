@@ -1,4 +1,4 @@
-// Percentile computation — the three claims the v1.0 card shows.
+// Percentile computation - the three claims the v1.0 card shows.
 // Per /plan-eng-review Percentile Computation section:
 //   1. within-family, within-cohort   (primary)
 //   2. cross-family, within-cohort    (secondary)
@@ -16,7 +16,7 @@ import { ALL_FAMILIES } from "./types";
 import { FAMILY_WEIGHTS } from "@/data/family-weights";
 
 // =============================================================================
-// SYNTHETIC DISTRIBUTION — Claude-generated baseline per cell. Replaced by
+// SYNTHETIC DISTRIBUTION - Claude-generated baseline per cell. Replaced by
 // real empirical curves as `w` saturates per cell.
 // =============================================================================
 
@@ -31,7 +31,7 @@ export interface CellDistribution {
   realUserCount: number;
 }
 
-// Default synthetic distribution per cell — a smooth bell curve centered on
+// Default synthetic distribution per cell - a smooth bell curve centered on
 // the league's baseline score. Replaced at runtime by Claude-generated curves
 // anchored to the hand-collected seed, then converged toward empirical.
 function defaultSyntheticQuantile(
@@ -39,7 +39,7 @@ function defaultSyntheticQuantile(
   baseline: number,
   spread = 18
 ): number {
-  // Logistic CDF — smooth, monotonic, anchored at baseline.
+  // Logistic CDF - smooth, monotonic, anchored at baseline.
   // pct = 100 / (1 + exp(-(score - baseline) / spread))
   const x = (internalScore - baseline) / spread;
   const pct = 100 / (1 + Math.exp(-x));
@@ -65,7 +65,7 @@ export function buildSyntheticCell(
 }
 
 // =============================================================================
-// BLENDED PERCENTILE — synthetic + empirical mix with w_min floor.
+// BLENDED PERCENTILE - synthetic + empirical mix with w_min floor.
 // =============================================================================
 
 export interface BlendInputs {
@@ -113,7 +113,7 @@ export function empiricalPercentile(
 }
 
 // =============================================================================
-// THREE-METRIC TRIO — the screenshot-bait claims.
+// THREE-METRIC TRIO - the screenshot-bait claims.
 // =============================================================================
 
 export interface ComputeTrioInputs {
@@ -144,7 +144,7 @@ export function computePercentileTrio(input: ComputeTrioInputs): PercentileTrio 
     realUserCount: primaryCell.realUserCount,
   });
 
-  // 2. CROSS-FAMILY, WITHIN-COHORT — family-weighted average over 9 family cells
+  // 2. CROSS-FAMILY, WITHIN-COHORT - family-weighted average over 9 family cells
   let crossWeighted = 0;
   let weightSum = 0;
   for (const f of ALL_FAMILIES) {
@@ -164,7 +164,7 @@ export function computePercentileTrio(input: ComputeTrioInputs): PercentileTrio 
   }
   const crossFamilyCohort = weightSum > 0 ? crossWeighted / weightSum : 50;
 
-  // 3. ALL-TIME GLOBAL — single distribution across everyone
+  // 3. ALL-TIME GLOBAL - single distribution across everyone
   const globalSynth = globalDistribution.quantile(internalScore);
   const globalEmpScores = empiricalScoresLookup("engineering", cohort); // proxy when global not blended
   const globalEmp = empiricalPercentile(internalScore, globalEmpScores);

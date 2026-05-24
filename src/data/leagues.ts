@@ -25,7 +25,7 @@
 //   classic "27" claim to ~24-26 median under Garry Tan.
 // - Per-cohort re-weighting of the 6 category caps (so the 14-year-old isn't
 //   structurally capped at ~60 by missing Work/Founder signal) is a
-//   v2 follow-up — for v1 the cohort label and percentile framing do the work.
+//   v2 follow-up - for v1 the cohort label and percentile framing do the work.
 
 import type { LeagueKey } from "@/lib/types";
 
@@ -40,13 +40,13 @@ export interface League {
   glyph: string;
   /** Accent color hex (matches the foil palette). */
   accent: string;
-  /** P50 expected absolute score for this league — used for percentile center. */
+  /** P50 expected absolute score for this league - used for percentile center. */
   baseline: number;
   /** ~25-word flavor line for cards / hover state. */
   flavor: string;
   /** One-liner shown below the league name to set context. */
   tagline: string;
-  /** Concrete examples of an S-tier profile in this league — shown in the dex. */
+  /** Concrete examples of an S-tier profile in this league - shown in the dex. */
   sTierExemplars: string[];
 }
 
@@ -118,7 +118,7 @@ export const LEAGUES: League[] = [
     accent: "#FCD34D",
     baseline: 50,
     tagline: "New grad · early career",
-    flavor: "First checkpoint where bullshit stops working. Equity, papers, and prizes are the only currency — and the age-gated prizes are closing fast.",
+    flavor: "First checkpoint where bullshit stops working. Equity, papers, and prizes are the only currency - and the age-gated prizes are closing fast.",
     sTierExemplars: [
       "Founding research engineer at Anthropic / OpenAI / SSI / DeepMind",
       "YC founder w/ Series A ≥ $100M post-money before 26",
@@ -138,7 +138,7 @@ export const LEAGUES: League[] = [
     accent: "#F59E0B",
     baseline: 62,
     tagline: "Mid career · the receipts are due",
-    flavor: "Decade in. Talent has sorted, time-excuses expire. The body of work is finally legible — exit, promote, paper, partnership.",
+    flavor: "Decade in. Talent has sorted, time-excuses expire. The body of work is finally legible - exit, promote, paper, partnership.",
     sTierExemplars: [
       "Exited founder ($100M+) or current $1B+ unicorn",
       "Forbes Midas Brink / Forbes 30 Under 30 (≤29) w/ real outcome",
@@ -158,7 +158,7 @@ export const LEAGUES: League[] = [
     accent: "#FCD34D",
     baseline: 70,
     tagline: "Established · the record speaks",
-    flavor: "Past the age where 'potential' counts. The handicap saturates — from here on it's the same bar as the absolute board, and either the resume is real or it isn't.",
+    flavor: "Past the age where 'potential' counts. The handicap saturates - from here on it's the same bar as the absolute board, and either the resume is real or it isn't.",
     sTierExemplars: [
       "Forbes Midas List Top 50 (active investor)",
       "MacArthur Fellow (median age mid-40s)",

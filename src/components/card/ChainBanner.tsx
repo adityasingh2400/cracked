@@ -1,4 +1,4 @@
-// ChainBanner — shows the name of an unlocked chain (e.g. "The Classic Pipeline").
+// ChainBanner - shows the name of an unlocked chain (e.g. "The Classic Pipeline").
 // Per /plan-eng-review Cross-Model Perspective: internal name only, no URL link.
 // Renders nothing if no chain is active.
 

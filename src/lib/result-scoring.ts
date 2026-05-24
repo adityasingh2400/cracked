@@ -10,10 +10,12 @@ import type {
   Tier,
   TierStars,
 } from "@/lib/types";
-import { isSpecialTier } from "@/lib/types";
+import { isSpecialTier, normalizeTierCrowns, supportsTierCrowns, formatTier } from "@/lib/types";
 import { scoreAllFamilies } from "@/lib/chain-detector";
 import { placeInLeague } from "@/lib/leagues";
 import { buildSyntheticCell, computePercentileTrio } from "@/lib/percentile";
+
+const STANDARD_TIERS: Exclude<Tier, "ASCENDED" | "MYTHIC">[] = ["D", "C", "B", "A", "S"];
 
 export interface BuildCrackedResultInput {
   id: string;
@@ -26,6 +28,11 @@ export interface BuildCrackedResultInput {
   inferredAge?: number;
   inferredConfidence?: number;
   speciality?: string;
+  bestAccolades?: Array<{
+    title: string;
+    detail?: string;
+    family?: Family;
+  }>;
   photoUrl?: string;
   scoringTier?: "mac-claude" | "anthropic-api" | "regex-fallback";
   calibrating?: boolean;
@@ -38,22 +45,25 @@ export function buildCrackedResult(input: BuildCrackedResultInput): CrackedResul
     age,
     library: FAMILY_LIBRARY,
   });
+  const scoredFamilies = applyEvidenceFloors(
+    allFamilies.families,
+    input.signals,
+    age
+  );
 
-  const primary = allFamilies.families.find(
-    (f) => f.family === allFamilies.primaryFamily
-  )!;
+  const primary = pickPrimaryFamily(scoredFamilies);
   const tier = primary.finalTier;
-  const tierStars = isSpecialTier(tier) ? undefined : primary.tierStars ?? 1;
+  const tierStars = normalizeTierCrowns(tier, primary.tierStars);
   const signalScore = signalScoreForTier(tier, tierStars, primary);
   const cohort: LeagueKey = age ? leagueForAgeOnly(age) : "pro";
 
   const rawPercentiles = computePercentileTrio({
     internalScore: signalScore,
-    primaryFamily: allFamilies.primaryFamily,
+    primaryFamily: primary.family,
     cohort,
     cellLookup: (family, ck) => buildSyntheticCell(family, ck, midpointBaseline(ck)),
     globalDistribution: buildSyntheticCell(
-      allFamilies.primaryFamily,
+      primary.family,
       cohort,
       midpointBaseline(cohort)
     ),
@@ -70,7 +80,7 @@ export function buildCrackedResult(input: BuildCrackedResultInput): CrackedResul
       })
     : undefined;
 
-  const chainsAll = allFamilies.families.flatMap((fs) =>
+  const chainsAll = scoredFamilies.flatMap((fs) =>
     fs.activeChains
       .map((chainId) => FAMILY_LIBRARY.chains.find((c) => c.id === chainId))
       .filter((c): c is NonNullable<typeof c> => Boolean(c))
@@ -83,7 +93,7 @@ export function buildCrackedResult(input: BuildCrackedResultInput): CrackedResul
       }))
   );
 
-  const achievementsAll = allFamilies.families.flatMap((fs) =>
+  const achievementsAll = scoredFamilies.flatMap((fs) =>
     fs.matched
       .map((aId) => FAMILY_LIBRARY.achievements.find((a) => a.id === aId))
       .filter((a): a is NonNullable<typeof a> => Boolean(a))
@@ -102,21 +112,222 @@ export function buildCrackedResult(input: BuildCrackedResultInput): CrackedResul
     tierStars,
     signalScore,
     league,
-    families: allFamilies.families,
-    primaryFamily: allFamilies.primaryFamily,
-    secondaryFamily: allFamilies.secondaryFamily,
+    families: scoredFamilies,
+    primaryFamily: primary.family,
+    secondaryFamily: pickSecondaryFamily(scoredFamilies, primary.family),
     percentiles,
-    verdict: input.verdict || tierVerdict(tier, tierStars, input.name, allFamilies.primaryFamily, allFamilies.families),
+    verdict: input.verdict || tierVerdict(tier, tierStars, input.name, primary.family, scoredFamilies),
     flavor: input.flavor || tierFlavor(tier, tierStars),
     modelUsed: input.modelUsed,
     createdAt: new Date().toISOString(),
     scoringTier: input.scoringTier,
     calibrating: input.calibrating,
     speciality: input.speciality,
+    bestAccolades: input.bestAccolades?.length
+      ? input.bestAccolades
+      : buildSignalAccolades(input.signals),
     photoUrl: input.photoUrl,
     chainsAll,
     achievementsAll,
   };
+}
+
+function applyEvidenceFloors(
+  families: FamilyScore[],
+  signals: ExtractedSignals,
+  age?: number
+): FamilyScore[] {
+  const floors = evidenceFloors(signals, age);
+  return families.map((family) => {
+    const floor = floors[family.family];
+    if (!floor) return family;
+
+    const floorRank = tierRank(floor.tier);
+    const currentRank = tierRank(family.finalTier);
+    if (floorRank < currentRank) return family;
+
+    const finalTier = floorRank > currentRank ? floor.tier : family.finalTier;
+    const tierStars =
+      isSpecialTier(finalTier) || !supportsTierCrowns(finalTier)
+        ? undefined
+        : floorRank > currentRank
+          ? floor.stars
+          : (Math.max(family.tierStars ?? 1, floor.stars ?? 1) as TierStars);
+
+    return {
+      ...family,
+      finalTier,
+      tierStars,
+      matched: [...new Set([...family.matched, ...floor.matched])],
+    };
+  });
+}
+
+function evidenceFloors(
+  signals: ExtractedSignals,
+  age?: number
+): Partial<Record<Family, { tier: Tier; stars?: TierStars; matched: string[] }>> {
+  const text = [
+    signals.raw_text,
+    ...signals.awards.map((a) => a.name),
+    ...signals.companies.map((c) => `${c.name} ${c.title ?? ""}`),
+    ...signals.funding.map((f) => `${f.company} ${f.round ?? ""} ${f.amount ?? ""}`),
+    ...signals.publications.map((p) => p.venue),
+  ].join("\n");
+
+  const founderSignals = [
+    /\bco[- ]?founder\b|\bfounder\b|\bceo\b/i.test(text),
+    /\bseed\b|\bpre[- ]?seed\b|\braised\b|\bfunding\b|\bventure[- ]?backed\b/i.test(text),
+    /\b4x\b[^.\n]{0,50}\bhackathon\b|\bhackathon\b[^.\n]{0,50}\b4x\b|multiple[^.\n]{0,30}hackathon/i.test(text),
+    /\bieee\b|\bpublication\b|\bpublished\b|\bresearch\b|\bpaper\b/i.test(text),
+  ].filter(Boolean).length;
+
+  const floors: Partial<Record<Family, { tier: Tier; stars?: TierStars; matched: string[] }>> = {};
+  if (founderSignals >= 3 && age && age <= 19) {
+    floors.founder = {
+      tier: "S",
+      stars: founderSignals >= 4 ? 3 : 2,
+      matched: ["founder_young_signal_stack"],
+    };
+  } else if (founderSignals >= 3) {
+    floors.founder = {
+      tier: "S",
+      stars: 1,
+      matched: ["founder_signal_stack"],
+    };
+  }
+
+  const hackathonWins = hackathonWinCount(text);
+  if (hackathonWins >= 3 && age && age <= 19) {
+    floors.engineering = {
+      tier: "S",
+      stars: 2,
+      matched: ["eng_multi_hackathon_winner_young"],
+    };
+  }
+
+  return floors;
+}
+
+function pickPrimaryFamily(families: FamilyScore[]): FamilyScore {
+  return [...families].sort((a, b) => {
+    const tierDelta = tierRank(b.finalTier) - tierRank(a.finalTier);
+    if (tierDelta !== 0) return tierDelta;
+    if ((b.tierStars ?? 0) !== (a.tierStars ?? 0)) return (b.tierStars ?? 0) - (a.tierStars ?? 0);
+    if (b.matched.length !== a.matched.length) return b.matched.length - a.matched.length;
+    return b.activeChains.length - a.activeChains.length;
+  })[0];
+}
+
+function pickSecondaryFamily(
+  families: FamilyScore[],
+  primaryFamily: Family
+): Family | undefined {
+  const secondary = [...families]
+    .filter((family) => family.family !== primaryFamily)
+    .sort((a, b) => {
+      const tierDelta = tierRank(b.finalTier) - tierRank(a.finalTier);
+      if (tierDelta !== 0) return tierDelta;
+      if ((b.tierStars ?? 0) !== (a.tierStars ?? 0)) return (b.tierStars ?? 0) - (a.tierStars ?? 0);
+      return b.matched.length - a.matched.length;
+    })[0];
+  return secondary && secondary.finalTier !== "D" && secondary.matched.length > 0
+    ? secondary.family
+    : undefined;
+}
+
+function tierRank(tier: Tier): number {
+  if (tier === "ASCENDED") return 6;
+  if (tier === "MYTHIC") return 5;
+  return STANDARD_TIERS.indexOf(tier);
+}
+
+function buildSignalAccolades(
+  signals: ExtractedSignals
+): Array<{ title: string; detail?: string; family?: Family }> {
+  const items: Array<{ title: string; detail?: string; family?: Family }> = [];
+
+  for (const award of signals.awards.slice(0, 2)) {
+    items.push({ title: award.name, detail: award.year ? `Awarded in ${award.year}` : undefined, family: familyForAccolade(award.name) });
+  }
+  const hackathonWins = hackathonWinCount(signals.raw_text);
+  if (hackathonWins >= 2) {
+    items.unshift({
+      title: hackathonWins >= 3 ? `${hackathonWins}x Hackathon Winner` : "Multiple Hackathon Winner",
+      detail: "Repeated competitive build wins",
+      family: "engineering",
+    });
+  }
+  for (const company of signals.companies.slice(0, 2)) {
+    const title = company.title ? `${company.name} ${company.title}` : company.name;
+    items.push({ title, family: familyForAccolade(title) });
+  }
+  for (const school of signals.schools.slice(0, 2)) {
+    items.push({
+      title: school.degree ? `${school.name} ${school.degree}` : school.name,
+      detail: school.gradYear ? `Class of ${school.gradYear}` : undefined,
+      family: "science_academia",
+    });
+  }
+  for (const pub of signals.publications.slice(0, 2)) {
+    items.push({
+      title: pub.role ? `${pub.venue} ${pub.role}-author` : `${pub.venue} publication`,
+      detail: "Research publication signal",
+      family: "science_academia",
+    });
+  }
+  for (const funding of signals.funding.slice(0, 2)) {
+    const round = funding.round ?? "Funding";
+    items.push({
+      title: `${funding.company} ${round}`,
+      detail: funding.amount ? `$${compactNumber(funding.amount)} raised` : "Funding round",
+      family: "founder",
+    });
+  }
+  for (const oss of signals.open_source.slice(0, 2)) {
+    items.push({
+      title: oss.project,
+      detail: oss.metric ? `${compactNumber(oss.metric)} GitHub stars/users` : "Open-source project",
+      family: "engineering",
+    });
+  }
+
+  const seen = new Set<string>();
+  return items
+    .filter((item) => {
+      const key = item.title.toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .map((item) => ({
+      ...item,
+      title: item.title.slice(0, 42),
+      detail: item.detail?.slice(0, 90),
+    }))
+    .slice(0, 6);
+}
+
+function hackathonWinCount(text: string): number {
+  const matches = text.match(/\b(?:won|winner|winning|1st|first place|grand prize|champion)\b[^.\n]{0,80}\bhackathon\b|\bhackathon\b[^.\n]{0,80}\b(?:winner|won|1st|first place|grand prize|champion)\b/gi);
+  return matches?.length ?? 0;
+}
+
+function familyForAccolade(text: string): Family | undefined {
+  if (/\b(yc|founder|startup|seed|series|thiel)\b/i.test(text)) return "founder";
+  if (/\b(openai|anthropic|google|meta|microsoft|nvidia|engineer|github|software|ai|ml)\b/i.test(text)) return "engineering";
+  if (/\b(neurips|nature|science|phd|research|olympiad|putnam|rhodes|stanford|mit)\b/i.test(text)) return "science_academia";
+  if (/\b(jane street|goldman|bank|vc|invest|fund|quant)\b/i.test(text)) return "finance";
+  if (/\b(mckinsey|bain|bcg|strategy|consult)\b/i.test(text)) return "consulting_corporate";
+  if (/\b(hospital|medicine|doctor|clinical|surgeon|residency)\b/i.test(text)) return "medicine";
+  return undefined;
+}
+
+function compactNumber(n: number): string {
+  if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(n % 1_000_000_000 ? 1 : 0)}B`;
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 ? 1 : 0)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(n % 1_000 ? 1 : 0)}K`;
+  return String(n);
 }
 
 function resolveAge(input: BuildCrackedResultInput): {
@@ -152,14 +363,13 @@ export function signalScoreForTier(
     A: 75,
     S: 90,
   };
-  const starStep: Record<Exclude<Tier, "ASCENDED" | "MYTHIC">, number> = {
-    D: 10,
-    C: 7,
-    B: 5,
+  const starStep: Partial<Record<"A" | "S", number>> = {
     A: 5,
     S: 3,
   };
-  const starScore = base[tier] + ((stars ?? 1) - 1) * starStep[tier];
+  const starScore = supportsTierCrowns(tier)
+    ? base[tier] + ((stars ?? 1) - 1) * (starStep[tier] ?? 0)
+    : base[tier as Exclude<Tier, "ASCENDED" | "MYTHIC">];
   const depthBonus = Math.min(
     2,
     ((familyScore?.matched.length ?? 0) + (familyScore?.activeChains.length ?? 0)) * 0.25
@@ -177,8 +387,8 @@ const TIER_RARITY_PCT: Record<Tier, { primary: number; cross: number; global: nu
   D: { primary: 30, cross: 25, global: 28 },
 };
 
-function starBump(stars?: TierStars): number {
-  return stars === 3 ? 2 : stars === 2 ? 1 : 0;
+function crownBump(crowns?: TierStars): number {
+  return crowns === 3 ? 2 : crowns === 2 ? 1 : 0;
 }
 
 export function anchorPercentileToTier(
@@ -187,7 +397,7 @@ export function anchorPercentileToTier(
   raw: PercentileTrio
 ): PercentileTrio {
   const target = TIER_RARITY_PCT[tier];
-  const bump = isSpecialTier(tier) ? 0 : starBump(stars);
+  const bump = supportsTierCrowns(tier) ? crownBump(stars) : 0;
   return {
     withinFamilyCohort: Math.max(raw.withinFamilyCohort, Math.min(99.5, target.primary + bump)),
     crossFamilyCohort: Math.max(raw.crossFamilyCohort, Math.min(99, target.cross + bump)),
@@ -206,7 +416,7 @@ function tierVerdict(
   const familyName = FAMILIES_META[family]?.name ?? "their field";
   const chainCount = families.find((f) => f.family === family)?.activeChains.length ?? 0;
   const chainNote = chainCount > 0 ? ` Chains unlocked: ${chainCount}.` : "";
-  const label = isSpecialTier(tier) ? tier : `${tier}${stars ?? 1}`;
+  const label = isSpecialTier(tier) ? tier : formatTier(tier, stars);
 
   switch (tier) {
     case "ASCENDED":

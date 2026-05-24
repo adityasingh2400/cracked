@@ -1,4 +1,4 @@
-// Consulting & Corporate family — starter achievement library for v1.0 launch.
+// Consulting & Corporate family - starter achievement library for v1.0 launch.
 
 import type { Achievement, Chain } from "@/lib/types";
 
@@ -163,7 +163,7 @@ export const CONSULTING_CORPORATE_CHAINS: Chain[] = [
     family: "consulting_corporate",
     requires: ["ccp_mbb_consultant", "ccp_mba_top_3", "ccp_mbb_partner"],
     bumpTo: "ASCENDED",
-    description: "MBB → top-3 MBA → MBB partner — the canonical consulting partner path.",
+    description: "MBB → top-3 MBA → MBB partner - the canonical consulting partner path.",
   },
   {
     id: "ccp_chain_mba_cxo",
@@ -171,7 +171,7 @@ export const CONSULTING_CORPORATE_CHAINS: Chain[] = [
     family: "consulting_corporate",
     requires: ["ccp_mba_top_3", "ccp_f500_cxo"],
     bumpTo: "ASCENDED",
-    description: "Top MBA into F500 C-suite — the corporate apex.",
+    description: "Top MBA into F500 C-suite - the corporate apex.",
   },
   {
     id: "ccp_chain_apm_pm_vp",
@@ -179,6 +179,6 @@ export const CONSULTING_CORPORATE_CHAINS: Chain[] = [
     family: "consulting_corporate",
     requires: ["ccp_apm_top_tech", "ccp_pm_top_tech", "ccp_vp_unicorn"],
     bumpTo: "MYTHIC",
-    description: "APM → PM → VP — the product-leader trajectory.",
+    description: "APM → PM → VP - the product-leader trajectory.",
   },
 ];

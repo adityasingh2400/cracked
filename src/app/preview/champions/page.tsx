@@ -1,7 +1,7 @@
-// /preview/champions — design regression preview for HoloCardV2.
+// /preview/champions - design regression preview for HoloCardV2.
 //
 // Renders the production HoloCardV2 with mock CrackedResultV1 data, one per
-// family at S-3★ champion tier. Lets us eyeball all 9 family aesthetics
+// family at S-3♔ champion tier. Lets us eyeball all 9 family aesthetics
 // side-by-side without needing real share blobs. This is the canonical
 // "what does our top card look like" page.
 
@@ -13,7 +13,7 @@ export const metadata = {
   title: "Champion Cabinet · Cracked Design Preview",
 };
 
-// Sample champions per family — used purely for the regression preview.
+// Sample champions per family - used purely for the regression preview.
 const SAMPLES: Record<Family, { name: string; speciality: string; verdict: string; flavor: string; serial: string }> = {
   engineering: {
     name: "Alex Chen",
@@ -133,7 +133,7 @@ export default function ChampionPreviewPage() {
             className="text-[10px] tracking-[0.45em] uppercase mb-4"
             style={{ fontFamily: "var(--font-plex-mono)", color: "#C5A24D" }}
           >
-            HoloCardV2 · S-3★ regression
+            HoloCardV2 · S-3♔ regression
           </div>
           <h1
             className="leading-[0.92]"
@@ -167,7 +167,7 @@ export default function ChampionPreviewPage() {
             className="mt-7 max-w-2xl mx-auto text-[15px] italic leading-snug"
             style={{ fontFamily: "var(--font-cormorant)", color: "rgba(232,181,71,0.85)" }}
           >
-            Each card is the S-3★ champion of its career family, rendered through the same
+            Each card is the S-3♔ champion of its career family, rendered through the same
             HoloCardV2 component that ships on /c/[data]. Hover to feel the foil. Click any
             card to flip and see the dossier on the back.
           </p>

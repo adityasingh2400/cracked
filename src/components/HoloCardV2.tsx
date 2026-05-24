@@ -1,4 +1,4 @@
-// HoloCardV2 — god-tier S-3★ rebuild wired to real CrackedResultV1 data.
+// HoloCardV2 - god-tier S-3♔ rebuild wired to real CrackedResultV1 data.
 //
 // Replaces HoloCardV1's visual stack with the research-synthesized champion
 // design language (aurora bloom + V-Star sunpillar + conic foil with
@@ -8,7 +8,7 @@
 // aurora at full intensity), MYTHIC + S layer halo burst, lower tiers ramp
 // down sparkles/foil/border weight.
 //
-// The hero is the TIER + STARS lockup, NOT a 0-100 score numeral — numbers
+// The hero is the TIER + CROWNS lockup (A/S only), NOT a 0-100 score numeral
 // don't matter, the rank does. Photo of the user (LinkedIn mirror) sits as
 // Ken Burns background behind the tier text. Click to flip 180° to the
 // CardBack (chains + per-family tier breakdown + achievements). Mobile
@@ -21,19 +21,17 @@ import clsx from "clsx";
 import { FAMILIES_META } from "@/data/families";
 import { FAMILY_LIBRARY } from "@/data/achievements";
 import type { CrackedResultV1, Family, Tier, TierStars, PercentileTrio as Trio } from "@/lib/types";
-import { formatTier, isSpecialTier } from "@/lib/types";
+import { CROWN_GLYPH, formatTier, isSpecialTier, supportsTierCrowns } from "@/lib/types";
 import { getLeague } from "@/data/leagues";
 import { CardBack } from "@/components/card/CardBack";
-import { CrackednessLine } from "@/components/card/CrackednessLine";
-import { SpecialityLine } from "@/components/card/SpecialityLine";
 import { FamilyParticles } from "@/components/card/FamilyParticles";
 
 // =============================================================================
-// THEME DERIVATION — family meta + tier intensity
+// THEME DERIVATION - family meta + tier intensity
 // =============================================================================
 
 interface TierIntensity {
-  /** 0-1 — drives sparkle count, aurora opacity, foil intensity, halo presence. */
+  /** 0-1 - drives sparkle count, aurora opacity, foil intensity, halo presence. */
   level: number;
   /** Whether the tier gets the high-intensity cosmic shimmer + aurora. */
   cosmic: boolean;
@@ -115,7 +113,7 @@ const TIER_INTENSITY: Record<Tier, TierIntensity> = {
   },
 };
 
-// Per-family corner ornament — locks each family to one ornament style.
+// Per-family corner ornament - locks each family to one ornament style.
 const FAMILY_ORNAMENT: Record<Family, "fleur" | "laurel" | "acanthus" | "rosette" | "deco" | "bracket"> = {
   engineering: "bracket",
   science_academia: "laurel",
@@ -128,7 +126,7 @@ const FAMILY_ORNAMENT: Record<Family, "fleur" | "laurel" | "acanthus" | "rosette
   creative_audience: "deco",
 };
 
-// Per-family "metal" — the dominant accent for the tier badge, border, sparkles.
+// Per-family "metal" - the dominant accent for the tier badge, border, sparkles.
 // Most families warm-gold; medicine/engineering get silver (research consensus
 // on cold-precision families); creative gets rose-gold.
 function metalFor(family: Family): { metal: string; metalDeep: string; metalKind: "gold" | "silver" | "rose-gold" } {
@@ -143,7 +141,7 @@ function metalFor(family: Family): { metal: string; metalDeep: string; metalKind
   }
 }
 
-// Gold-leaf foil — 3-tone vertical gradient. Real-feeling gilt, not flat yellow.
+// Gold-leaf foil - 3-tone vertical gradient. Real-feeling gilt, not flat yellow.
 function foilGradient(metalKind: "gold" | "silver" | "rose-gold"): string {
   switch (metalKind) {
     case "silver":
@@ -272,7 +270,7 @@ export function HoloCardV2({ result, interactive = true, className }: HoloCardV2
     window.setTimeout(() => setFlipping(false), 750);
   };
 
-  const drift = useIdleDrift(interactive && !hovering && mounted && !flipped);
+  const drift = useIdleDrift(interactive && !hovering && mounted);
   const effective = hovering ? target : drift;
   const tilt = useSpringTilt(effective);
 
@@ -324,7 +322,7 @@ export function HoloCardV2({ result, interactive = true, className }: HoloCardV2
   }, [seed, tier]);
 
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!interactive || !wrapRef.current || flipped) return;
+    if (!interactive || !wrapRef.current) return;
     const rect = wrapRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
     const y = (e.clientY - rect.top) / rect.height;
@@ -337,7 +335,7 @@ export function HoloCardV2({ result, interactive = true, className }: HoloCardV2
   };
 
   const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!interactive || !wrapRef.current || !e.touches[0] || flipped) return;
+    if (!interactive || !wrapRef.current || !e.touches[0]) return;
     const rect = wrapRef.current.getBoundingClientRect();
     const x = (e.touches[0].clientX - rect.left) / rect.width;
     const y = (e.touches[0].clientY - rect.top) / rect.height;
@@ -365,7 +363,7 @@ export function HoloCardV2({ result, interactive = true, className }: HoloCardV2
     [familyMeta.foil.primary, familyMeta.foil.secondary, familyMeta.foil.tertiary]
   );
 
-  // Deep base gradient — family-tinted void
+  // Deep base gradient - family-tinted void
   const baseGradient = useMemo(
     () => `
       radial-gradient(ellipse at 50% 0%, ${withAlpha(familyMeta.foil.primary, 0.18 * intensity.level)} 0%, transparent 55%),
@@ -393,6 +391,15 @@ export function HoloCardV2({ result, interactive = true, className }: HoloCardV2
         setTarget({ rx: 0, ry: 0, mx: 50, my: 50 });
       }}
     >
+      {interactive && (
+        <button
+          type="button"
+          aria-label={flipped ? "Show card front" : "Show card back"}
+          onClick={onFlip}
+          className="absolute inset-0 z-50 bg-transparent"
+          style={{ WebkitTapHighlightColor: "transparent", cursor: "none" }}
+        />
+      )}
       {/* Flip pivot */}
       <div
         style={{
@@ -407,8 +414,7 @@ export function HoloCardV2({ result, interactive = true, className }: HoloCardV2
       >
         {/* FRONT FACE */}
         <div
-          className={clsx("holo-cardv2 relative mx-auto", interactive && "cursor-pointer")}
-          onClick={onFlip}
+          className="holo-cardv2 relative mx-auto"
           style={
             {
               aspectRatio: "2 / 3",
@@ -421,6 +427,7 @@ export function HoloCardV2({ result, interactive = true, className }: HoloCardV2
               WebkitBackfaceVisibility: "hidden",
               position: "absolute",
               inset: 0,
+              cursor: interactive ? "none" : "default",
               borderRadius: 24,
               overflow: "hidden",
               isolation: "isolate",
@@ -440,7 +447,7 @@ export function HoloCardV2({ result, interactive = true, className }: HoloCardV2
             style={{ background: baseGradient }}
           />
 
-          {/* L2: aurora bloom — 3 blurred radials of family foil */}
+          {/* L2: aurora bloom - 3 blurred radials of family foil */}
           <div
             className="absolute inset-[-15%] rounded-[24px] pointer-events-none"
             style={{
@@ -452,7 +459,7 @@ export function HoloCardV2({ result, interactive = true, className }: HoloCardV2
             }}
           />
 
-          {/* L3: V-Star sunpillar — Simey pattern, family-tinted */}
+          {/* L3: V-Star sunpillar - Simey pattern, family-tinted */}
           {intensity.level > 0.5 && (
             <div
               className="absolute inset-0 rounded-[24px] overflow-hidden pointer-events-none"
@@ -485,7 +492,7 @@ export function HoloCardV2({ result, interactive = true, className }: HoloCardV2
             />
           )}
 
-          {/* L4: conic foil rainbow — color-dodge over base */}
+          {/* L4: conic foil rainbow - color-dodge over base */}
           <div
             className="absolute inset-0 rounded-[24px] overflow-hidden pointer-events-none"
             style={{
@@ -534,7 +541,7 @@ export function HoloCardV2({ result, interactive = true, className }: HoloCardV2
             }}
           />
 
-          {/* L7: ASCENDED cosmic shimmer — slowly rotating conic */}
+          {/* L7: ASCENDED cosmic shimmer - slowly rotating conic */}
           {intensity.cosmic && (
             <div
               className="absolute inset-0 rounded-[24px] overflow-hidden pointer-events-none"
@@ -664,42 +671,34 @@ export function HoloCardV2({ result, interactive = true, className }: HoloCardV2
 
           {/* L18: CONTENT */}
           <div
-            className="relative z-20 p-4 sm:p-5 h-full flex flex-col gap-2"
+            className="relative z-20 p-4 sm:p-5 h-full flex flex-col gap-3"
             style={{ transformStyle: "preserve-3d", color: "#FFFAF2" }}
           >
-            {/* Top row */}
-            <TopRow
+            <FrontIdentityLayout
+              result={result}
               family={family}
               familyMeta={familyMeta}
               secondary={secondary}
               cohortLabel={cohortLabel}
-              serial={result.id}
-              metal={metal}
-              accent={accent}
-            />
-
-            {/* Hero illustration: photo + tier+stars lockup */}
-            <HeroBlock
               tier={tier}
               tierStars={tierStars}
               intensity={intensity}
+              percentiles={percentiles}
               photoUrl={result.photoUrl}
-              name={result.name}
               metal={metal}
               accent={accent}
               foil={foil}
               distance={distance}
+              bestAccolades={result.bestAccolades}
             />
 
-            {/* Crackedness line */}
-            <div style={{ transform: "translateZ(18px)" }}>
-              <CrackednessLine
-                percentiles={percentiles}
-                cohortLabel={cohortLabel}
-                family={family}
-                age={result.league?.age}
-              />
-            </div>
+            <TopCornerLabels
+              familyMeta={familyMeta}
+              secondary={secondary}
+              speciality={result.speciality}
+              metal={metal}
+              accent={accent}
+            />
 
             {/* Chain banner */}
             {headlineChain && (
@@ -710,23 +709,13 @@ export function HoloCardV2({ result, interactive = true, className }: HoloCardV2
               />
             )}
 
-            {/* Speciality */}
-            <div style={{ transform: "translateZ(10px)" }}>
-              <SpecialityLine
-                speciality={result.speciality}
-                family={family}
-                calibrating={result.calibrating}
-              />
-            </div>
-
             {/* Footer */}
             <Footer id={result.id} metal={metal} accent={accent} interactive={interactive} />
           </div>
         </div>
 
-        {/* BACK FACE — pre-rotated 180° */}
+        {/* BACK FACE - pre-rotated 180° */}
         <div
-          onClick={onFlip}
           style={{
             position: "absolute",
             inset: 0,
@@ -735,13 +724,21 @@ export function HoloCardV2({ result, interactive = true, className }: HoloCardV2
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
             transform: `${flipAxis}(180deg)`,
-            cursor: interactive ? "pointer" : "default",
+              cursor: interactive ? "none" : "default",
             borderRadius: 24,
             overflow: "hidden",
             boxShadow: `0 30px 100px -20px rgba(0,0,0,0.85), 0 0 80px -10px ${withAlpha(metal, 0.6)}`,
           }}
         >
-          <CardBack result={result} />
+          <CardBack
+            result={result}
+            hoverX={effectiveTilt.mx}
+            hoverY={effectiveTilt.my}
+            tiltRx={effectiveTilt.rx}
+            tiltRy={effectiveTilt.ry}
+            metal={metal}
+            accent={accent}
+          />
         </div>
       </div>
 
@@ -775,6 +772,16 @@ export function HoloCardV2({ result, interactive = true, className }: HoloCardV2
           0%, 100% { opacity: 0.6; }
           50%      { opacity: 1; }
         }
+        @keyframes holoV2FireSpin {
+          0%   { transform: rotate(0deg) scale(1); opacity: 0.65; }
+          50%  { transform: rotate(180deg) scale(1.08); opacity: 1; }
+          100% { transform: rotate(360deg) scale(1); opacity: 0.65; }
+        }
+        @keyframes holoV2CrownFlame {
+          0%, 100% { transform: translateY(0) scale(1); filter: saturate(1); }
+          45%      { transform: translateY(-1px) scale(1.18); filter: saturate(1.8); }
+          70%      { transform: translateY(0.5px) scale(0.96); filter: saturate(1.2); }
+        }
         @keyframes holoV2TierGlow {
           0%, 100% { filter: drop-shadow(0 0 22px var(--metal-glow, rgba(212,175,55,0.7))) drop-shadow(0 3px 0 rgba(0,0,0,0.55)); }
           50%      { filter: drop-shadow(0 0 32px var(--metal-glow, rgba(212,175,55,0.95))) drop-shadow(0 0 6px var(--metal-glow, rgba(212,175,55,1))) drop-shadow(0 3px 0 rgba(0,0,0,0.55)); }
@@ -785,97 +792,473 @@ export function HoloCardV2({ result, interactive = true, className }: HoloCardV2
 }
 
 // =============================================================================
-// TOP ROW — family badge + cohort/serial
+// FRONT IDENTITY LAYOUT - portrait left, grade/stat stack right, cohort claim bottom
 // =============================================================================
 
-function TopRow({
-  family: _family,
+function FrontIdentityLayout({
+  result,
+  family,
   familyMeta,
   secondary,
   cohortLabel,
-  serial,
+  tier,
+  tierStars,
+  intensity,
+  percentiles,
+  photoUrl,
   metal,
   accent,
+  foil,
+  distance,
+  bestAccolades,
 }: {
+  result: CrackedResultV1;
   family: Family;
   familyMeta: typeof FAMILIES_META[Family];
   secondary?: Family;
   cohortLabel: string;
-  serial: string;
+  tier: Tier;
+  tierStars?: TierStars;
+  intensity: TierIntensity;
+  percentiles: Trio;
+  photoUrl?: string;
+  metal: string;
+  accent: string;
+  foil: string;
+  distance: number;
+  bestAccolades?: CrackedResultV1["bestAccolades"];
+}) {
+  const claim = crackednessClaim(percentiles, cohortLabel, result.league?.age);
+
+  return (
+    <div
+      className="grid h-full grid-cols-[46%_1fr] grid-rows-[minmax(0,0.9fr)_auto_auto_minmax(0,0.55fr)_auto] gap-x-4 gap-y-3"
+      style={{ transform: "translateZ(42px)" }}
+    >
+      <div className="col-span-2" />
+
+      <div className="min-w-0 self-center">
+        <PortraitPanel
+          photoUrl={photoUrl}
+          name={result.name}
+          tier={tier}
+          metal={metal}
+          accent={accent}
+        />
+        <div
+          className="mt-3 px-2 text-center leading-tight"
+          style={{
+            fontFamily: "var(--font-cinzel)",
+            fontWeight: 800,
+            fontSize: result.name.length > 22 ? 12 : 15,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            background: foil,
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent",
+            textShadow: `0 0 14px ${withAlpha(metal, 0.45)}`,
+            filter: "drop-shadow(0 1px 0 rgba(0,0,0,0.55))",
+          }}
+        >
+          {result.name}
+        </div>
+        <div
+          className="mt-1 text-center text-[8px] tracking-[0.24em] uppercase"
+          style={{ fontFamily: "var(--font-plex-mono)", color: withAlpha("#FFFAF2", 0.5) }}
+        >
+          {familyMeta.shortName}
+          {secondary ? ` + ${FAMILIES_META[secondary].shortName}` : ""}
+        </div>
+        <FrontAccoladeStrip accolades={bestAccolades} metal={metal} accent={accent} />
+      </div>
+
+      <div className="min-w-0 self-center flex flex-col">
+        <GradePanel
+          tier={tier}
+          tierStars={tierStars}
+          intensity={intensity}
+          metal={metal}
+          accent={accent}
+          foil={foil}
+          distance={distance}
+        />
+      </div>
+
+      <div className="col-start-2 min-w-0">
+        <RightStats
+          subtitle={intensity.subtitle}
+          cohortLabel={cohortLabel}
+          family={family}
+          percentiles={percentiles}
+          metal={metal}
+        />
+      </div>
+
+      <CohortDominance claim={claim} metal={metal} accent={accent} />
+    </div>
+  );
+}
+
+function FrontAccoladeStrip({
+  accolades,
+  metal,
+  accent,
+}: {
+  accolades?: CrackedResultV1["bestAccolades"];
+  metal: string;
+  accent: string;
+}) {
+  const items = (accolades ?? []).slice(0, 3);
+  if (items.length === 0) return <div className="col-span-2" />;
+
+  return (
+    <div className="mt-4 text-left" style={{ transform: "translateZ(16px)" }}>
+      <div
+        className="font-mono text-[8px] uppercase tracking-[0.26em]"
+        style={{ color: withAlpha(metal, 0.62) }}
+      >
+        most cracked signal
+      </div>
+      <div className="mt-2 grid gap-1.5">
+        {items.map((item, i) => (
+          <div key={`${item.title}-${i}`} className="grid grid-cols-[18px_1fr] items-baseline gap-2">
+            <span
+              className="font-mono text-[8px]"
+              style={{ color: withAlpha(accent, 0.82), textShadow: `0 0 10px ${withAlpha(accent, 0.35)}` }}
+            >
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span
+              className="font-display text-[12px] uppercase leading-tight text-cream"
+              style={{ textShadow: "0 2px 0 rgba(0,0,0,0.42)" }}
+            >
+              {item.title}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PortraitPanel({
+  photoUrl,
+  name,
+  tier,
+  metal,
+  accent,
+}: {
+  photoUrl?: string;
+  name: string;
+  tier: Tier;
   metal: string;
   accent: string;
 }) {
   return (
     <div
-      className="flex items-start justify-between gap-2"
-      style={{ transform: "translateZ(22px)" }}
+      className="relative aspect-[1/1.12] overflow-hidden rounded-2xl border-[2px]"
+      style={{
+        borderColor: withAlpha(metal, 0.46),
+        background: `linear-gradient(135deg, ${withAlpha(accent, 0.25)}, rgba(0,0,0,0.5))`,
+        boxShadow: `0 0 22px ${withAlpha(metal, 0.18)}, inset 0 0 18px rgba(0,0,0,0.5)`,
+      }}
     >
+      {photoUrl ? (
+        <>
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url(${photoUrl})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center 24%",
+              filter: tierPhotoFilter(tier),
+              transform: "scale(1.04)",
+            }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(180deg, rgba(0,0,0,0.04) 0%, ${withAlpha(accent, 0.16)} 45%, rgba(0,0,0,0.38) 100%)`,
+              mixBlendMode: "multiply",
+            }}
+          />
+        </>
+      ) : (
+        <div
+          className="absolute inset-0 grid place-items-center font-display text-5xl"
+          style={{ color: metal }}
+        >
+          {name.slice(0, 1).toUpperCase() || "?"}
+        </div>
+      )}
       <div
-        className="flex items-center gap-2 px-2.5 py-1.5 rounded-sm min-w-0"
+        className="absolute inset-0 pointer-events-none"
         style={{
-          background: withAlpha(accent, 0.10),
-          border: `1px solid ${withAlpha(accent, 0.4)}`,
+          background: `linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.18) 48%, transparent 56%)`,
+          mixBlendMode: "screen",
         }}
-      >
+      />
+    </div>
+  );
+}
+
+function TopCornerLabels({
+  familyMeta,
+  secondary,
+  speciality,
+  metal,
+  accent,
+}: {
+  familyMeta: typeof FAMILIES_META[Family];
+  secondary?: Family;
+  speciality?: string;
+  metal: string;
+  accent: string;
+}) {
+  return (
+    <div
+      className="pointer-events-none absolute inset-x-5 top-4 z-30 flex items-start justify-between gap-4"
+      style={{ transform: "translateZ(58px)" }}
+    >
+      <div className="flex items-start gap-2 min-w-0">
         <span
           style={{
             color: accent,
-            fontSize: 18,
+            fontSize: 15,
             lineHeight: 1,
-            textShadow: `0 0 8px ${withAlpha(accent, 0.7)}`,
+            textShadow: `0 0 8px ${withAlpha(accent, 0.75)}`,
           }}
         >
           {familyMeta.glyph}
         </span>
-        <div className="flex flex-col leading-tight min-w-0">
-          <span
-            className="text-[8px] tracking-[0.26em] uppercase truncate"
-            style={{
-              fontFamily: "var(--font-plex-mono)",
-              color: withAlpha("#FFFAF2", 0.65),
-            }}
+        <div className="min-w-0 leading-tight">
+          <div
+            className="text-[8px] tracking-[0.22em] uppercase truncate"
+            style={{ fontFamily: "var(--font-plex-mono)", color: withAlpha(metal, 0.78) }}
           >
-            &ldquo;{familyMeta.shortName}&rdquo;
-            {secondary && (
-              <span style={{ color: withAlpha("#FFFAF2", 0.4) }}>
-                {" · also "}
-                {FAMILIES_META[secondary].shortName}
-              </span>
-            )}
-          </span>
-          <span
-            className="text-[11px] tracking-[0.12em] uppercase truncate"
+            profile class
+          </div>
+          <div
+            className="text-[11px] tracking-[0.08em] uppercase truncate"
             style={{ fontFamily: "var(--font-cinzel)", color: "#FFFAF2" }}
           >
             {familyMeta.name}
-          </span>
+            {secondary ? ` + ${FAMILIES_META[secondary].shortName}` : ""}
+          </div>
         </div>
       </div>
-      <div className="flex flex-col items-end gap-0.5 shrink-0">
-        <div
-          className="text-[8px] tracking-[0.22em] uppercase leading-none"
-          style={{ fontFamily: "var(--font-plex-mono)", color: withAlpha(metal, 0.85) }}
-        >
-          LOT {serial.slice(0, 4).toUpperCase()}
+
+      {speciality && (
+        <div className="max-w-[48%] text-right leading-tight">
+          <div
+            className="text-[8px] tracking-[0.22em] uppercase"
+            style={{ fontFamily: "var(--font-plex-mono)", color: withAlpha(metal, 0.72) }}
+          >
+            speciality
+          </div>
+          <div
+            className="text-[12px] tracking-[0.04em] uppercase"
+            style={{ fontFamily: "var(--font-cinzel)", color: "#FFFAF2", textShadow: `0 0 12px ${withAlpha(metal, 0.24)}` }}
+          >
+            {speciality}
+          </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+function GradePanel({
+  tier,
+  tierStars,
+  intensity,
+  metal,
+  accent: _accent,
+  foil,
+  distance,
+}: {
+  tier: Tier;
+  tierStars?: TierStars;
+  intensity: TierIntensity;
+  metal: string;
+  accent: string;
+  foil: string;
+  distance: number;
+}) {
+  const tierLabel = tier === "ASCENDED" ? "ASCENDED" : tier === "MYTHIC" ? "MYTHIC" : tier;
+  const isSpecial = isSpecialTier(tier);
+  const ca = Math.min(2.6, 1 + distance * 1.6);
+
+  return (
+    <div className="relative px-1 text-center">
+      <div className="font-mono text-[9px] font-bold uppercase tracking-[0.34em]" style={{ color: withAlpha(metal, 0.78) }}>
+        tier
+      </div>
+      {supportsTierCrowns(tier) && tierStars && (
         <div
-          className="text-[9px] tracking-[0.18em] uppercase mt-0.5 px-1.5 py-0.5 rounded"
+          className="relative mt-2 flex justify-center gap-2 px-4 py-1.5"
+        >
+          {Array.from({ length: 3 }, (_, i) => (
+            <span
+              key={i}
+              className="relative"
+              style={{
+                color: i < tierStars ? metal : withAlpha(metal, 0.2),
+                fontSize: 24,
+                lineHeight: 1,
+                textShadow: i < tierStars
+                  ? `0 0 7px ${withAlpha(metal, 0.95)}, 0 0 14px ${withAlpha("#FF3B1F", 0.9)}, 0 0 24px ${withAlpha("#FF9A1F", 0.65)}`
+                  : undefined,
+                animation: i < tierStars ? `holoV2CrownFlame 1.6s ease-in-out ${i * 0.18}s infinite` : undefined,
+              }}
+            >
+              {CROWN_GLYPH}
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="relative mt-1 inline-block">
+        <div
+          className="relative leading-none whitespace-nowrap"
           style={{
-            fontFamily: "var(--font-plex-mono)",
-            color: metal,
-            border: `1px solid ${withAlpha(metal, 0.45)}`,
-            background: "rgba(0,0,0,0.45)",
+            fontFamily: "var(--font-cinzel)",
+            fontWeight: 900,
+            fontSize: isSpecial ? 38 : 118,
+            letterSpacing: isSpecial ? "0.04em" : "-0.04em",
+            background: foil,
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent",
+            filter: `drop-shadow(0 0 26px ${withAlpha(metal, 0.9)}) drop-shadow(0 5px 0 rgba(0,0,0,0.62))`,
+            animation: intensity.level >= 0.7 ? "holoV2TierGlow 3.4s ease-in-out infinite" : undefined,
           }}
         >
-          {cohortLabel}
+          {tierLabel}
+        </div>
+        <div
+          className="absolute inset-0 leading-none pointer-events-none whitespace-nowrap"
+          aria-hidden
+          style={{
+            fontFamily: "var(--font-cinzel)",
+            fontWeight: 900,
+            fontSize: isSpecial ? 38 : 118,
+            letterSpacing: isSpecial ? "0.04em" : "-0.04em",
+            color: "transparent",
+            textShadow: `${-ca}px 0 0 ${withAlpha("#FF00B8", 0.45)}, ${ca}px 0 0 ${withAlpha("#00E0FF", 0.45)}`,
+            opacity: 0.45,
+            zIndex: -1,
+          }}
+        >
+          {tierLabel}
         </div>
       </div>
     </div>
   );
 }
 
+function RightStats({
+  subtitle,
+  cohortLabel,
+  family,
+  percentiles,
+  metal,
+}: {
+  subtitle: string;
+  cohortLabel: string;
+  family: Family;
+  percentiles: Trio;
+  metal: string;
+}) {
+  const meta = FAMILIES_META[family];
+  const claim = crackednessClaim(percentiles, cohortLabel);
+  return (
+    <div className="mt-3 grid gap-2 border-t border-white/10 pt-3">
+      <StatLine label="rarity" value={subtitle} metal={metal} />
+      <StatLine label="field" value={meta.shortName} metal={metal} />
+      <StatLine label="cohort" value={claim.ageNoun} metal={metal} />
+    </div>
+  );
+}
+
+function StatLine({
+  label,
+  value,
+  metal,
+}: {
+  label: string;
+  value: string;
+  metal: string;
+}) {
+  return (
+    <div className="grid grid-cols-[52px_1fr] items-baseline gap-2">
+      <div className="font-mono text-[7px] uppercase tracking-[0.22em]" style={{ color: withAlpha(metal, 0.62) }}>
+        {label}
+      </div>
+      <div className="font-display text-[10px] uppercase leading-tight text-cream text-left">
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function CohortDominance({
+  claim,
+  metal,
+  accent,
+}: {
+  claim: { topLabel: string; ageNoun: string };
+  metal: string;
+  accent: string;
+}) {
+  return (
+    <div className="col-span-2 self-end pb-2 text-center" style={{ transform: "translateZ(22px)" }}>
+      <div
+        className="font-mono text-[8px] font-bold uppercase tracking-[0.36em]"
+        style={{ color: withAlpha(metal, 0.75) }}
+      >
+        cohort dominance
+      </div>
+      <div
+        className="mt-1 font-display tabular-nums leading-none"
+        style={{
+          fontSize: 46,
+          color: metal,
+          textShadow: `0 0 18px ${withAlpha(metal, 0.7)}, 0 0 42px ${withAlpha(accent, 0.32)}, 0 3px 0 rgba(0,0,0,0.42)`,
+        }}
+      >
+        TOP {claim.topLabel}%
+      </div>
+      <div
+        className="mt-1 font-display text-[18px] uppercase tracking-[0.05em] leading-tight text-cream"
+        style={{ textShadow: "0 3px 0 rgba(0,0,0,0.5), 0 0 18px rgba(255,255,255,0.15)" }}
+      >
+        most cracked {claim.ageNoun}
+      </div>
+    </div>
+  );
+}
+
+function crackednessClaim(percentiles: Trio, cohortLabel: string, age?: number) {
+  const top = 100 - percentiles.withinFamilyCohort;
+  let topLabel: string;
+  if (top < 0.1) topLabel = top.toFixed(3);
+  else if (top < 1) topLabel = top.toFixed(2);
+  else if (top < 10) topLabel = top.toFixed(1);
+  else topLabel = String(Math.round(top));
+
+  const ageNoun =
+    age && age > 0
+      ? `${age}-year-olds`
+      : cohortLabel.toLowerCase().includes("age")
+        ? cohortLabel.toLowerCase()
+        : `${cohortLabel} year olds`;
+
+  return { topLabel, ageNoun };
+}
+
 // =============================================================================
-// HERO BLOCK — photo + tier+stars+laurel lockup
+// HERO BLOCK - photo + tier+stars+laurel lockup
 // =============================================================================
 
 function HeroBlock({
@@ -910,7 +1293,7 @@ function HeroBlock({
       className="flex-1 flex flex-col items-center justify-center relative my-1"
       style={{ transform: "translateZ(48px)" }}
     >
-      {/* Photo background — Ken Burns drift, family tinted */}
+      {/* Photo background - Ken Burns drift, family tinted */}
       {photoUrl && (
         <div
           className="absolute inset-0 rounded-2xl overflow-hidden"
@@ -966,8 +1349,8 @@ function HeroBlock({
         <LaurelHalf side="left" color={metal} size={48} />
 
         <div className="relative flex flex-col items-center">
-          {/* Stars row */}
-          {!isSpecial && tierStars && (
+          {/* Crowns row (A/S only) */}
+          {supportsTierCrowns(tier) && tierStars && (
             <div className="flex gap-1 mb-1">
               {Array.from({ length: 3 }, (_, i) => (
                 <span
@@ -986,7 +1369,7 @@ function HeroBlock({
                         : undefined,
                   }}
                 >
-                  ★
+                  {CROWN_GLYPH}
                 </span>
               ))}
             </div>
@@ -1187,9 +1570,7 @@ function Footer({
     >
       <span>{id.slice(0, 6)} · ∞</span>
       <span style={{ color: withAlpha(metal, 0.7) }}>cracked.com · v1</span>
-      {interactive && (
-        <span style={{ color: withAlpha(metal, 0.85) }}>↻ tap to flip</span>
-      )}
+      {interactive && <span style={{ color: withAlpha(metal, 0.85) }}>interactive</span>}
     </div>
   );
 }
@@ -1295,7 +1676,7 @@ function BorderFrame({
       </>
     );
   }
-  // molten — ASCENDED layered amber → coral filigree
+  // molten - ASCENDED layered amber → coral filigree
   return (
     <>
       <div
@@ -1461,7 +1842,7 @@ function renderOrnament(kind: string, metal: string) {
 // =============================================================================
 
 function Microprint({ result, metal }: { result: CrackedResultV1; metal: string }) {
-  const text = `★ ${result.name.toUpperCase()} · LOT ${result.id.slice(0, 4).toUpperCase()} · TIER ${formatTier(result.tier, result.tierStars)} · CRACKED v1 · `;
+  const text = `${CROWN_GLYPH} ${result.name.toUpperCase()} · LOT ${result.id.slice(0, 4).toUpperCase()} · TIER ${formatTier(result.tier, result.tierStars)} · CRACKED v1 · `;
   const repeated = text.repeat(3);
   return (
     <div

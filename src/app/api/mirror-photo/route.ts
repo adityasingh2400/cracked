@@ -1,12 +1,12 @@
 // POST /api/mirror-photo
 //
-// Accepts { sourceUrl: string } — a *.licdn.com profile image URL the
+// Accepts { sourceUrl: string } - a *.licdn.com profile image URL the
 // bookmarklet / Chrome extension scraped from the user's own logged-in
 // LinkedIn session. Downloads it, validates, mirrors to Vercel Blob
 // (or KV-base64 as a v1.0 fallback if @vercel/blob isn't provisioned).
 // Returns { url: string } pointing to the stable mirror.
 //
-// Why mirror at all? LinkedIn (*.licdn.com) hot-linking is unreliable —
+// Why mirror at all? LinkedIn (*.licdn.com) hot-linking is unreliable -
 // they rotate URLs, expire tokens, and serve different sizes per session.
 // Mirroring once to a stable URL means the share card survives.
 //
@@ -14,6 +14,9 @@
 // scrape anyone else's photo.
 
 import { NextRequest, NextResponse } from "next/server";
+import { mkdir, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { nanoid } from "nanoid";
 
 export const runtime = "nodejs";
 export const maxDuration = 15;
@@ -122,16 +125,22 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Fallback: data URL. Inline-encodes the image into the URL response.
-  // Caller stores this URL on result.photoUrl. The share blob carries the
-  // full base64 image — ~150KB extra in the encoded URL. Still under the
-  // 8KB-after-gzip limit for typical profile photos thanks to gzip.
-  const b64 = Buffer.from(buffer).toString("base64");
-  const dataUrl = `data:${contentType};base64,${b64}`;
-  return NextResponse.json({ url: dataUrl, mode: "data-url-fallback" }, { status: 200 });
+  // Dev fallback: keep the share blob lean by serving a local generated file.
+  if (process.env.NODE_ENV !== "production") {
+    const ext = contentType.split("/")[1].replace("jpeg", "jpg");
+    const dir = join(process.cwd(), "public", "generated");
+    await mkdir(dir, { recursive: true });
+    const filename = `profile-${Date.now()}-${nanoid(6)}.${ext}`;
+    await writeFile(join(dir, filename), Buffer.from(buffer));
+    return NextResponse.json({ url: `/generated/${filename}`, mode: "local-file-fallback" }, { status: 200 });
+  }
+
+  // In production, omit the photo if Blob is not configured rather than
+  // embedding base64 in /c/<encoded>, which can trigger HTTP 431.
+  return NextResponse.json({ url: "", mode: "omitted-no-blob" }, { status: 200 });
 }
 
-// CORS preflight — bookmarklet runs on linkedin.com so requests are cross-origin.
+// CORS preflight - bookmarklet runs on linkedin.com so requests are cross-origin.
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,

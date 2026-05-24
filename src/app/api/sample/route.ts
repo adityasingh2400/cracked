@@ -3,7 +3,7 @@
 // preview a card without uploading a PDF.
 
 import { NextRequest, NextResponse } from "next/server";
-import { encodeResult } from "@/lib/encode";
+import { persistShareResult, sharePath } from "@/lib/share-store";
 import { placeInLeague } from "@/lib/leagues";
 import { buildCrackedResult, signalScoreForTier } from "@/lib/result-scoring";
 import type { CrackedResultV1, ExtractedSignals, Tier, TierStars } from "@/lib/types";
@@ -57,6 +57,21 @@ export async function GET(req: NextRequest) {
     modelUsed: mega ? "claude" : "regex-fallback",
     userAge: 23,
     speciality: mega ? "Frontier AI Researcher + Founder" : "AI Startup Founder",
+    bestAccolades: mega
+      ? [
+          { title: "MIT EECS + Stanford PhD", detail: "Elite technical pedigree", family: "science_academia" },
+          { title: "Anthropic Founding Engineer", detail: "Frontier AI lab operator", family: "engineering" },
+          { title: "IMO Gold + Putnam Fellow", detail: "Rare math competition stack", family: "science_academia" },
+          { title: "$50M Series B Founder", detail: "Venture-backed company builder", family: "founder" },
+          { title: "NeurIPS + Nature First Author", detail: "Top-tier research output", family: "science_academia" },
+        ]
+      : [
+          { title: "Stanford CS", detail: "Core technical pedigree", family: "science_academia" },
+          { title: "Anthropic MTS", detail: "Frontier AI engineering signal", family: "engineering" },
+          { title: "YC W25 Founder", detail: "Startup batch signal", family: "founder" },
+          { title: "NeurIPS Co-Author", detail: "Research publication signal", family: "science_academia" },
+          { title: "$1.5M Seed Round", detail: "Early funding traction", family: "founder" },
+        ],
     scoringTier: mega ? "anthropic-api" : "regex-fallback",
     calibrating: !mega,
   });
@@ -67,8 +82,8 @@ export async function GET(req: NextRequest) {
     result = overrideGrade(result, g);
   }
 
-  const encoded = encodeResult(result);
-  return NextResponse.json({ encoded, result });
+  await persistShareResult(result);
+  return NextResponse.json({ encoded: result.id, shareUrl: sharePath(result), result });
 }
 
 const GRADE_MAP: Record<string, { tier: Tier; stars?: TierStars; verdict: string; flavor: string }> = {

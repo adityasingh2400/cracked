@@ -1,4 +1,4 @@
-// Law & Public Service family — starter achievement library for v1.0 launch.
+// Law & Public Service family - starter achievement library for v1.0 launch.
 
 import type { Achievement, Chain } from "@/lib/types";
 
@@ -169,7 +169,7 @@ export const LAW_PUBLIC_SERVICE_CHAINS: Chain[] = [
     family: "law_public_service",
     requires: ["lps_yls_hls", "lps_scotus_clerk"],
     bumpTo: "ASCENDED",
-    description: "Top-3 law school + SCOTUS clerkship — the lifetime credential.",
+    description: "Top-3 law school + SCOTUS clerkship - the lifetime credential.",
   },
   {
     id: "lps_chain_biglaw_partner_track",
@@ -177,7 +177,7 @@ export const LAW_PUBLIC_SERVICE_CHAINS: Chain[] = [
     family: "law_public_service",
     requires: ["lps_t14_law", "lps_biglaw_associate", "lps_biglaw_partner"],
     bumpTo: "ASCENDED",
-    description: "T14 JD → BigLaw associate → BigLaw partner — the 8-year canonical path.",
+    description: "T14 JD → BigLaw associate → BigLaw partner - the 8-year canonical path.",
   },
   {
     id: "lps_chain_west_point_special",

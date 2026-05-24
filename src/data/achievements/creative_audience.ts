@@ -1,4 +1,4 @@
-// Creative & Audience family — starter achievement library for v1.0 launch.
+// Creative & Audience family - starter achievement library for v1.0 launch.
 
 import type { Achievement, Chain } from "@/lib/types";
 
@@ -195,7 +195,7 @@ export const CREATIVE_AUDIENCE_CHAINS: Chain[] = [
     family: "creative_audience",
     requires: ["ca_new_yorker_byline", "ca_pulitzer"],
     bumpTo: "ASCENDED",
-    description: "Staff writer at The New Yorker + Pulitzer — the journalism apex.",
+    description: "Staff writer at The New Yorker + Pulitzer - the journalism apex.",
   },
   {
     id: "ca_chain_risd_pentagram",
@@ -203,7 +203,7 @@ export const CREATIVE_AUDIENCE_CHAINS: Chain[] = [
     family: "creative_audience",
     requires: ["ca_d_school_top", "ca_pentagram_partner"],
     bumpTo: "ASCENDED",
-    description: "RISD/Parsons + Pentagram partner — the design profession ladder.",
+    description: "RISD/Parsons + Pentagram partner - the design profession ladder.",
   },
   {
     id: "ca_chain_creator_brand",
@@ -211,7 +211,7 @@ export const CREATIVE_AUDIENCE_CHAINS: Chain[] = [
     family: "creative_audience",
     requires: ["ca_10m_creator", "ca_brand_billion_dollar"],
     bumpTo: "ASCENDED",
-    description: "10M+ audience + $1B brand — the modern category creator pattern.",
+    description: "10M+ audience + $1B brand - the modern category creator pattern.",
   },
   {
     id: "ca_chain_published_pulitzer",
@@ -219,6 +219,6 @@ export const CREATIVE_AUDIENCE_CHAINS: Chain[] = [
     family: "creative_audience",
     requires: ["ca_published_author_big5", "ca_pulitzer"],
     bumpTo: "ASCENDED",
-    description: "Big-5 published + Pulitzer — the literary apex.",
+    description: "Big-5 published + Pulitzer - the literary apex.",
   },
 ];

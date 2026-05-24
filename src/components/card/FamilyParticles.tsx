@@ -1,11 +1,11 @@
-// FamilyParticles — three particle categories mapped to the 9 career families.
+// FamilyParticles - three particle categories mapped to the 9 career families.
 // Replaces the generic ember layer. Tier-gates the density & motion so lower
 // tiers stay calm and the top tiers feel alive.
 //
 // CATEGORIES:
 //   rising:    embers floating upward (engineering, founder, finance, athletics)
 //   drift:     slow horizontal motes (science, medicine, consulting, law)
-//   code-rain: binary glyphs falling (creative_audience — the "creator" family)
+//   code-rain: binary glyphs falling (creative_audience - the "creator" family)
 
 import { useMemo } from "react";
 import type { Family, Tier } from "@/lib/types";
@@ -28,7 +28,7 @@ export const FAMILY_TO_CATEGORY: Record<Family, ParticleCategory> = {
 interface ParticleProps {
   family: Family;
   tier: Tier;
-  /** Deterministic seed — same card = same particle layout */
+  /** Deterministic seed - same card = same particle layout */
   seed: number;
 }
 
@@ -43,7 +43,7 @@ const TIER_DENSITY: Record<Tier, { count: number; brightness: number }> = {
   D:        { count: 0,  brightness: 0 },
 };
 
-// deterministic PRNG (mulberry32) — keeps particle layouts stable across renders
+// deterministic PRNG (mulberry32) - keeps particle layouts stable across renders
 function mulberry32(seed: number): () => number {
   let t = seed;
   return () => {

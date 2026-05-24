@@ -1,4 +1,4 @@
-// /preview — landing index for design preview pages.
+// /preview - landing index for design preview pages.
 
 import Link from "next/link";
 
@@ -8,16 +8,16 @@ const PAGES = [
   {
     href: "/preview/tiers",
     title: "The Tier Ladder",
-    subtitle: "All 7 tiers · D-1★ through ASCENDED",
+    subtitle: "All 7 tiers · D through ASCENDED",
     description:
-      "One sample person rendered through every tier so you can eyeball the progression — how sparkles, foil, halo, border, and corner ornaments ramp up.",
+      "One sample person rendered through every tier so you can eyeball the progression - how sparkles, foil, halo, border, and corner ornaments ramp up.",
   },
   {
     href: "/preview/champions",
     title: "The Champion Cabinet",
-    subtitle: "9 families · all at S-3★",
+    subtitle: "9 families · all at S-3♔",
     description:
-      "Same S-3★ rank rendered across all 9 career families so you can see how the per-family palette, glyph, motto, and metal (gold/silver/rose-gold) flow through the same card.",
+      "Same S-3♔ rank rendered across all 9 career families so you can see how the per-family palette, glyph, motto, and metal (gold/silver/rose-gold) flow through the same card.",
   },
 ];
 
@@ -55,7 +55,7 @@ export default function PreviewIndex() {
             className="mt-7 max-w-xl mx-auto text-[15px] italic leading-snug"
             style={{ fontFamily: "var(--font-cormorant)", color: "rgba(232,181,71,0.85)" }}
           >
-            Static test pages rendering HoloCardV2 with inline sample data — no encoded
+            Static test pages rendering HoloCardV2 with inline sample data - no encoded
             share URLs, no API calls. Use these to QA the card visuals during design
             iteration.
           </p>

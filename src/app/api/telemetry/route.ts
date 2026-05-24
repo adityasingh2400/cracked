@@ -1,4 +1,4 @@
-// POST /api/telemetry — selector telemetry for the bookmarklet.
+// POST /api/telemetry - selector telemetry for the bookmarklet.
 //
 // Per /plan-eng-review Section 2.4: always returns 204 No Content. Body is
 // fire-and-forget. Logs failures server-side; never blocks the user flow.
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       await recordTelemetry(sanitized);
     }
   } catch (err) {
-    // Silent — log but don't propagate.
+    // Silent - log but don't propagate.
     console.error("api/telemetry error:", err instanceof Error ? err.message : err);
   }
   // Always 204, regardless of internal success/failure.

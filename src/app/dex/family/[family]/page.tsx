@@ -1,4 +1,4 @@
-// /dex/family/[family] — vertical tier ladder for one career family.
+// /dex/family/[family] - vertical tier ladder for one career family.
 // ASCENDED → MYTHIC → S → A → B → C → D. Sunset Arcade chrome around the
 // existing data layer: chunky cherry shadows, arcade tier stamps, foil-
 // edged hero panel with the family glyph.
@@ -47,8 +47,8 @@ export async function generateMetadata({ params }: PageProps) {
   const meta = familyBySlug(slug);
   if (!meta) return { title: "Family not found" };
   return {
-    title: `${meta.name} — Cracked Dex`,
-    description: `${meta.motto} — what it takes to be ASCENDED through D in ${meta.name}.`,
+    title: `${meta.name} - Cracked Dex`,
+    description: `${meta.motto} - what it takes to be ASCENDED through D in ${meta.name}.`,
   };
 }
 
@@ -57,7 +57,7 @@ export default async function FamilyLadder({ params }: PageProps) {
   const meta = familyBySlug(slug);
   if (!meta) notFound();
 
-  // Placeholder synthetic distribution — replaced by real KV data once
+  // Placeholder synthetic distribution - replaced by real KV data once
   // T-API's empirical distributions land.
   const placeholderDistribution: Record<Tier, number> = {
     ASCENDED: 0.001,
@@ -81,7 +81,7 @@ export default async function FamilyLadder({ params }: PageProps) {
           ← all families
         </Link>
 
-        {/* HERO PANEL — chunky arcade card with foil edge */}
+        {/* HERO PANEL - chunky arcade card with foil edge */}
         <div
           className="relative rounded-3xl border-[3px] border-ink overflow-hidden mb-12"
           style={{
@@ -202,7 +202,7 @@ function TierRow({
         >
           {tier}
         </div>
-        {/* TierBadge from V1 — used for component-library parity (kept lightweight). */}
+        {/* TierBadge from V1 - used for component-library parity (kept lightweight). */}
         <div className="hidden sm:block opacity-0">
           <TierBadge tier={tier} size="sm" />
         </div>

@@ -1,4 +1,4 @@
-// FamilyBadge — the family glyph + name strip at the top of the card.
+// FamilyBadge - the family glyph + name strip at the top of the card.
 // 9 family variants with foil colors from FAMILIES_META.
 
 import clsx from "clsx";

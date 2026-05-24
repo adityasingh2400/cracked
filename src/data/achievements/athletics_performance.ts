@@ -1,4 +1,4 @@
-// Athletics & Performance family — starter achievement library for v1.0 launch.
+// Athletics & Performance family - starter achievement library for v1.0 launch.
 
 import type { Achievement, Chain } from "@/lib/types";
 
@@ -156,7 +156,7 @@ export const ATHLETICS_PERFORMANCE_CHAINS: Chain[] = [
     family: "athletics_performance",
     requires: ["ath_olympic_medal", "ath_pro_starter"],
     bumpTo: "ASCENDED",
-    description: "Olympic medalist + pro starter — career-defining athletic trajectory.",
+    description: "Olympic medalist + pro starter - career-defining athletic trajectory.",
   },
   {
     id: "ath_chain_conservatory_soloist",
@@ -164,7 +164,7 @@ export const ATHLETICS_PERFORMANCE_CHAINS: Chain[] = [
     family: "athletics_performance",
     requires: ["ath_juilliard_curtis", "ath_met_opera_soloist"],
     bumpTo: "ASCENDED",
-    description: "Top conservatory + Met/ABT soloist — the classical apex.",
+    description: "Top conservatory + Met/ABT soloist - the classical apex.",
   },
   {
     id: "ath_chain_d1_pro",
@@ -172,6 +172,6 @@ export const ATHLETICS_PERFORMANCE_CHAINS: Chain[] = [
     family: "athletics_performance",
     requires: ["ath_d1_athlete", "ath_pro_minor_league"],
     bumpTo: "MYTHIC",
-    description: "D1 athlete + pro contract — made it past college.",
+    description: "D1 athlete + pro contract - made it past college.",
   },
 ];

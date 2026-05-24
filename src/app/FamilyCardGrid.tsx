@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { FamilyMeta } from "@/data/families";
 import { confettiAt } from "./LandingFX";
 
-// Flip-card grid for the landing — front shows the family glyph + name + motto;
+// Flip-card grid for the landing - front shows the family glyph + name + motto;
 // back shows a slug-link to the full family ladder. Click anywhere on the card
 // to flip; click again to flip back.
 
@@ -51,7 +51,7 @@ function FlipCard({ meta }: { meta: FamilyMeta }) {
   };
 
   const onCardClick = (e: React.MouseEvent) => {
-    // Don't capture clicks on the back-side link — those should navigate.
+    // Don't capture clicks on the back-side link - those should navigate.
     const target = e.target as HTMLElement;
     if (target.closest("a")) return;
     e.preventDefault();

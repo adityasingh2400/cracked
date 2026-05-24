@@ -60,4 +60,26 @@ describe("share URL encoding", () => {
     expect(decodeResult("not-a-real-blob")).toBeNull();
     expect(decodeResult("")).toBeNull();
   });
+
+  it("strips oversized private extraction fields from share payloads", () => {
+    const encoded = encodeResult(fixture({
+      families: [{
+        family: "founder",
+        baseTier: "S",
+        chainTier: "D",
+        finalTier: "S",
+        tierStars: 3,
+        matched: Array.from({ length: 60 }, (_, i) => `matched-${i}`),
+        activeChains: Array.from({ length: 20 }, (_, i) => `chain-${i}`),
+      }],
+      // @ts-expect-error legacy/full server payloads may still carry raw signals before encoding.
+      signals: { raw_text: "x".repeat(20_000) },
+    }));
+    const decoded = decodeResult(encoded)!;
+
+    expect(encoded.length).toBeLessThan(3_500);
+    expect("signals" in decoded).toBe(false);
+    expect(decoded.families?.[0].matched).toHaveLength(12);
+    expect(decoded.families?.[0].activeChains).toHaveLength(6);
+  });
 });

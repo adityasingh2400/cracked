@@ -1,12 +1,12 @@
 // POST /api/place
 // Body: JSON { encoded: string, age: number }
-// Returns: { encoded, result } — the original result, re-placed in the league
+// Returns: { encoded, result } - the original result, re-placed in the league
 //          that matches the corrected age. Used by the "edit age" affordance
 //          on the result card so we don't re-run PDF extraction.
 
 import { NextRequest, NextResponse } from "next/server";
-import { decodeResult, encodeResult } from "@/lib/encode";
 import { placeInLeague } from "@/lib/leagues";
+import { persistShareResult, resolveShareResult, sharePath } from "@/lib/share-store";
 
 export const runtime = "nodejs";
 
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Age must be 8-100" }, { status: 400 });
     }
 
-    const result = decodeResult(encoded);
+    const result = await resolveShareResult(encoded);
     if (!result) {
       return NextResponse.json({ error: "Invalid encoded result" }, { status: 400 });
     }
@@ -37,8 +37,8 @@ export async function POST(req: NextRequest) {
     });
 
     const updated = { ...result, league };
-    const newEncoded = encodeResult(updated);
-    return NextResponse.json({ encoded: newEncoded, result: updated });
+    await persistShareResult(updated);
+    return NextResponse.json({ encoded: updated.id, shareUrl: sharePath(updated), result: updated });
   } catch (err) {
     console.error("/api/place failed:", err);
     const msg = err instanceof Error ? err.message : String(err);

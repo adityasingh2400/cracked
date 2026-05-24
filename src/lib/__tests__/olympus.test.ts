@@ -48,7 +48,7 @@ describe("tierIndex", () => {
   });
 });
 
-describe("computeOlympusScore — invariants", () => {
+describe("computeOlympusScore - invariants", () => {
   it("ASCENDED with no chains and 0 cohort_percentile still outranks MYTHIC with max chains and 100 cohort_percentile", () => {
     const ascendedMin = computeOlympusScore({
       tier: "ASCENDED",

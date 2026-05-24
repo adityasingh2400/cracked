@@ -16,7 +16,7 @@ export default function Leaderboard() {
           <span className="text-arcade-holo inline-block">FAME</span>
         </h1>
         <p className="mt-6 max-w-2xl mx-auto text-[16px] sm:text-[17px] font-serif italic text-ink-soft text-balance leading-snug">
-          Two boards. <span className="font-bold not-italic text-ink">Mount Olympus</span> is the all-time, cross-family top-100 (MYTHIC+ entry threshold). The <span className="font-bold not-italic text-ink">per-cohort</span> boards rank by age × family — a 17-year-old IMO medalist isn&apos;t competing with a 40-year-old MacArthur Fellow.
+          Two boards. <span className="font-bold not-italic text-ink">Mount Olympus</span> is the all-time, cross-family top-100 (MYTHIC+ entry threshold). The <span className="font-bold not-italic text-ink">per-cohort</span> boards rank by age × family - a 17-year-old IMO medalist isn&apos;t competing with a 40-year-old MacArthur Fellow.
         </p>
       </div>
 

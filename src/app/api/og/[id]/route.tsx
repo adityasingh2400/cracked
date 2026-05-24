@@ -1,4 +1,4 @@
-// GET /api/og/[id] — Open Graph image renderer.
+// GET /api/og/[id] - Open Graph image renderer.
 //
 // Per /plan-eng-review Section 1.1: Twitter/X/LinkedIn/iMessage scrapers fetch
 // this URL when someone shares a /c/<data> card link. Returns image/png at
@@ -9,7 +9,7 @@
 
 import { ImageResponse } from "next/og";
 import { StaticCard } from "@/components/StaticCard";
-import { decodeResult } from "@/lib/encode";
+import { resolveShareResult } from "@/lib/share-store";
 import type { Family, Tier, PercentileTrio, CrackedResultV1 } from "@/lib/types";
 import { FAMILIES_META } from "@/data/families";
 
@@ -18,11 +18,11 @@ import { FAMILIES_META } from "@/data/families";
 // share-URL encoding pipeline without rewriting it for the edge runtime.
 //
 // NOTE: `size` and `contentType` are NOT valid exports for arbitrary route
-// handlers — they're only meaningful in the `opengraph-image.tsx` file
+// handlers - they're only meaningful in the `opengraph-image.tsx` file
 // convention. We pass width/height directly to ImageResponse instead.
 export const runtime = "nodejs";
 
-// Fallback PNG when rendering fails — just the cracked.com brand.
+// Fallback PNG when rendering fails - just the cracked.com brand.
 function fallbackImage() {
   return new ImageResponse(
     (
@@ -59,7 +59,7 @@ export async function GET(
     // the same string. Decode and render.
     let result: CrackedResultV1 | null = null;
     try {
-      result = decodeResult(id) as CrackedResultV1 | null;
+      result = (await resolveShareResult(id)) as CrackedResultV1 | null;
     } catch {
       return fallbackImage();
     }

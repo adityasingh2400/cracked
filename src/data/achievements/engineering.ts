@@ -1,4 +1,4 @@
-// Engineering family — starter achievement library for v1.0 launch.
+// Engineering family - starter achievement library for v1.0 launch.
 //
 // This is a HAND-WRITTEN baseline of ~30 representative achievements + 5 chains
 // to ship Week 1a launchable. The full 18-agent research pass (per
@@ -9,7 +9,7 @@
 import type { Achievement, Chain } from "@/lib/types";
 
 export const ENGINEERING_ACHIEVEMENTS: Achievement[] = [
-  // -------- ASCENDED — lifetime-defining --------
+  // -------- ASCENDED - lifetime-defining --------
   {
     id: "eng_turing_award",
     family: "engineering",
@@ -26,7 +26,7 @@ export const ENGINEERING_ACHIEVEMENTS: Achievement[] = [
     tier: "ASCENDED",
     label: "Frontier-lab co-founder",
     description:
-      "Co-founded one of the labs that defines the frontier of AI — a lifetime-defining engineering bet.",
+      "Co-founded one of the labs that defines the frontier of AI - a lifetime-defining engineering bet.",
     signals: [{ kind: "company", match: ["Anthropic", "OpenAI", "DeepMind", "SSI"], title: ["Co-Founder", "Co-founder", "Founder"] }],
     evidence: ["Dario Amodei", "Ilya Sutskever", "Demis Hassabis"],
   },
@@ -36,7 +36,7 @@ export const ENGINEERING_ACHIEVEMENTS: Achievement[] = [
     tier: "ASCENDED",
     label: "Defining ML paper (first author)",
     description:
-      "First author on a paper that defined a generation of ML research — top of profession, lifetime achievement.",
+      "First author on a paper that defined a generation of ML research - top of profession, lifetime achievement.",
     signals: [
       { kind: "free_text", patterns: [/attention is all you need|alexnet|gpt-3|imagenet|transformer|resnet/i] },
       { kind: "publication", venue: ["NeurIPS", "Nature", "Science"], role: "first" },
@@ -44,7 +44,7 @@ export const ENGINEERING_ACHIEVEMENTS: Achievement[] = [
     evidence: ["Ashish Vaswani (Attention Is All You Need)", "Alec Radford (GPT)", "Alex Krizhevsky (AlexNet)"],
   },
 
-  // -------- MYTHIC — career-defining --------
+  // -------- MYTHIC - career-defining --------
   {
     id: "eng_frontier_lab_founding_eng",
     family: "engineering",
@@ -63,7 +63,7 @@ export const ENGINEERING_ACHIEVEMENTS: Achievement[] = [
     tier: "MYTHIC",
     label: "NeurIPS first author as PhD student",
     description:
-      "Top-tier ML conference first-author paper during PhD — career-defining signal.",
+      "Top-tier ML conference first-author paper during PhD - career-defining signal.",
     signals: [
       { kind: "publication", venue: ["NeurIPS", "ICML", "ICLR"], role: "first" },
       { kind: "school", match: ["PhD", "Ph.D"] },
@@ -82,12 +82,12 @@ export const ENGINEERING_ACHIEVEMENTS: Achievement[] = [
     evidence: ["Terence Tao (4x IMO medalist)", "Po-Shen Loh"],
   },
 
-  // -------- S — obviously cracked (top 1%) --------
+  // -------- S - obviously cracked (top 1%) --------
   {
     id: "eng_mit_caltech_cmu_cs",
     family: "engineering",
     tier: "S",
-    label: "MIT / Caltech / CMU SCS — CS degree",
+    label: "MIT / Caltech / CMU SCS - CS degree",
     description: "Top-3 CS schools globally.",
     signals: [
       { kind: "school", match: ["MIT", "Massachusetts Institute of Technology", "Caltech", "California Institute of Technology", "Carnegie Mellon"], regex: [/computer science|EECS|electrical engineering/i] },
@@ -108,7 +108,7 @@ export const ENGINEERING_ACHIEVEMENTS: Achievement[] = [
     family: "engineering",
     tier: "S",
     label: "Anthropic / OpenAI / DeepMind MTS",
-    description: "Member of Technical Staff at a frontier lab — top 1% of engineers globally.",
+    description: "Member of Technical Staff at a frontier lab - top 1% of engineers globally.",
     signals: [{ kind: "company", match: ["Anthropic", "OpenAI", "DeepMind", "SSI", "xAI"], title: ["Member of Technical Staff", "Research Engineer", "Research Scientist"] }],
     evidence: ["thousands of named researchers"],
   },
@@ -116,8 +116,8 @@ export const ENGINEERING_ACHIEVEMENTS: Achievement[] = [
     id: "eng_jane_street_two_sigma",
     family: "engineering",
     tier: "S",
-    label: "Jane Street / Two Sigma / Citadel — quant engineer",
-    description: "Top quant trading firms — extremely selective.",
+    label: "Jane Street / Two Sigma / Citadel - quant engineer",
+    description: "Top quant trading firms - extremely selective.",
     signals: [{ kind: "company", match: ["Jane Street", "Two Sigma", "Citadel", "Hudson River Trading", "DE Shaw", "Renaissance Technologies"] }],
     evidence: ["competitive programming alumni", "math olympiad medalists"],
   },
@@ -142,7 +142,7 @@ export const ENGINEERING_ACHIEVEMENTS: Achievement[] = [
     evidence: ["maintainers of: transformers, react, vite, tailwindcss, etc."],
   },
 
-  // -------- A — top 5-10% --------
+  // -------- A - top 5-10% --------
   {
     id: "eng_t10_cs_school",
     family: "engineering",
@@ -180,7 +180,7 @@ export const ENGINEERING_ACHIEVEMENTS: Achievement[] = [
     evidence: ["very large"],
   },
 
-  // -------- B — top 10-20% --------
+  // -------- B - top 10-20% --------
   {
     id: "eng_t25_cs_school",
     family: "engineering",
@@ -200,7 +200,7 @@ export const ENGINEERING_ACHIEVEMENTS: Achievement[] = [
     evidence: ["broad"],
   },
 
-  // -------- C — top 30-50% --------
+  // -------- C - top 30-50% --------
   {
     id: "eng_cs_degree_known_school",
     family: "engineering",
@@ -220,7 +220,7 @@ export const ENGINEERING_ACHIEVEMENTS: Achievement[] = [
     evidence: ["broad"],
   },
 
-  // -------- D — long tail --------
+  // -------- D - long tail --------
   {
     id: "eng_self_taught",
     family: "engineering",
@@ -239,7 +239,7 @@ export const ENGINEERING_CHAINS: Chain[] = [
     family: "engineering",
     requires: ["eng_stanford_cs", "eng_anthropic_openai_mts"],
     bumpTo: "MYTHIC",
-    description: "Stanford CS into a frontier lab — the canonical AI-era career path.",
+    description: "Stanford CS into a frontier lab - the canonical AI-era career path.",
   },
   {
     id: "eng_chain_mit_quant",
@@ -255,7 +255,7 @@ export const ENGINEERING_CHAINS: Chain[] = [
     family: "engineering",
     requires: ["eng_ioi_imo_gold", "eng_anthropic_openai_mts"],
     bumpTo: "ASCENDED",
-    description: "Olympiad medal followed by a frontier lab seat — lifetime-defining.",
+    description: "Olympiad medal followed by a frontier lab seat - lifetime-defining.",
   },
   {
     id: "eng_chain_papers_plus_lab",

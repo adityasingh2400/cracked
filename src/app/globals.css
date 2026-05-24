@@ -30,7 +30,7 @@
   }
 
   body {
-    /* Sunset Arcade — blush → peach → apricot → mango */
+    /* Sunset Arcade - blush → peach → apricot → mango */
     background:
       linear-gradient(180deg, var(--blush) 0%, var(--peach) 38%, var(--apricot) 78%, var(--mango) 100%);
     background-attachment: fixed;
@@ -38,7 +38,7 @@
     position: relative;
   }
 
-  /* Riso dot overlay — multiplies a tiny dot pattern over the entire page.
+  /* Riso dot overlay - multiplies a tiny dot pattern over the entire page.
      Sits above the gradient and below all content (z-index: 0). */
   body::before {
     content: "";
@@ -67,7 +67,7 @@
   .text-balance { text-wrap: balance; }
   .text-pretty  { text-wrap: pretty; }
 
-  /* Holographic headline — sweeping rainbow on a stroked outline.
+  /* Holographic headline - sweeping rainbow on a stroked outline.
      Used on hero CRACKED word and section accents. */
   .text-arcade-holo {
     background: linear-gradient(110deg,
@@ -111,7 +111,7 @@
     background: rgba(60, 31, 21, 0.18);
   }
 
-  /* Sticker stamp — pill with hard cherry drop shadow */
+  /* Sticker stamp - pill with hard cherry drop shadow */
   .arcade-stamp {
     display: inline-block;
     padding: 7px 16px;
@@ -147,7 +147,7 @@
     display: flex;
     gap: 40px;
     width: max-content;
-    animation: marquee 38s linear infinite;
+    animation: marquee 54s linear infinite;
     will-change: transform;
     font-family: var(--font-display), "Bowlby One", serif;
     font-size: 13px;
@@ -159,7 +159,7 @@
     display: inline-flex; align-items: center; gap: 16px;
   }
 
-  /* HoloCardV1 preserves its own dark gloss — isolate it from the page so
+  /* HoloCardV1 preserves its own dark gloss - isolate it from the page so
      its foil reads cleanly. */
   .holo-card-wrap { isolation: isolate; }
 

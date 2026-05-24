@@ -1,6 +1,6 @@
 "use client";
 
-// FamilyTile — arcade-styled card for /dex grid + adjacency rows.
+// FamilyTile - arcade-styled card for /dex grid + adjacency rows.
 // Cursor-tracked holographic foil (radial + conic), chunky ink border with
 // hard shadow, animated foil strip along the bottom edge.
 
@@ -109,7 +109,7 @@ export function FamilyTile({ meta }: { meta: FamilyMeta }) {
         </div>
       </div>
 
-      {/* Foil strip — animated */}
+      {/* Foil strip - animated */}
       <div
         className="absolute left-0 right-0 bottom-0 h-1.5 animate-holo-pan"
         style={{
