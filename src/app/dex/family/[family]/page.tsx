@@ -1,42 +1,17 @@
 // /dex/family/[family] - vertical tier ladder for one career family.
-// ASCENDED → MYTHIC → S → A → B → C → D. Sunset Arcade chrome around the
-// existing data layer: chunky cherry shadows, arcade tier stamps, foil-
-// edged hero panel with the family glyph.
+// ASCENDED → MYTHIC → S → A → B → C → D. Full achievement library +
+// chain combos from src/data/achievements/{family}.ts.
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FAMILIES_META, familyBySlug } from "@/data/families";
-import { TierBadge } from "@/components/card/TierBadge";
+import { libraryForFamily } from "@/data/achievements";
 import { TierDistributionPie } from "@/components/dex/TierDistributionPie";
 import { FamilyTile } from "@/components/dex/FamilyTile";
+import { TierLadder } from "@/components/dex/TierLadder";
+import { buildDexLadder } from "@/lib/dex-views";
+import { buildDexSampleResults } from "@/lib/dex-sample-results";
 import type { Tier } from "@/lib/types";
-
-const TIER_ORDER: Tier[] = ["ASCENDED", "MYTHIC", "S", "A", "B", "C", "D"];
-
-const TIER_DESCRIPTIONS: Record<Tier, string> = {
-  ASCENDED:
-    "the 0.001%. lifetime-defining stuff. Nobel Peace Prize. Unicorn founder ($1B+). NBA Champion. MacArthur Fellow. SCOTUS Justice. Capped at ~5-15 per family.",
-  MYTHIC:
-    "the 0.1%. unmistakable career-defining. IMO Gold. YC Series B+. SCOTUS clerk. Marshall Scholar. Olympic medalist. Pulitzer. Sloan Research Fellow. Top of LinkedIn-respectable.",
-  S: "the 1%. obviously cracked. Stanford + FAANG L5+. NeurIPS first-author. Goldman TMT analyst. McKinsey partner-track. BigLaw partner. Forbes 30U30.",
-  A: "the climbers' ceiling. Top 5-10%. Recognized institutional credentials with multiple S-adjacent moves.",
-  B: "the climbers. Top 10-20%. Stacked dossier, on the way up.",
-  C: "the believers. Real signal, on the way up. Top 30-50%.",
-  D: "the long tail. Signals haven't shown up yet. Day one is the best day to start.",
-};
-
-// Per-tier accent colors for the arcade tier stamp. ASCENDED/MYTHIC use the
-// premium gradient treatments; S/A/B grade down the warm spectrum; C/D fade
-// toward ink so the visual hierarchy mirrors the rarity hierarchy.
-const TIER_ACCENT: Record<Tier, { bg: string; color: string }> = {
-  ASCENDED: { bg: "linear-gradient(135deg, #FFE5A8 0%, #E8B547 50%, #B98A2E 100%)", color: "#3C1F15" },
-  MYTHIC:   { bg: "linear-gradient(135deg, #FF6B5C 0%, #FFC53D 100%)", color: "#3C1F15" },
-  S:        { bg: "#FF6B5C", color: "#FFFAF2" },
-  A:        { bg: "#FFA532", color: "#3C1F15" },
-  B:        { bg: "#FFC53D", color: "#3C1F15" },
-  C:        { bg: "#9C7560", color: "#FFFAF2" },
-  D:        { bg: "#6E3F2E", color: "#FFFAF2" },
-};
 
 interface PageProps {
   params: Promise<{ family: string }>;
@@ -57,8 +32,15 @@ export default async function FamilyLadder({ params }: PageProps) {
   const meta = familyBySlug(slug);
   if (!meta) notFound();
 
-  // Placeholder synthetic distribution - replaced by real KV data once
-  // T-API's empirical distributions land.
+  const library = libraryForFamily(meta.key);
+  const ladder = buildDexLadder(meta, library.achievements, library.chains);
+  const sampleResultsByTier = buildDexSampleResults(
+    meta,
+    ladder.achievementsByTier,
+    ladder.chainsByTier
+  );
+
+  // Synthetic distribution — replaced by real KV data once empirical distributions land.
   const placeholderDistribution: Record<Tier, number> = {
     ASCENDED: 0.001,
     MYTHIC: 0.1,
@@ -73,7 +55,7 @@ export default async function FamilyLadder({ params }: PageProps) {
 
   return (
     <div className="px-5 sm:px-8 pt-10 sm:pt-14 pb-24">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         <Link
           href="/dex"
           className="inline-flex items-center gap-2 font-mono text-[11px] font-bold tracking-[0.18em] uppercase text-ink-soft hover:text-cherry transition mb-7"
@@ -81,7 +63,7 @@ export default async function FamilyLadder({ params }: PageProps) {
           ← all families
         </Link>
 
-        {/* HERO PANEL - chunky arcade card with foil edge */}
+        {/* HERO PANEL */}
         <div
           className="relative rounded-3xl border-[3px] border-ink overflow-hidden mb-12"
           style={{
@@ -116,12 +98,19 @@ export default async function FamilyLadder({ params }: PageProps) {
               <p className="text-[15px] text-ink mt-4 leading-relaxed">
                 {meta.description}
               </p>
+              <div className="flex flex-wrap gap-2 mt-4">
+                <span className="arcade-stamp text-[10px]" style={{ background: "var(--marigold)" }}>
+                  {ladder.stats.achievements} achievements
+                </span>
+                <span className="arcade-stamp text-[10px]" style={{ background: "var(--cherry)", color: "var(--paper)" }}>
+                  {ladder.stats.chains} chains
+                </span>
+              </div>
             </div>
             <div className="shrink-0">
               <TierDistributionPie distribution={placeholderDistribution} />
             </div>
           </div>
-          {/* Foil strip */}
           <div
             className="absolute left-0 right-0 bottom-0 h-2 animate-holo-pan"
             style={{
@@ -131,21 +120,11 @@ export default async function FamilyLadder({ params }: PageProps) {
           />
         </div>
 
-        {/* TIER LADDER */}
+        {/* TIER LADDER — full achievement + chain library */}
         <div className="font-mono text-[11px] font-bold tracking-[0.28em] uppercase text-cherry-deep mb-5">
           // THE LADDER · TOP TO BOTTOM //
         </div>
-        <div className="flex flex-col gap-5">
-          {TIER_ORDER.map((tier, i) => (
-            <TierRow
-              key={tier}
-              tier={tier}
-              description={TIER_DESCRIPTIONS[tier]}
-              accent={TIER_ACCENT[tier]}
-              rotate={i % 2 === 0 ? -0.4 : 0.5}
-            />
-          ))}
-        </div>
+        <TierLadder ladder={ladder} sampleResultsByTier={sampleResultsByTier} />
 
         {adjacent.length > 0 && (
           <div className="mt-16">
@@ -161,61 +140,6 @@ export default async function FamilyLadder({ params }: PageProps) {
         )}
       </div>
     </div>
-  );
-}
-
-function TierRow({
-  tier,
-  description,
-  accent,
-  rotate,
-}: {
-  tier: Tier;
-  description: string;
-  accent: { bg: string; color: string };
-  rotate: number;
-}) {
-  return (
-    <section
-      className="flex items-start gap-5 rounded-2xl p-5 border-[3px] border-ink"
-      data-tier-row={tier}
-      style={{
-        background: "var(--cream)",
-        boxShadow: "5px 5px 0 var(--ink)",
-        transform: `rotate(${rotate}deg)`,
-      }}
-    >
-      <div className="shrink-0 flex flex-col items-center gap-2">
-        <div
-          className="rounded-xl border-[3px] border-ink grid place-items-center font-display leading-none"
-          style={{
-            width: 72,
-            height: 72,
-            background: accent.bg,
-            color: accent.color,
-            boxShadow: "3px 3px 0 var(--ink)",
-            fontSize: tier === "ASCENDED" ? 14 : tier === "MYTHIC" ? 16 : 32,
-            letterSpacing: tier === "ASCENDED" || tier === "MYTHIC" ? "0.05em" : "0",
-            textAlign: "center",
-            padding: tier === "ASCENDED" || tier === "MYTHIC" ? "4px 6px" : 0,
-          }}
-        >
-          {tier}
-        </div>
-        {/* TierBadge from V1 - used for component-library parity (kept lightweight). */}
-        <div className="hidden sm:block opacity-0">
-          <TierBadge tier={tier} size="sm" />
-        </div>
-      </div>
-      <div className="flex-1 pt-1">
-        <div className="font-serif italic text-[15px] text-ink-soft leading-snug mb-3">
-          {description}
-        </div>
-        <div className="font-mono text-[11px] font-bold tracking-[0.18em] uppercase text-ink-fade">
-          achievement library generating · check back during launch week
-        </div>
-      </div>
-    </section>
   );
 }
 

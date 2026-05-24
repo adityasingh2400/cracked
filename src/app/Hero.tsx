@@ -68,7 +68,7 @@ export function Hero() {
         className="mt-8 max-w-xl mx-auto text-[17px] sm:text-[19px] font-serif italic text-ink-soft leading-snug text-balance opacity-0"
         style={{ animation: "heroFadeIn 0.8s ease 1.4s forwards" }}
       >
-        Drop your LinkedIn or screenshots. We weigh every signal - schools, jobs, hackathons, fellowships, open source - and place you on one of nine family ladders, from D to{" "}
+        Drop your LinkedIn or screenshots. We read your schools, jobs, awards, and credentials — then place you on one of nine career paths, from D to{" "}
         <span className="text-arcade-holo font-bold not-italic">ASCENDED</span>.
       </p>
     </section>

@@ -1,0 +1,20 @@
+---
+description: Always rebuild, test routes, and self-review before marking work complete
+alwaysApply: true
+---
+
+# Verify Before Done
+
+Before saying a task is complete (especially UI or server changes):
+
+1. **Clean rebuild** — If dev was running, stop stale servers first. Then `rm -rf .next && npm run build`. Do not delete `.next` while an old `next dev` is still bound to the user's port (causes 500 / ENOENT on localhost:3000).
+
+2. **Restart dev cleanly** — Kill processes on the target port, then `npm run dev`. Confirm the URL the user uses (usually `:3000`) matches the running server.
+
+3. **Test rendering** — Hit every route you touched plus the app root. Expect HTTP 200 and no "Internal Server Error". Browser-check at least one representative page when UI changed.
+
+4. **Run tests** — `npm test` when logic or data layers changed.
+
+5. **Self-review (2–3 passes)** — Before implementing fixes, think through 2–3 alternative approaches and pick the simplest that meets the goal. After implementing, re-read the diff once for regressions and once for missed edge cases (cross-family refs, serialization across server/client boundary, stale cache).
+
+Do not report done until build passes and verified routes return 200.
