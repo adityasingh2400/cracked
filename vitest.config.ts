@@ -35,6 +35,10 @@ export default defineConfig({
         "src/app/**", // Next.js routes covered by Playwright E2E
         "extension/**",
         "scripts/**", // generation orchestrator covered separately
+        // Thin I/O wrappers over external systems, exercised by E2E not unit tests:
+        "src/lib/pdf.ts", // wraps unpdf (PDF text extraction)
+        "src/lib/file-cache.ts", // wraps browser IndexedDB
+        "src/lib/local-claude.ts", // dev-only: spawns the local `claude` CLI subprocess
       ],
     },
   },
