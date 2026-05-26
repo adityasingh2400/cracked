@@ -23,6 +23,7 @@ import type {
   TierStars,
 } from "./types";
 import { ALL_FAMILIES, TIER_RANK, isSpecialTier, maxTier } from "./types";
+import { computeTierCrowns } from "./tier-crowns";
 
 // =============================================================================
 // MATCH ONE ACHIEVEMENT AGAINST EXTRACTED SIGNALS.
@@ -239,20 +240,14 @@ function crownsForFamilyTier(input: {
   activeChains: string[];
   library: FamilyLibrary;
 }): TierStars | undefined {
-  const { finalTier, matchedIds, activeChains, library } = input;
+  const { finalTier, matchedIds, library } = input;
   if (isSpecialTier(finalTier) || (finalTier !== "A" && finalTier !== "S")) return undefined;
 
   const matched = matchedIds
     .map((id) => library.achievements.find((a) => a.id === id))
     .filter((a): a is Achievement => Boolean(a));
-  const sameTierCount = matched.filter((a) => a.tier === finalTier).length;
-  const higherStandardCount = matched.filter(
-    (a) => !isSpecialTier(a.tier) && TIER_RANK[a.tier] > TIER_RANK[finalTier]
-  ).length;
-  const chainCount = activeChains.length;
 
-  const strength = Math.max(1, sameTierCount + higherStandardCount + chainCount);
-  return Math.min(3, strength) as TierStars;
+  return computeTierCrowns(finalTier, matched);
 }
 
 // =============================================================================

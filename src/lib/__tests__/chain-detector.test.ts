@@ -433,4 +433,37 @@ describe("scoreAllFamilies", () => {
     expect(creative?.finalTier).toBe("D");
     expect(creative?.tierStars).toBeUndefined();
   });
+
+  it("computes S crowns from 1 S + 4 A milestone equivalents", () => {
+    const aTier = (id: string): Achievement => ({
+      id,
+      family: "founder",
+      tier: "A",
+      label: id,
+      description: "",
+      signals: [{ kind: "free_text", patterns: [new RegExp(id, "i")] }],
+    });
+    const sTier: Achievement = {
+      id: "founder_s_marker",
+      family: "founder",
+      tier: "S",
+      label: "S marker",
+      description: "",
+      signals: [{ kind: "free_text", patterns: [/s_marker/i] }],
+    };
+    const signals: ExtractedSignals = {
+      ...emptySignals,
+      raw_text: "s_marker a_one a_two a_three a_four",
+    };
+    const result = scoreAllFamilies({
+      signals,
+      library: {
+        achievements: [sTier, aTier("a_one"), aTier("a_two"), aTier("a_three"), aTier("a_four")],
+        chains: [],
+      },
+    });
+    const founder = result.families.find((f) => f.family === "founder");
+    expect(founder?.finalTier).toBe("S");
+    expect(founder?.tierStars).toBe(2);
+  });
 });

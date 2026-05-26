@@ -12,6 +12,11 @@ dist/
 data/*.db
 data/*.db-*
 
+# test output
+coverage/
+test-results/
+playwright-report/
+
 # misc
 .DS_Store
 *.log
